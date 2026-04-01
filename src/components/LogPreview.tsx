@@ -2,17 +2,18 @@ import {
   formatAS1726Description,
   formatDepthRange,
   formatTestResults,
-  type BoreholeEntry,
+  type SoilLayer,
 } from "@/lib/as1726";
 
 interface LogPreviewProps {
-  entry: BoreholeEntry;
+  layer: SoilLayer;
+  boreholeId?: string;
 }
 
-export function LogPreview({ entry }: LogPreviewProps) {
-  const description = formatAS1726Description(entry);
-  const depthRange = formatDepthRange(entry);
-  const testResults = formatTestResults(entry);
+export function LogPreview({ layer, boreholeId }: LogPreviewProps) {
+  const description = formatAS1726Description(layer);
+  const depthRange = formatDepthRange(layer);
+  const testResults = formatTestResults(layer);
   const hasContent = description.length > 0;
 
   return (
@@ -29,7 +30,7 @@ export function LogPreview({ entry }: LogPreviewProps) {
           <div className="space-y-3">
             {depthRange && (
               <div className="text-xs text-muted-foreground font-mono">
-                {entry.boreholeId && `${entry.boreholeId} · `}
+                {boreholeId && `${boreholeId} · `}
                 {depthRange}
               </div>
             )}
@@ -39,9 +40,9 @@ export function LogPreview({ entry }: LogPreviewProps) {
             {testResults.length > 0 && (
               <div className="pt-2 border-t border-border/50">
                 <div className="flex flex-wrap gap-2">
-                  {testResults.map((r) => (
+                  {testResults.map((r, i) => (
                     <span
-                      key={r}
+                      key={i}
                       className="text-xs font-mono text-accent bg-accent/10 px-2 py-0.5 rounded"
                     >
                       {r}
@@ -50,9 +51,9 @@ export function LogPreview({ entry }: LogPreviewProps) {
                 </div>
               </div>
             )}
-            {entry.gradingSummary && (
+            {layer.gradingSummary && (
               <p className="text-xs text-muted-foreground font-mono">
-                Grading: {entry.gradingSummary}
+                Grading: {layer.gradingSummary}
               </p>
             )}
           </div>

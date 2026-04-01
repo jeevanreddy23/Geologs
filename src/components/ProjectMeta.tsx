@@ -1,13 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { BoreholeEntry } from "@/lib/as1726";
+import type { BoreholeProject } from "@/lib/as1726";
 
 interface ProjectMetaProps {
-  entry: BoreholeEntry;
-  onChange: (updates: Partial<BoreholeEntry>) => void;
+  project: BoreholeProject;
+  onChange: (updates: Partial<BoreholeProject>) => void;
 }
 
-export function ProjectMeta({ entry, onChange }: ProjectMetaProps) {
+export function ProjectMeta({ project, onChange }: ProjectMetaProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -15,21 +15,9 @@ export function ProjectMeta({ entry, onChange }: ProjectMetaProps) {
           Project Name
         </Label>
         <Input
-          value={entry.projectName}
+          value={project.projectName}
           onChange={(e) => onChange({ projectName: e.target.value })}
           placeholder="e.g. Pacific Motorway Upgrade"
-          className="bg-muted/50 border-border"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Borehole ID
-        </Label>
-        <Input
-          value={entry.boreholeId}
-          onChange={(e) => onChange({ boreholeId: e.target.value })}
-          placeholder="e.g. BH-01"
           className="bg-muted/50 border-border"
         />
       </div>
@@ -37,27 +25,27 @@ export function ProjectMeta({ entry, onChange }: ProjectMetaProps) {
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-            Depth From (m)
+            Borehole ID
           </Label>
           <Input
-            type="number"
-            step="0.1"
-            value={entry.depthFrom}
-            onChange={(e) => onChange({ depthFrom: e.target.value })}
-            placeholder="0.0"
+            value={project.boreholeId}
+            onChange={(e) => onChange({ boreholeId: e.target.value })}
+            placeholder="e.g. BH-01"
             className="bg-muted/50 border-border"
           />
         </div>
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-            Depth To (m)
+            Total Depth (m)
           </Label>
           <Input
             type="number"
-            step="0.1"
-            value={entry.depthTo}
-            onChange={(e) => onChange({ depthTo: e.target.value })}
-            placeholder="1.5"
+            step="0.5"
+            min="0"
+            max="30"
+            value={project.totalDepth}
+            onChange={(e) => onChange({ totalDepth: e.target.value })}
+            placeholder="30"
             className="bg-muted/50 border-border"
           />
         </div>

@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  type BoreholeEntry,
+  type SoilLayer,
   PRIMARY_SOIL_TYPES,
   SECONDARY_DESCRIPTORS,
   MINOR_COMPONENTS,
@@ -19,8 +19,8 @@ import { DCPInput } from "@/components/DCPInput";
 import { SPTInput } from "@/components/SPTInput";
 
 interface SoilInputProps {
-  entry: BoreholeEntry;
-  onChange: (updates: Partial<BoreholeEntry>) => void;
+  layer: SoilLayer;
+  onChange: (updates: Partial<SoilLayer>) => void;
 }
 
 function ToggleChips({
@@ -62,9 +62,9 @@ function ToggleChips({
   );
 }
 
-export function SoilInput({ entry, onChange }: SoilInputProps) {
+export function SoilInput({ layer, onChange }: SoilInputProps) {
   const toggleList = (key: "secondaryDescriptors" | "minorComponents", item: string) => {
-    const current = entry[key];
+    const current = layer[key];
     const next = current.includes(item)
       ? current.filter((i) => i !== item)
       : [...current, item];
@@ -79,7 +79,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
           Primary Soil Type
         </Label>
         <Select
-          value={entry.primarySoilType}
+          value={layer.primarySoilType}
           onValueChange={(v) => onChange({ primarySoilType: v })}
         >
           <SelectTrigger className="bg-muted/50 border-border">
@@ -99,7 +99,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
       <ToggleChips
         label="Secondary Descriptors"
         options={SECONDARY_DESCRIPTORS}
-        selected={entry.secondaryDescriptors}
+        selected={layer.secondaryDescriptors}
         onToggle={(item) => toggleList("secondaryDescriptors", item)}
       />
 
@@ -109,7 +109,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
           Plasticity
         </Label>
         <Select
-          value={entry.plasticity}
+          value={layer.plasticity}
           onValueChange={(v) => onChange({ plasticity: v })}
         >
           <SelectTrigger className="bg-muted/50 border-border">
@@ -130,7 +130,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             Colour
           </Label>
           <Select
-            value={entry.colour}
+            value={layer.colour}
             onValueChange={(v) => onChange({ colour: v })}
           >
             <SelectTrigger className="bg-muted/50 border-border">
@@ -150,7 +150,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             Becoming
           </Label>
           <Select
-            value={entry.colourBecoming || "__none__"}
+            value={layer.colourBecoming || "__none__"}
             onValueChange={(v) => onChange({ colourBecoming: v === "__none__" ? "" : v })}
           >
             <SelectTrigger className="bg-muted/50 border-border">
@@ -172,20 +172,20 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
       <ToggleChips
         label="Minor Components"
         options={MINOR_COMPONENTS}
-        selected={entry.minorComponents}
+        selected={layer.minorComponents}
         onToggle={(item) => toggleList("minorComponents", item)}
       />
 
       {/* SPT */}
       <SPTInput
-        sptResult={entry.sptResult}
+        sptResult={layer.sptResult}
         onChange={(result) => onChange({ sptResult: result })}
       />
 
       {/* DCP */}
       <DCPInput
-        readings={entry.dcpReadings}
-        startDepth={entry.dcpStartDepth}
+        readings={layer.dcpReadings}
+        startDepth={layer.dcpStartDepth}
         onReadingsChange={(readings) => onChange({ dcpReadings: readings })}
         onStartDepthChange={(depth) => onChange({ dcpStartDepth: depth })}
       />
@@ -199,7 +199,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">CPT</span>
             <Input
-              value={entry.cptValue}
+              value={layer.cptValue}
               onChange={(e) => onChange({ cptValue: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -209,7 +209,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             <span className="text-xs text-muted-foreground">MC %</span>
             <Input
               type="number"
-              value={entry.moistureContent}
+              value={layer.moistureContent}
               onChange={(e) => onChange({ moistureContent: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -219,7 +219,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             <span className="text-xs text-muted-foreground">CBR %</span>
             <Input
               type="number"
-              value={entry.cbrValue}
+              value={layer.cbrValue}
               onChange={(e) => onChange({ cbrValue: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -238,7 +238,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             <span className="text-xs text-muted-foreground">LL %</span>
             <Input
               type="number"
-              value={entry.liquidLimit}
+              value={layer.liquidLimit}
               onChange={(e) => onChange({ liquidLimit: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -248,7 +248,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             <span className="text-xs text-muted-foreground">PL %</span>
             <Input
               type="number"
-              value={entry.plasticLimit}
+              value={layer.plasticLimit}
               onChange={(e) => onChange({ plasticLimit: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -258,7 +258,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             <span className="text-xs text-muted-foreground">PI %</span>
             <Input
               type="number"
-              value={entry.plasticityIndex}
+              value={layer.plasticityIndex}
               onChange={(e) => onChange({ plasticityIndex: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
@@ -273,7 +273,7 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
           Grading Summary
         </Label>
         <Input
-          value={entry.gradingSummary}
+          value={layer.gradingSummary}
           onChange={(e) => onChange({ gradingSummary: e.target.value })}
           placeholder="e.g. Well graded, fine to coarse"
           className="bg-muted/50 border-border"

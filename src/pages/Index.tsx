@@ -5,6 +5,7 @@ import { ProjectMeta } from "@/components/ProjectMeta";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { SoilInput } from "@/components/SoilInput";
 import { LogPreview } from "@/components/LogPreview";
+import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import {
   type BoreholeEntry,
   defaultEntry,

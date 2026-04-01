@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Layers, Plus, FileText, Download, Save } from "lucide-react";
+import { Layers, Plus, FileText, Download, Save, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectMeta } from "@/components/ProjectMeta";
 import { PhotoUpload } from "@/components/PhotoUpload";

@@ -148,14 +148,14 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
             Becoming
           </Label>
           <Select
-            value={entry.colourBecoming}
-            onValueChange={(v) => onChange({ colourBecoming: v })}
+            value={entry.colourBecoming || "__none__"}
+            onValueChange={(v) => onChange({ colourBecoming: v === "__none__" ? "" : v })}
           >
             <SelectTrigger className="bg-muted/50 border-border">
               <SelectValue placeholder="Optional..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="__none__">None</SelectItem>
               {COLOURS.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}

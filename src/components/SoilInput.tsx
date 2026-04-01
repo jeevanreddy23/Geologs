@@ -62,9 +62,9 @@ function ToggleChips({
   );
 }
 
-export function SoilInput({ entry, onChange }: SoilInputProps) {
+export function SoilInput({ layer, onChange }: SoilInputProps) {
   const toggleList = (key: "secondaryDescriptors" | "minorComponents", item: string) => {
-    const current = entry[key];
+    const current = layer[key];
     const next = current.includes(item)
       ? current.filter((i) => i !== item)
       : [...current, item];

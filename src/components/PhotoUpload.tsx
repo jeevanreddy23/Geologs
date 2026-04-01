@@ -158,6 +158,27 @@ export function PhotoUpload({ photoUrls, onPhotosChange, onAiResult }: PhotoUplo
         </div>
       )}
 
+      {/* Prominent AI Analyse button */}
+      {photoUrls.length > 0 && (
+        <Button
+          onClick={() => handleAnalyze(0)}
+          disabled={isAnalyzing}
+          className="w-full bg-accent text-accent-foreground hover:bg-accent/80 font-medium"
+        >
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Analysing with AI…
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Analyse with AI
+            </>
+          )}
+        </Button>
+      )}
+
       {/* Drop zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}

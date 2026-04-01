@@ -1,14 +1,21 @@
 import { useState, useCallback } from "react";
 import { Layers, Plus, FileText, Download, Save, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ProjectMeta } from "@/components/ProjectMeta";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { SoilInput } from "@/components/SoilInput";
 import { LogPreview } from "@/components/LogPreview";
+import { LayerManager } from "@/components/LayerManager";
 import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import {
-  type BoreholeEntry,
-  defaultEntry,
+  type BoreholeProject,
+  type SoilLayer,
+  defaultProject,
+  defaultLayer,
+  createLayerId,
+  layerToEntry,
   formatAS1726Description,
   formatDepthRange,
   formatTestResults,
@@ -16,67 +23,82 @@ import {
 import { toast } from "sonner";
 
 export default function Index() {
-  const [entry, setEntry] = useState<BoreholeEntry>({ ...defaultEntry });
-  const [logEntries, setLogEntries] = useState<BoreholeEntry[]>([]);
+  const [project, setProject] = useState<BoreholeProject>({ ...defaultProject, layers: [] });
+  const [activeLayerId, setActiveLayerId] = useState<string | null>(null);
 
-  const updateEntry = useCallback((updates: Partial<BoreholeEntry>) => {
-    setEntry((prev) => ({ ...prev, ...updates }));
+  const activeLayer = project.layers.find((l) => l.id === activeLayerId) || null;
+
+  const updateProject = useCallback((updates: Partial<BoreholeProject>) => {
+    setProject((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const handleGenerateLog = () => {
-    if (!entry.primarySoilType) {
-      toast.error("Select a primary soil type first");
-      return;
+  const updateLayer = useCallback((layerId: string, updates: Partial<SoilLayer>) => {
+    setProject((prev) => ({
+      ...prev,
+      layers: prev.layers.map((l) => (l.id === layerId ? { ...l, ...updates } : l)),
+    }));
+  }, []);
+
+  const addLayer = useCallback(() => {
+    const id = createLayerId();
+    const lastLayer = project.layers[project.layers.length - 1];
+    const newLayer: SoilLayer = {
+      ...defaultLayer,
+      id,
+      depthFrom: lastLayer?.depthTo || "0.0",
+      depthTo: "",
+    };
+    setProject((prev) => ({ ...prev, layers: [...prev.layers, newLayer] }));
+    setActiveLayerId(id);
+    toast.success("New layer added");
+  }, [project.layers]);
+
+  const removeLayer = useCallback((id: string) => {
+    setProject((prev) => ({
+      ...prev,
+      layers: prev.layers.filter((l) => l.id !== id),
+    }));
+    if (activeLayerId === id) {
+      setActiveLayerId(project.layers.find((l) => l.id !== id)?.id || null);
     }
-    setLogEntries((prev) => [...prev, { ...entry }]);
-    toast.success("Log entry added");
-  };
+  }, [activeLayerId, project.layers]);
 
   const handleNewBorehole = () => {
-    setEntry({
-      ...defaultEntry,
-      projectName: entry.projectName,
-    });
-    setLogEntries([]);
+    setProject({ ...defaultProject, projectName: project.projectName, layers: [] });
+    setActiveLayerId(null);
     toast.info("New borehole started");
   };
 
   const handleSave = () => {
-    const data = { entry, logEntries };
-    localStorage.setItem("autosoil_current", JSON.stringify(data));
+    localStorage.setItem("autosoil_current", JSON.stringify(project));
     toast.success("Project saved locally");
   };
 
   const handleExportCSV = () => {
-    if (logEntries.length === 0) {
-      toast.error("No log entries to export");
-      return;
-    }
+    if (project.layers.length === 0) { toast.error("No layers to export"); return; }
     const headers = ["Borehole ID", "Depth From", "Depth To", "AS 1726 Description", "Test Results"];
-    const rows = logEntries.map((e) => [
-      e.boreholeId,
-      e.depthFrom,
-      e.depthTo,
-      formatAS1726Description(e),
-      formatTestResults(e).join("; "),
+    const rows = project.layers.map((l) => [
+      project.boreholeId,
+      l.depthFrom,
+      l.depthTo,
+      formatAS1726Description(l),
+      formatTestResults(l).join("; "),
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${entry.projectName || "borehole"}_log.csv`;
+    a.download = `${project.projectName || "borehole"}_log.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("CSV exported");
   };
 
   const handleExportPDF = () => {
-    if (logEntries.length === 0) {
-      toast.error("No log entries to export");
-      return;
-    }
-    generateBoreholeLogPDF(logEntries, entry.projectName, entry.boreholeId);
+    if (project.layers.length === 0) { toast.error("No layers to export"); return; }
+    const entries = project.layers.map((l) => layerToEntry(l, project));
+    generateBoreholeLogPDF(entries, project.projectName, project.boreholeId);
     toast.success("PDF exported");
   };
 
@@ -99,110 +121,124 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSave}
-              className="border-border text-muted-foreground hover:text-foreground"
-            >
-              <Save className="h-3.5 w-3.5 mr-1.5" />
-              Save
+            <Button variant="outline" size="sm" onClick={handleSave}
+              className="border-border text-muted-foreground hover:text-foreground">
+              <Save className="h-3.5 w-3.5 mr-1.5" />Save
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNewBorehole}
-              className="border-border text-muted-foreground hover:text-foreground"
-            >
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              New Borehole
+            <Button variant="outline" size="sm" onClick={handleNewBorehole}
+              className="border-border text-muted-foreground hover:text-foreground">
+              <Plus className="h-3.5 w-3.5 mr-1.5" />New Borehole
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Panel - Project Meta & Photo */}
+          {/* Left Panel */}
           <div className="lg:col-span-4 space-y-6">
             <div className="rounded-xl border border-border bg-card p-5 surface-elevated space-y-6">
-              <ProjectMeta entry={entry} onChange={updateEntry} />
-              <div className="border-t border-border pt-4">
-                <PhotoUpload
-                  photoUrl={entry.photoUrl}
-                  onPhotoChange={(url) => updateEntry({ photoUrl: url })}
-                  onAiResult={updateEntry}
-                />
-              </div>
+              <ProjectMeta project={project} onChange={updateProject} />
             </div>
 
-            {/* Live Preview */}
+            {/* Layer Manager */}
             <div className="rounded-xl border border-border bg-card p-5 surface-elevated">
-              <LogPreview entry={entry} />
+              <LayerManager
+                project={project}
+                activeLayerId={activeLayerId}
+                onSelectLayer={setActiveLayerId}
+                onAddLayer={addLayer}
+                onRemoveLayer={removeLayer}
+              />
             </div>
+
+            {/* Live Preview for active layer */}
+            {activeLayer && (
+              <div className="rounded-xl border border-border bg-card p-5 surface-elevated">
+                <LogPreview layer={activeLayer} boreholeId={project.boreholeId} />
+              </div>
+            )}
           </div>
 
-          {/* Right Panel - Soil Input & Actions */}
+          {/* Right Panel */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="rounded-xl border border-border bg-card p-5 surface-elevated">
-              <SoilInput entry={entry} onChange={updateEntry} />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                className="flex-1 min-w-[200px] bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
-                onClick={handleGenerateLog}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Log Entry
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleExportPDF}
-                className="border-border text-muted-foreground hover:text-foreground"
-              >
-                <FileDown className="h-4 w-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleExportCSV}
-                className="border-border text-muted-foreground hover:text-foreground"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
-            </div>
-
-            {/* Log History */}
-            {logEntries.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-5 surface-elevated space-y-3">
-                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                  Log Entries ({logEntries.length})
-                </h3>
-                <div className="space-y-2">
-                  {logEntries.map((le, i) => (
-                    <div
-                      key={i}
-                      className="p-3 rounded-lg bg-muted/30 border border-border/50"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-mono text-muted-foreground">
-                          {le.boreholeId && `${le.boreholeId} · `}
-                          {formatDepthRange(le)}
-                        </span>
-                      </div>
-                      <p className="text-sm font-mono text-foreground">
-                        {formatAS1726Description(le)}
-                      </p>
+            {activeLayer ? (
+              <>
+                {/* Layer depth */}
+                <div className="rounded-xl border border-border bg-card p-5 surface-elevated">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                      {project.layers.findIndex((l) => l.id === activeLayerId) + 1}
                     </div>
-                  ))}
+                    <h3 className="text-sm font-semibold text-foreground">Layer Details</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                        Depth From (m)
+                      </Label>
+                      <Input
+                        type="number" step="0.1" min="0" max="30"
+                        value={activeLayer.depthFrom}
+                        onChange={(e) => updateLayer(activeLayer.id, { depthFrom: e.target.value })}
+                        className="bg-muted/50 border-border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                        Depth To (m)
+                      </Label>
+                      <Input
+                        type="number" step="0.1" min="0" max="30"
+                        value={activeLayer.depthTo}
+                        onChange={(e) => updateLayer(activeLayer.id, { depthTo: e.target.value })}
+                        className="bg-muted/50 border-border"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Photo upload per layer */}
+                  <div className="border-t border-border pt-4">
+                    <PhotoUpload
+                      photoUrls={activeLayer.photoUrls}
+                      onPhotosChange={(urls) => updateLayer(activeLayer.id, { photoUrls: urls })}
+                      onAiResult={(updates) => updateLayer(activeLayer.id, updates)}
+                    />
+                  </div>
                 </div>
+
+                {/* Soil classification */}
+                <div className="rounded-xl border border-border bg-card p-5 surface-elevated">
+                  <SoilInput
+                    layer={activeLayer}
+                    onChange={(updates) => updateLayer(activeLayer.id, updates)}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="rounded-xl border-2 border-dashed border-border bg-card/50 p-12 text-center">
+                <Layers className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-sm font-semibold text-foreground mb-1">No layer selected</h3>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Add a soil layer to start logging
+                </p>
+                <Button variant="outline" onClick={addLayer}>
+                  <Plus className="h-4 w-4 mr-2" />Add First Layer
+                </Button>
+              </div>
+            )}
+
+            {/* Export Buttons */}
+            {project.layers.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" size="lg" onClick={handleExportPDF}
+                  className="border-border text-muted-foreground hover:text-foreground">
+                  <FileDown className="h-4 w-4 mr-2" />Export PDF
+                </Button>
+                <Button variant="outline" size="lg" onClick={handleExportCSV}
+                  className="border-border text-muted-foreground hover:text-foreground">
+                  <Download className="h-4 w-4 mr-2" />Export CSV
+                </Button>
               </div>
             )}
           </div>

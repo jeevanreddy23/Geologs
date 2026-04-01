@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  type BoreholeEntry,
+  type SoilLayer,
   PRIMARY_SOIL_TYPES,
   SECONDARY_DESCRIPTORS,
   MINOR_COMPONENTS,
@@ -19,8 +19,8 @@ import { DCPInput } from "@/components/DCPInput";
 import { SPTInput } from "@/components/SPTInput";
 
 interface SoilInputProps {
-  entry: BoreholeEntry;
-  onChange: (updates: Partial<BoreholeEntry>) => void;
+  layer: SoilLayer;
+  onChange: (updates: Partial<SoilLayer>) => void;
 }
 
 function ToggleChips({

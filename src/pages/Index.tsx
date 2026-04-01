@@ -71,6 +71,15 @@ export default function Index() {
     toast.success("CSV exported");
   };
 
+  const handleExportPDF = () => {
+    if (logEntries.length === 0) {
+      toast.error("No log entries to export");
+      return;
+    }
+    generateBoreholeLogPDF(logEntries, entry.projectName, entry.boreholeId);
+    toast.success("PDF exported");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

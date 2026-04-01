@@ -162,6 +162,15 @@ export default function Index() {
               <Button
                 variant="outline"
                 size="lg"
+                onClick={handleExportPDF}
+                className="border-border text-muted-foreground hover:text-foreground"
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
                 onClick={handleExportCSV}
                 className="border-border text-muted-foreground hover:text-foreground"
               >

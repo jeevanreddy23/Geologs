@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
-import { Layers, Plus, FileText, Download, Save } from "lucide-react";
+import { Layers, Plus, FileText, Download, Save, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectMeta } from "@/components/ProjectMeta";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { SoilInput } from "@/components/SoilInput";
 import { LogPreview } from "@/components/LogPreview";
+import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import {
   type BoreholeEntry,
   defaultEntry,
@@ -68,6 +69,15 @@ export default function Index() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success("CSV exported");
+  };
+
+  const handleExportPDF = () => {
+    if (logEntries.length === 0) {
+      toast.error("No log entries to export");
+      return;
+    }
+    generateBoreholeLogPDF(logEntries, entry.projectName, entry.boreholeId);
+    toast.success("PDF exported");
   };
 
   return (
@@ -148,6 +158,15 @@ export default function Index() {
               >
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Log Entry
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleExportPDF}
+                className="border-border text-muted-foreground hover:text-foreground"
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Export PDF
               </Button>
               <Button
                 variant="outline"

@@ -83,10 +83,15 @@ export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUpload
 
     setIsAnalyzing(true);
     try {
+      // Compress image to stay under Claude's 5MB limit
+      const photoDataUrl = rawFileRef.current.base64;
+      const fullDataUrl = `data:${rawFileRef.current.mimeType};base64,${photoDataUrl}`;
+      const compressed = await compressImage(fullDataUrl);
+
       const { data, error } = await supabase.functions.invoke("analyze-soil", {
         body: {
-          imageBase64: rawFileRef.current.base64,
-          mimeType: rawFileRef.current.mimeType,
+          imageBase64: compressed.base64,
+          mimeType: compressed.mimeType,
         },
       });
 

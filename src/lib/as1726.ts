@@ -1,3 +1,15 @@
+export interface DCPReading {
+  blows: number;
+  isDoubleBound: boolean;
+}
+
+export interface SPTResult {
+  n1: string;
+  n2: string;
+  n3: string;
+  penetration: string; // e.g. "450 mm"
+}
+
 export interface BoreholeEntry {
   projectName: string;
   boreholeId: string;
@@ -9,6 +21,12 @@ export interface BoreholeEntry {
   colour: string;
   colourBecoming: string;
   minorComponents: string[];
+  // DCP - array of blow counts per 0.1m interval
+  dcpReadings: DCPReading[];
+  dcpStartDepth: string;
+  // SPT
+  sptResult: SPTResult | null;
+  // Legacy simple fields
   sptN: string;
   sptN60: string;
   dcpBlows: string;
@@ -33,6 +51,9 @@ export const defaultEntry: BoreholeEntry = {
   colour: "",
   colourBecoming: "",
   minorComponents: [],
+  dcpReadings: [],
+  dcpStartDepth: "",
+  sptResult: null,
   sptN: "",
   sptN60: "",
   dcpBlows: "",
@@ -105,22 +126,18 @@ export const COLOURS = [
 export function formatAS1726Description(entry: BoreholeEntry): string {
   const parts: string[] = [];
 
-  // Secondary descriptors first (lowercase adjective form)
   if (entry.secondaryDescriptors.length > 0) {
     parts.push(entry.secondaryDescriptors.join(" "));
   }
 
-  // Primary soil type in CAPITALS
   if (entry.primarySoilType) {
     parts.push(entry.primarySoilType.toUpperCase());
   }
 
-  // Plasticity
   if (entry.plasticity) {
     parts.push(`${entry.plasticity.toLowerCase()} plasticity`);
   }
 
-  // Colour
   if (entry.colour) {
     let colourStr = entry.colour;
     if (entry.colourBecoming) {
@@ -129,7 +146,6 @@ export function formatAS1726Description(entry: BoreholeEntry): string {
     parts.push(colourStr);
   }
 
-  // Minor components
   if (entry.minorComponents.length > 0) {
     parts.push(entry.minorComponents.join(", "));
   }
@@ -144,11 +160,44 @@ export function formatDepthRange(entry: BoreholeEntry): string {
   return "";
 }
 
+export function formatDCPResults(entry: BoreholeEntry): string {
+  if (entry.dcpReadings.length === 0) return "";
+  const startDepth = parseFloat(entry.dcpStartDepth) || parseFloat(entry.depthFrom) || 0;
+  const blowStrs = entry.dcpReadings.map((r) => 
+    r.isDoubleBound ? `${r.blows} db` : `${r.blows}`
+  );
+  const endDepth = startDepth + entry.dcpReadings.length * 0.1;
+  return `DCP (blows/0.1m): ${blowStrs.join(", ")} [${startDepth.toFixed(1)}m–${endDepth.toFixed(1)}m]`;
+}
+
+export function formatSPTResult(entry: BoreholeEntry): string {
+  if (entry.sptResult && (entry.sptResult.n1 || entry.sptResult.n2 || entry.sptResult.n3)) {
+    const parts = [entry.sptResult.n1 || "—", entry.sptResult.n2 || "—", entry.sptResult.n3 || "—"];
+    const pen = entry.sptResult.penetration || "450 mm";
+    const n1 = parseInt(entry.sptResult.n1) || 0;
+    const n2 = parseInt(entry.sptResult.n2) || 0;
+    const n3 = parseInt(entry.sptResult.n3) || 0;
+    const nValue = n2 + n3;
+    return `SPT N = ${parts.join("/")} (${pen}), N-value = ${nValue}`;
+  }
+  // Fallback to legacy
+  if (entry.sptN) {
+    let result = `SPT N = ${entry.sptN}`;
+    if (entry.sptN60) result += `, N60 = ${entry.sptN60}`;
+    return result;
+  }
+  return "";
+}
+
 export function formatTestResults(entry: BoreholeEntry): string[] {
   const results: string[] = [];
-  if (entry.sptN) results.push(`SPT N = ${entry.sptN}`);
-  if (entry.sptN60) results.push(`N60 = ${entry.sptN60}`);
-  if (entry.dcpBlows) results.push(`DCP = ${entry.dcpBlows} blows`);
+  
+  const spt = formatSPTResult(entry);
+  if (spt) results.push(spt);
+  
+  const dcp = formatDCPResults(entry);
+  if (dcp) results.push(dcp);
+  
   if (entry.cptValue) results.push(`CPT = ${entry.cptValue}`);
   if (entry.liquidLimit) results.push(`LL = ${entry.liquidLimit}%`);
   if (entry.plasticLimit) results.push(`PL = ${entry.plasticLimit}%`);

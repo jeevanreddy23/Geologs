@@ -15,6 +15,8 @@ import {
   MINOR_COMPONENTS,
   COLOURS,
 } from "@/lib/as1726";
+import { DCPInput } from "@/components/DCPInput";
+import { SPTInput } from "@/components/SPTInput";
 
 interface SoilInputProps {
   entry: BoreholeEntry;

@@ -5,6 +5,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { BoreholeEntry } from "@/lib/as1726";
 
+function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string; mimeType: string }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      // Scale down if very large
+      const MAX_DIM = 1600;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        const scale = MAX_DIM / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      let quality = 0.8;
+      let result = canvas.toDataURL("image/jpeg", quality);
+      // Reduce quality until under limit
+      while (result.length * 0.75 > maxSizeMB * 1024 * 1024 && quality > 0.1) {
+        quality -= 0.1;
+        result = canvas.toDataURL("image/jpeg", quality);
+      }
+      resolve({ base64: result.split(",")[1], mimeType: "image/jpeg" });
+    };
+    img.src = dataUrl;
+  });
+}
+
 interface PhotoUploadProps {
   photoUrl: string | null;
   onPhotoChange: (url: string | null) => void;

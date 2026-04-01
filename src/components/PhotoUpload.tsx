@@ -5,6 +5,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { BoreholeEntry } from "@/lib/as1726";
 
+function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string; mimeType: string }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      // Scale down if very large
+      const MAX_DIM = 1600;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        const scale = MAX_DIM / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      let quality = 0.8;
+      let result = canvas.toDataURL("image/jpeg", quality);
+      // Reduce quality until under limit
+      while (result.length * 0.75 > maxSizeMB * 1024 * 1024 && quality > 0.1) {
+        quality -= 0.1;
+        result = canvas.toDataURL("image/jpeg", quality);
+      }
+      resolve({ base64: result.split(",")[1], mimeType: "image/jpeg" });
+    };
+    img.src = dataUrl;
+  });
+}
+
 interface PhotoUploadProps {
   photoUrl: string | null;
   onPhotoChange: (url: string | null) => void;
@@ -52,10 +83,15 @@ export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUpload
 
     setIsAnalyzing(true);
     try {
+      // Compress image to stay under Claude's 5MB limit
+      const photoDataUrl = rawFileRef.current.base64;
+      const fullDataUrl = `data:${rawFileRef.current.mimeType};base64,${photoDataUrl}`;
+      const compressed = await compressImage(fullDataUrl);
+
       const { data, error } = await supabase.functions.invoke("analyze-soil", {
         body: {
-          imageBase64: rawFileRef.current.base64,
-          mimeType: rawFileRef.current.mimeType,
+          imageBase64: compressed.base64,
+          mimeType: compressed.mimeType,
         },
       });
 

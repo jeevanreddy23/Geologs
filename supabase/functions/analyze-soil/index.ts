@@ -49,7 +49,7 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1024,
         messages: [
           {
@@ -78,7 +78,7 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
       const errText = await response.text();
       console.error("Claude API error:", response.status, errText);
       return new Response(
-        JSON.stringify({ error: `Claude API error [${response.status}]` }),
+        JSON.stringify({ error: `Claude API error [${response.status}]: ${errText}` }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -86,12 +86,10 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
     const data = await response.json();
     const text = data.content?.[0]?.text || "";
 
-    // Parse the JSON from Claude's response
     let classification;
     try {
       classification = JSON.parse(text);
     } catch {
-      // Try to extract JSON from the response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         classification = JSON.parse(jsonMatch[0]);

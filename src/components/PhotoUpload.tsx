@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from "react";
-import { Upload, Camera, X, Sparkles, Loader2 } from "lucide-react";
+import { Upload, Camera, X, Sparkles, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { BoreholeEntry } from "@/lib/as1726";
+import type { SoilLayer } from "@/lib/as1726";
 
 function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string; mimeType: string }> {
   return new Promise((resolve) => {
@@ -11,7 +11,6 @@ function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string
     img.onload = () => {
       const canvas = document.createElement("canvas");
       let { width, height } = img;
-      // Scale down if very large
       const MAX_DIM = 1600;
       if (width > MAX_DIM || height > MAX_DIM) {
         const scale = MAX_DIM / Math.max(width, height);
@@ -22,10 +21,8 @@ function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string
       canvas.height = height;
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0, width, height);
-
       let quality = 0.8;
       let result = canvas.toDataURL("image/jpeg", quality);
-      // Reduce quality until under limit
       while (result.length * 0.75 > maxSizeMB * 1024 * 1024 && quality > 0.1) {
         quality -= 0.1;
         result = canvas.toDataURL("image/jpeg", quality);
@@ -37,16 +34,17 @@ function compressImage(dataUrl: string, maxSizeMB = 4): Promise<{ base64: string
 }
 
 interface PhotoUploadProps {
-  photoUrl: string | null;
-  onPhotoChange: (url: string | null) => void;
-  onAiResult: (updates: Partial<BoreholeEntry>) => void;
+  photoUrls: string[];
+  onPhotosChange: (urls: string[]) => void;
+  onAiResult: (updates: Partial<SoilLayer>) => void;
 }
 
-export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUploadProps) {
+export function PhotoUpload({ photoUrls, onPhotosChange, onAiResult }: PhotoUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzingIndex, setAnalyzingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const rawFileRef = useRef<{ base64: string; mimeType: string } | null>(null);
+  const rawFilesRef = useRef<Map<string, { base64: string; mimeType: string }>>(new Map());
 
   const handleFile = useCallback(
     (file: File) => {
@@ -54,56 +52,52 @@ export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUpload
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
-        onPhotoChange(dataUrl);
-
-        // Store raw base64 for AI analysis
-        const base64 = dataUrl.split(",")[1];
-        rawFileRef.current = { base64, mimeType: file.type };
+        const newUrls = [...photoUrls, dataUrl];
+        onPhotosChange(newUrls);
+        rawFilesRef.current.set(dataUrl, { base64: dataUrl.split(",")[1], mimeType: file.type });
       };
       reader.readAsDataURL(file);
     },
-    [onPhotoChange]
+    [photoUrls, onPhotosChange]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      Array.from(e.dataTransfer.files).forEach(handleFile);
     },
     [handleFile]
   );
 
-  const handleAnalyze = async () => {
-    if (!rawFileRef.current) {
-      toast.error("Upload a photo first");
+  const removePhoto = (index: number) => {
+    const url = photoUrls[index];
+    rawFilesRef.current.delete(url);
+    onPhotosChange(photoUrls.filter((_, i) => i !== index));
+  };
+
+  const handleAnalyze = async (index: number) => {
+    const url = photoUrls[index];
+    const raw = rawFilesRef.current.get(url);
+    if (!raw) {
+      toast.error("Photo data not available");
       return;
     }
 
     setIsAnalyzing(true);
+    setAnalyzingIndex(index);
     try {
-      // Compress image to stay under Claude's 5MB limit
-      const photoDataUrl = rawFileRef.current.base64;
-      const fullDataUrl = `data:${rawFileRef.current.mimeType};base64,${photoDataUrl}`;
+      const fullDataUrl = `data:${raw.mimeType};base64,${raw.base64}`;
       const compressed = await compressImage(fullDataUrl);
 
       const { data, error } = await supabase.functions.invoke("analyze-soil", {
-        body: {
-          imageBase64: compressed.base64,
-          mimeType: compressed.mimeType,
-        },
+        body: { imageBase64: compressed.base64, mimeType: compressed.mimeType },
       });
 
       if (error) throw error;
+      if (data.error) { toast.error(data.error); return; }
 
-      if (data.error) {
-        toast.error(data.error);
-        return;
-      }
-
-      // Map AI response to form fields
-      const updates: Partial<BoreholeEntry> = {};
+      const updates: Partial<SoilLayer> = {};
       if (data.primarySoilType) updates.primarySoilType = data.primarySoilType;
       if (data.secondaryDescriptors?.length) updates.secondaryDescriptors = data.secondaryDescriptors;
       if (data.plasticity) updates.plasticity = data.plasticity;
@@ -112,9 +106,7 @@ export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUpload
       if (data.minorComponents?.length) updates.minorComponents = data.minorComponents;
 
       onAiResult(updates);
-
-      const confidence = data.confidence || "unknown";
-      toast.success(`AI analysis complete (${confidence} confidence)`, {
+      toast.success(`AI analysis complete (${data.confidence || "unknown"} confidence)`, {
         description: data.notes || undefined,
       });
     } catch (err) {
@@ -122,100 +114,88 @@ export function PhotoUpload({ photoUrl, onPhotoChange, onAiResult }: PhotoUpload
       toast.error("AI analysis failed. Check your API key and try again.");
     } finally {
       setIsAnalyzing(false);
+      setAnalyzingIndex(null);
     }
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-        Soil / Core Photo
+    <div className="space-y-3">
+      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        Soil / Core Photos
       </label>
 
-      {photoUrl ? (
-        <div className="space-y-2">
-          <div className="relative rounded-lg overflow-hidden border border-border">
-            <img
-              src={photoUrl}
-              alt="Soil sample"
-              className="w-full h-48 object-cover"
-            />
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2 h-7 w-7"
-              onClick={() => {
-                onPhotoChange(null);
-                rawFileRef.current = null;
-              }}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <Button
-            onClick={handleAnalyze}
-            disabled={isAnalyzing}
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/80 font-medium"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Analysing with Claude…
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Analyse with AI
-              </>
-            )}
-          </Button>
-        </div>
-      ) : (
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`
-            flex flex-col items-center justify-center gap-3 p-8
-            border-2 border-dashed rounded-lg cursor-pointer
-            transition-all duration-200
-            ${
-              isDragging
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50 hover:bg-muted/30"
-            }
-          `}
-        >
-          <div className="p-3 rounded-full bg-muted">
-            {isDragging ? (
-              <Upload className="h-6 w-6 text-primary" />
-            ) : (
-              <Camera className="h-6 w-6 text-muted-foreground" />
-            )}
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-foreground">
-              Drop photo here or click to browse
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Soil samples, core trays, site photos
-            </p>
-          </div>
+      {/* Photo grid */}
+      {photoUrls.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
+          {photoUrls.map((url, i) => (
+            <div key={i} className="relative rounded-lg overflow-hidden border border-border group">
+              <img src={url} alt={`Soil sample ${i + 1}`} className="w-full h-28 object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-7 text-xs"
+                  disabled={isAnalyzing}
+                  onClick={() => handleAnalyze(i)}
+                >
+                  {isAnalyzing && analyzingIndex === i ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => removePhoto(i)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
+
+      {/* Drop zone */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={`
+          flex flex-col items-center justify-center gap-2 p-6
+          border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200
+          ${isDragging
+            ? "border-primary bg-primary/5"
+            : "border-border hover:border-primary/50 hover:bg-muted/30"
+          }
+        `}
+      >
+        <div className="p-2 rounded-full bg-muted">
+          {isDragging ? (
+            <Upload className="h-5 w-5 text-primary" />
+          ) : photoUrls.length > 0 ? (
+            <Plus className="h-5 w-5 text-muted-foreground" />
+          ) : (
+            <Camera className="h-5 w-5 text-muted-foreground" />
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {photoUrls.length > 0 ? "Add more photos" : "Drop photos or click to browse"}
+        </p>
+      </div>
 
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleFile(file);
+          Array.from(e.target.files || []).forEach(handleFile);
+          if (fileInputRef.current) fileInputRef.current.value = "";
         }}
       />
     </div>

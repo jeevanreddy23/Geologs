@@ -4,6 +4,8 @@ import {
   formatAS1726Description,
   formatDepthRange,
   formatTestResults,
+  formatDCPResults,
+  formatSPTResult,
 } from "./as1726";
 
 const MARGIN = 20;

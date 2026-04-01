@@ -1,0 +1,113 @@
+import { Plus, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { DCPReading } from "@/lib/as1726";
+
+interface DCPInputProps {
+  readings: DCPReading[];
+  startDepth: string;
+  onReadingsChange: (readings: DCPReading[]) => void;
+  onStartDepthChange: (depth: string) => void;
+}
+
+export function DCPInput({ readings, startDepth, onReadingsChange, onStartDepthChange }: DCPInputProps) {
+  const addReading = () => {
+    onReadingsChange([...readings, { blows: 0, isDoubleBound: false }]);
+  };
+
+  const removeReading = (index: number) => {
+    onReadingsChange(readings.filter((_, i) => i !== index));
+  };
+
+  const updateReading = (index: number, updates: Partial<DCPReading>) => {
+    const updated = readings.map((r, i) => (i === index ? { ...r, ...updates } : r));
+    onReadingsChange(updated);
+  };
+
+  const start = parseFloat(startDepth) || 0;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+          DCP Test (blows per 0.1m)
+        </Label>
+        <Button variant="outline" size="sm" onClick={addReading} className="h-7 text-xs">
+          <Plus className="h-3 w-3 mr-1" />
+          Add Interval
+        </Button>
+      </div>
+
+      <div className="space-y-1">
+        <span className="text-xs text-muted-foreground">Start Depth (m)</span>
+        <Input
+          type="number"
+          step="0.1"
+          value={startDepth}
+          onChange={(e) => onStartDepthChange(e.target.value)}
+          className="bg-muted/50 border-border h-8 text-sm w-32"
+          placeholder="0.0"
+        />
+      </div>
+
+      {readings.length > 0 && (
+        <div className="rounded-lg border border-border overflow-hidden">
+          <div className="grid grid-cols-[60px_1fr_60px_40px] gap-0 bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
+            <span>Depth</span>
+            <span>Blows</span>
+            <span>DB</span>
+            <span></span>
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            {readings.map((reading, i) => {
+              const depth = start + i * 0.1;
+              return (
+                <div
+                  key={i}
+                  className="grid grid-cols-[60px_1fr_60px_40px] gap-0 items-center px-3 py-1 border-b border-border/50 last:border-0"
+                >
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {depth.toFixed(1)}m
+                  </span>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={reading.blows || ""}
+                    onChange={(e) =>
+                      updateReading(i, { blows: parseInt(e.target.value) || 0 })
+                    }
+                    className="bg-background border-border h-7 text-sm w-20"
+                  />
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={reading.isDoubleBound}
+                      onCheckedChange={(checked) =>
+                        updateReading(i, { isDoubleBound: !!checked })
+                      }
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => removeReading(i)}
+                  >
+                    <Trash2 className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {readings.length === 0 && (
+        <p className="text-xs text-muted-foreground italic">
+          Click "Add Interval" to enter DCP blow counts per 0.1m increment
+        </p>
+      )}
+    </div>
+  );
+}

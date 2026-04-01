@@ -15,6 +15,8 @@ import {
   MINOR_COMPONENTS,
   COLOURS,
 } from "@/lib/as1726";
+import { DCPInput } from "@/components/DCPInput";
+import { SPTInput } from "@/components/SPTInput";
 
 interface SoilInputProps {
   entry: BoreholeEntry;
@@ -174,42 +176,26 @@ export function SoilInput({ entry, onChange }: SoilInputProps) {
         onToggle={(item) => toggleList("minorComponents", item)}
       />
 
-      {/* Test Results */}
+      {/* SPT */}
+      <SPTInput
+        sptResult={entry.sptResult}
+        onChange={(result) => onChange({ sptResult: result })}
+      />
+
+      {/* DCP */}
+      <DCPInput
+        readings={entry.dcpReadings}
+        startDepth={entry.dcpStartDepth}
+        onReadingsChange={(readings) => onChange({ dcpReadings: readings })}
+        onStartDepthChange={(depth) => onChange({ dcpStartDepth: depth })}
+      />
+
+      {/* Other In-Situ Tests */}
       <div className="space-y-2">
         <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          In-Situ Testing
+          Other Testing
         </Label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">SPT N</span>
-            <Input
-              type="number"
-              value={entry.sptN}
-              onChange={(e) => onChange({ sptN: e.target.value })}
-              className="bg-muted/50 border-border h-8 text-sm"
-              placeholder="—"
-            />
-          </div>
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">N60</span>
-            <Input
-              type="number"
-              value={entry.sptN60}
-              onChange={(e) => onChange({ sptN60: e.target.value })}
-              className="bg-muted/50 border-border h-8 text-sm"
-              placeholder="—"
-            />
-          </div>
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">DCP Blows</span>
-            <Input
-              type="number"
-              value={entry.dcpBlows}
-              onChange={(e) => onChange({ dcpBlows: e.target.value })}
-              className="bg-muted/50 border-border h-8 text-sm"
-              placeholder="—"
-            />
-          </div>
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">CPT</span>
             <Input

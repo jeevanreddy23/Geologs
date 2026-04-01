@@ -122,6 +122,7 @@ export default function Index() {
                 <PhotoUpload
                   photoUrl={entry.photoUrl}
                   onPhotoChange={(url) => updateEntry({ photoUrl: url })}
+                  onAiResult={updateEntry}
                 />
               </div>
             </div>

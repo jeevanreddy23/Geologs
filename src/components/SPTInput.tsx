@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowDownToLine } from "lucide-react";
 import type { SPTResult } from "@/lib/as1726";
 
 interface SPTInputProps {
@@ -19,7 +20,6 @@ export function SPTInput({ sptResult, onChange }: SPTInputProps) {
 
   const update = (field: keyof SPTResult, value: string) => {
     const updated = { ...result, [field]: value };
-    // If all empty, set null
     if (!updated.n1 && !updated.n2 && !updated.n3) {
       onChange(null);
     } else {
@@ -29,12 +29,29 @@ export function SPTInput({ sptResult, onChange }: SPTInputProps) {
 
   return (
     <div className="space-y-3">
-      <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-        SPT — Standard Penetration Test
-      </Label>
-      <p className="text-xs text-muted-foreground">
-        Enter N-values for three 150mm increments (total 450mm penetration)
-      </p>
+      {/* Visual header with SPT diagram */}
+      <div className="flex items-center gap-3">
+        <div className="relative w-10 h-14 flex-shrink-0">
+          {/* Split spoon sampler */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-1 h-6 bg-muted-foreground/40 rounded-full" />
+          {/* Hammer */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-6 h-4 bg-destructive/50 rounded-sm border border-destructive/30" />
+          <span className="absolute left-1/2 -translate-x-1/2 top-0.5 text-[6px] font-bold text-destructive-foreground">63.5</span>
+          {/* Split spoon */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-3 h-5 bg-muted-foreground/30 rounded-b-sm border border-muted-foreground/20" />
+          {/* Drop indicator */}
+          <ArrowDownToLine className="absolute right-0 top-1 h-3 w-3 text-destructive/70" />
+        </div>
+        <div>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            SPT — Standard Penetration Test
+          </Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            63.5 kg hammer, 760 mm drop, 3 × 150 mm increments
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-3">
         <div className="space-y-1">
           <span className="text-xs text-muted-foreground">0–150mm</span>

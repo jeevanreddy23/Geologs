@@ -100,7 +100,7 @@ export default function Index() {
   const handleExportPDF = () => {
     if (project.layers.length === 0) { toast.error("No layers to export"); return; }
     const entries = project.layers.map((l) => layerToEntry(l, project));
-    generateBoreholeLogPDF(entries, project.projectName, project.boreholeId);
+    generateBoreholeLogPDF(entries, project.projectName, project.boreholeId, project);
     toast.success("PDF exported");
   };
 

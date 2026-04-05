@@ -161,7 +161,8 @@ function drawFooter(doc: jsPDF) {
 export function generateBoreholeLogPDF(
   entries: BoreholeEntry[],
   projectName: string,
-  boreholeId: string
+  boreholeId: string,
+  project?: BoreholeProject
 ) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
 

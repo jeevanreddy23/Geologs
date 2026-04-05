@@ -183,11 +183,23 @@ export function generateBoreholeLogPDF(
   doc.setLineWidth(0.5);
   doc.line(MARGIN, y, PAGE_W - MARGIN, y);
 
-  // Outer border for table
-  const tableTop = entries.length > 0 ? drawHeader(doc, "", "").valueOf() : y;
-  // just draw outer rect on current content
-  doc.setDrawColor(45, 60, 50);
-  doc.setLineWidth(0.5);
+  // Project-level in-situ test results
+  if (project) {
+    const sptStr = formatSPTResult(project as any);
+    const dcpStr = formatDCPResults(project as any);
+    if (sptStr || dcpStr) {
+      y += 6;
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text("IN-SITU TESTING (BOREHOLE)", MARGIN, y);
+      y += 5;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      if (sptStr) { doc.text(sptStr, MARGIN, y); y += 4.5; }
+      if (dcpStr) { doc.text(dcpStr, MARGIN, y); y += 4.5; }
+    }
+  }
 
   drawFooter(doc);
 

@@ -19,6 +19,7 @@ import {
 interface SoilInputProps {
   layer: SoilLayer;
   onChange: (updates: Partial<SoilLayer>) => void;
+  isFirstLayer?: boolean;
 }
 
 function ToggleChips({

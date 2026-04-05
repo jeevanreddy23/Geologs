@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import {
   type BoreholeEntry,
+  type BoreholeProject,
   formatAS1726Description,
   formatDepthRange,
   formatTestResults,

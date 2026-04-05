@@ -8,6 +8,8 @@ import { PhotoUpload } from "@/components/PhotoUpload";
 import { SoilInput } from "@/components/SoilInput";
 import { LogPreview } from "@/components/LogPreview";
 import { LayerManager } from "@/components/LayerManager";
+import { DCPInput } from "@/components/DCPInput";
+import { SPTInput } from "@/components/SPTInput";
 import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import {
   type BoreholeProject,

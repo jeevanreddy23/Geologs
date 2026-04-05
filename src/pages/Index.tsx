@@ -151,6 +151,7 @@ export default function Index() {
                 onSelectLayer={setActiveLayerId}
                 onAddLayer={addLayer}
                 onRemoveLayer={removeLayer}
+              />
             </div>
 
             {/* Borehole-level In-Situ Testing */}

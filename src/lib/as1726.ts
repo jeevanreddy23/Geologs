@@ -23,12 +23,13 @@ export interface SoilLayer {
   dcpReadings: DCPReading[];
   dcpStartDepth: string;
   sptResult: SPTResult | null;
-  cptValue: string;
   liquidLimit: string;
   plasticLimit: string;
   plasticityIndex: string;
   moistureContent: string;
   cbrValue: string;
+  salinity: string;
+  aggressivity: string;
   gradingSummary: string;
   photoUrls: string[];
 }

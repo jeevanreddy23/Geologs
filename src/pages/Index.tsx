@@ -152,7 +152,25 @@ export default function Index() {
                 onAddLayer={addLayer}
                 onRemoveLayer={removeLayer}
               />
-            </div>
+
+            {/* Borehole-level In-Situ Testing */}
+            {project.layers.length > 0 && (
+              <div className="rounded-xl border border-border bg-card p-5 surface-elevated space-y-4">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  In-Situ Testing (Borehole)
+                </h3>
+                <SPTInput
+                  sptResult={project.sptResult}
+                  onChange={(result) => updateProject({ sptResult: result })}
+                />
+                <DCPInput
+                  readings={project.dcpReadings}
+                  startDepth={project.dcpStartDepth}
+                  onReadingsChange={(readings) => updateProject({ dcpReadings: readings })}
+                  onStartDepthChange={(depth) => updateProject({ dcpStartDepth: depth })}
+                />
+              </div>
+            )}
 
             {/* Live Preview for active layer */}
             {activeLayer && (

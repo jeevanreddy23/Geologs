@@ -66,7 +66,7 @@ export default function Index() {
   }, [activeLayerId, project.layers]);
 
   const handleNewBorehole = () => {
-    setProject({ ...defaultProject, projectName: project.projectName, layers: [] });
+    setProject({ ...defaultProject, projectName: project.projectName });
     setActiveLayerId(null);
     toast.info("New borehole started");
   };

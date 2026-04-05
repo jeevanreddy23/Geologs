@@ -254,7 +254,7 @@ export function layerToEntry(layer: SoilLayer, project: BoreholeProject): Boreho
     sptN: "",
     sptN60: "",
     dcpBlows: "",
-    cptValue: layer.cptValue || "",
+    cptValue: "",
     liquidLimit: layer.liquidLimit,
     plasticLimit: layer.plasticLimit,
     plasticityIndex: layer.plasticityIndex,

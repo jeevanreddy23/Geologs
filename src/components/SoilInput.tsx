@@ -15,11 +15,11 @@ import {
   MINOR_COMPONENTS,
   COLOURS,
 } from "@/lib/as1726";
+import { FlaskConical } from "lucide-react";
 
 interface SoilInputProps {
   layer: SoilLayer;
   onChange: (updates: Partial<SoilLayer>) => void;
-  isFirstLayer?: boolean;
 }
 
 function ToggleChips({
@@ -61,7 +61,7 @@ function ToggleChips({
   );
 }
 
-export function SoilInput({ layer, onChange, isFirstLayer = false }: SoilInputProps) {
+export function SoilInput({ layer, onChange }: SoilInputProps) {
   const toggleList = (key: "secondaryDescriptors" | "minorComponents", item: string) => {
     const current = layer[key];
     const next = current.includes(item)
@@ -175,24 +175,54 @@ export function SoilInput({ layer, onChange, isFirstLayer = false }: SoilInputPr
         onToggle={(item) => toggleList("minorComponents", item)}
       />
 
+      {/* Tests Section */}
+      <div className="space-y-3 border-t border-border pt-4">
+        <div className="flex items-center gap-2">
+          <FlaskConical className="h-4 w-4 text-primary" />
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Tests
+          </Label>
+        </div>
 
-      {/* Other In-Situ Tests */}
-      <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Other Testing
-        </Label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {isFirstLayer && (
+        {/* Atterberg Limits */}
+        <div className="space-y-2">
+          <span className="text-xs text-muted-foreground font-medium">Atterberg Limits</span>
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">CPT</span>
+              <span className="text-xs text-muted-foreground">LL %</span>
               <Input
-                value={layer.cptValue}
-                onChange={(e) => onChange({ cptValue: e.target.value })}
+                type="number"
+                value={layer.liquidLimit}
+                onChange={(e) => onChange({ liquidLimit: e.target.value })}
                 className="bg-muted/50 border-border h-8 text-sm"
                 placeholder="—"
               />
             </div>
-          )}
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">PL %</span>
+              <Input
+                type="number"
+                value={layer.plasticLimit}
+                onChange={(e) => onChange({ plasticLimit: e.target.value })}
+                className="bg-muted/50 border-border h-8 text-sm"
+                placeholder="—"
+              />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">PI %</span>
+              <Input
+                type="number"
+                value={layer.plasticityIndex}
+                onChange={(e) => onChange({ plasticityIndex: e.target.value })}
+                className="bg-muted/50 border-border h-8 text-sm"
+                placeholder="—"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* MC, CBR, Salinity, Aggressivity */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">MC %</span>
             <Input
@@ -213,41 +243,20 @@ export function SoilInput({ layer, onChange, isFirstLayer = false }: SoilInputPr
               placeholder="—"
             />
           </div>
-        </div>
-      </div>
-
-      {/* Atterberg Limits */}
-      <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Atterberg Limits
-        </Label>
-        <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">LL %</span>
+            <span className="text-xs text-muted-foreground">Salinity</span>
             <Input
-              type="number"
-              value={layer.liquidLimit}
-              onChange={(e) => onChange({ liquidLimit: e.target.value })}
+              value={layer.salinity}
+              onChange={(e) => onChange({ salinity: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
             />
           </div>
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">PL %</span>
+            <span className="text-xs text-muted-foreground">Aggressivity</span>
             <Input
-              type="number"
-              value={layer.plasticLimit}
-              onChange={(e) => onChange({ plasticLimit: e.target.value })}
-              className="bg-muted/50 border-border h-8 text-sm"
-              placeholder="—"
-            />
-          </div>
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">PI %</span>
-            <Input
-              type="number"
-              value={layer.plasticityIndex}
-              onChange={(e) => onChange({ plasticityIndex: e.target.value })}
+              value={layer.aggressivity}
+              onChange={(e) => onChange({ aggressivity: e.target.value })}
               className="bg-muted/50 border-border h-8 text-sm"
               placeholder="—"
             />

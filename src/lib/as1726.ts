@@ -38,6 +38,9 @@ export interface BoreholeProject {
   boreholeId: string;
   totalDepth: string;
   layers: SoilLayer[];
+  dcpReadings: DCPReading[];
+  dcpStartDepth: string;
+  sptResult: SPTResult | null;
 }
 
 // Keep backward-compat type alias for existing components

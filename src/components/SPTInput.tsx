@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowDownToLine } from "lucide-react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import type { SPTResult } from "@/lib/as1726";
 
 interface SPTInputProps {
@@ -106,6 +107,39 @@ export function SPTInput({ sptResult, onChange }: SPTInputProps) {
       {sptResult && (sptResult.n2 || sptResult.n3) && (
         <div className="text-xs font-mono text-primary bg-primary/5 rounded px-2 py-1">
           N-value = {(parseInt(sptResult.n2) || 0) + (parseInt(sptResult.n3) || 0)}
+        </div>
+      )}
+
+      {sptResult && (sptResult.n1 || sptResult.n2 || sptResult.n3) && (
+        <div className="rounded-lg border border-border p-3 bg-muted/30">
+          <Label className="text-xs text-muted-foreground font-semibold mb-2 block">SPT Profile</Label>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart
+              data={[
+                { depth: "0–150", blows: parseInt(sptResult.n1) || 0 },
+                { depth: "150–300", blows: parseInt(sptResult.n2) || 0 },
+                { depth: "300–450", blows: parseInt(sptResult.n3) || 0 },
+              ]}
+              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis
+                dataKey="depth"
+                label={{ value: "Depth (mm)", position: "insideBottom", offset: -2, style: { fontSize: 10 } }}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                label={{ value: "N-value", angle: -90, position: "insideLeft", style: { fontSize: 10 } }}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip
+                contentStyle={{ fontSize: 11, borderRadius: 8 }}
+                formatter={(value: number) => [value, "Blows"]}
+                labelFormatter={(label) => `Depth: ${label} mm`}
+              />
+              <Bar dataKey="blows" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>

@@ -103,6 +103,9 @@ export const defaultProject: BoreholeProject = {
   boreholeId: "",
   totalDepth: "30",
   layers: [],
+  dcpReadings: [],
+  dcpStartDepth: "",
+  sptResult: null,
 };
 
 export const defaultEntry: BoreholeEntry = {

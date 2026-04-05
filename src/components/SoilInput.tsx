@@ -15,8 +15,6 @@ import {
   MINOR_COMPONENTS,
   COLOURS,
 } from "@/lib/as1726";
-import { DCPInput } from "@/components/DCPInput";
-import { SPTInput } from "@/components/SPTInput";
 
 interface SoilInputProps {
   layer: SoilLayer;
@@ -176,19 +174,6 @@ export function SoilInput({ layer, onChange }: SoilInputProps) {
         onToggle={(item) => toggleList("minorComponents", item)}
       />
 
-      {/* SPT */}
-      <SPTInput
-        sptResult={layer.sptResult}
-        onChange={(result) => onChange({ sptResult: result })}
-      />
-
-      {/* DCP */}
-      <DCPInput
-        readings={layer.dcpReadings}
-        startDepth={layer.dcpStartDepth}
-        onReadingsChange={(readings) => onChange({ dcpReadings: readings })}
-        onStartDepthChange={(depth) => onChange({ dcpStartDepth: depth })}
-      />
 
       {/* Other In-Situ Tests */}
       <div className="space-y-2">

@@ -8,6 +8,8 @@ import { PhotoUpload } from "@/components/PhotoUpload";
 import { SoilInput } from "@/components/SoilInput";
 import { LogPreview } from "@/components/LogPreview";
 import { LayerManager } from "@/components/LayerManager";
+import { DCPInput } from "@/components/DCPInput";
+import { SPTInput } from "@/components/SPTInput";
 import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import {
   type BoreholeProject,
@@ -64,7 +66,7 @@ export default function Index() {
   }, [activeLayerId, project.layers]);
 
   const handleNewBorehole = () => {
-    setProject({ ...defaultProject, projectName: project.projectName, layers: [] });
+    setProject({ ...defaultProject, projectName: project.projectName });
     setActiveLayerId(null);
     toast.info("New borehole started");
   };
@@ -98,7 +100,7 @@ export default function Index() {
   const handleExportPDF = () => {
     if (project.layers.length === 0) { toast.error("No layers to export"); return; }
     const entries = project.layers.map((l) => layerToEntry(l, project));
-    generateBoreholeLogPDF(entries, project.projectName, project.boreholeId);
+    generateBoreholeLogPDF(entries, project.projectName, project.boreholeId, project);
     toast.success("PDF exported");
   };
 
@@ -151,6 +153,25 @@ export default function Index() {
                 onRemoveLayer={removeLayer}
               />
             </div>
+
+            {/* Borehole-level In-Situ Testing */}
+            {project.layers.length > 0 && (
+              <div className="rounded-xl border border-border bg-card p-5 surface-elevated space-y-4">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  In-Situ Testing (Borehole)
+                </h3>
+                <SPTInput
+                  sptResult={project.sptResult}
+                  onChange={(result) => updateProject({ sptResult: result })}
+                />
+                <DCPInput
+                  readings={project.dcpReadings}
+                  startDepth={project.dcpStartDepth}
+                  onReadingsChange={(readings) => updateProject({ dcpReadings: readings })}
+                  onStartDepthChange={(depth) => updateProject({ dcpStartDepth: depth })}
+                />
+              </div>
+            )}
 
             {/* Live Preview for active layer */}
             {activeLayer && (

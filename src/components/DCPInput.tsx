@@ -123,6 +123,48 @@ export function DCPInput({ readings, startDepth, onReadingsChange, onStartDepthC
         </div>
       )}
 
+      {/* DCP Graph: Depth (x) vs Blows (y) */}
+      {readings.length > 1 && (
+        <div className="rounded-lg border border-border p-3 bg-muted/30">
+          <Label className="text-xs text-muted-foreground font-semibold mb-2 block">DCP Profile</Label>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart
+              data={readings.map((r, i) => ({
+                depth: parseFloat((start + i * 0.1).toFixed(1)),
+                blows: r.blows,
+              }))}
+              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis
+                dataKey="depth"
+                type="number"
+                label={{ value: "Depth (m)", position: "insideBottom", offset: -2, style: { fontSize: 10 } }}
+                tick={{ fontSize: 10 }}
+                domain={["dataMin", "dataMax"]}
+              />
+              <YAxis
+                dataKey="blows"
+                label={{ value: "Blows", angle: -90, position: "insideLeft", style: { fontSize: 10 } }}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip
+                contentStyle={{ fontSize: 11, borderRadius: 8 }}
+                formatter={(value: number) => [value, "Blows"]}
+                labelFormatter={(label) => `Depth: ${label}m`}
+              />
+              <Line
+                type="monotone"
+                dataKey="blows"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                dot={{ r: 3, fill: "hsl(var(--primary))" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {readings.length === 0 && (
         <p className="text-xs text-muted-foreground italic">
           Click "Add Interval" to enter DCP blow counts per 0.1m increment

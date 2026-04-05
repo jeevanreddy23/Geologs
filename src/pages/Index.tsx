@@ -233,6 +233,7 @@ export default function Index() {
                   <SoilInput
                     layer={activeLayer}
                     onChange={(updates) => updateLayer(activeLayer.id, updates)}
+                    isFirstLayer={project.layers.indexOf(activeLayer) === 0}
                   />
                 </div>
               </>

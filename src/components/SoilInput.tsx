@@ -19,6 +19,7 @@ import {
 interface SoilInputProps {
   layer: SoilLayer;
   onChange: (updates: Partial<SoilLayer>) => void;
+  isFirstLayer?: boolean;
 }
 
 function ToggleChips({
@@ -60,7 +61,7 @@ function ToggleChips({
   );
 }
 
-export function SoilInput({ layer, onChange }: SoilInputProps) {
+export function SoilInput({ layer, onChange, isFirstLayer = false }: SoilInputProps) {
   const toggleList = (key: "secondaryDescriptors" | "minorComponents", item: string) => {
     const current = layer[key];
     const next = current.includes(item)
@@ -181,15 +182,17 @@ export function SoilInput({ layer, onChange }: SoilInputProps) {
           Other Testing
         </Label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">CPT</span>
-            <Input
-              value={layer.cptValue}
-              onChange={(e) => onChange({ cptValue: e.target.value })}
-              className="bg-muted/50 border-border h-8 text-sm"
-              placeholder="—"
-            />
-          </div>
+          {isFirstLayer && (
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">CPT</span>
+              <Input
+                value={layer.cptValue}
+                onChange={(e) => onChange({ cptValue: e.target.value })}
+                className="bg-muted/50 border-border h-8 text-sm"
+                placeholder="—"
+              />
+            </div>
+          )}
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">MC %</span>
             <Input

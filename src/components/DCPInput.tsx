@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,29 @@ export function DCPInput({ readings, startDepth, onReadingsChange, onStartDepthC
 
   return (
     <div className="space-y-3">
+      {/* Visual header with DCP diagram */}
+      <div className="flex items-center gap-3">
+        <div className="relative w-10 h-14 flex-shrink-0">
+          {/* DCP rod visual */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-1.5 h-10 bg-muted-foreground/40 rounded-full" />
+          {/* Hammer weight */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-5 h-3 bg-primary/70 rounded-sm" />
+          {/* Cone tip */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-1 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent border-t-muted-foreground/60" />
+          {/* Drop arrow */}
+          <ArrowDown className="absolute right-0 top-1 h-3 w-3 text-primary animate-bounce" />
+        </div>
+        <div>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            DCP — Dynamic Cone Penetrometer
+          </Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            8 kg hammer, 575 mm drop, blows per 0.1 m
+          </p>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          DCP Test (blows per 0.1m)
-        </Label>
         <Button variant="outline" size="sm" onClick={addReading} className="h-7 text-xs">
           <Plus className="h-3 w-3 mr-1" />
           Add Interval

@@ -23,12 +23,13 @@ export interface SoilLayer {
   dcpReadings: DCPReading[];
   dcpStartDepth: string;
   sptResult: SPTResult | null;
-  cptValue: string;
   liquidLimit: string;
   plasticLimit: string;
   plasticityIndex: string;
   moistureContent: string;
   cbrValue: string;
+  salinity: string;
+  aggressivity: string;
   gradingSummary: string;
   photoUrls: string[];
 }
@@ -88,12 +89,13 @@ export const defaultLayer: SoilLayer = {
   dcpReadings: [],
   dcpStartDepth: "",
   sptResult: null,
-  cptValue: "",
   liquidLimit: "",
   plasticLimit: "",
   plasticityIndex: "",
   moistureContent: "",
   cbrValue: "",
+  salinity: "",
+  aggressivity: "",
   gradingSummary: "",
   photoUrls: [],
 };
@@ -222,12 +224,14 @@ export function formatTestResults(layer: SoilLayer | BoreholeEntry): string[] {
   if (spt) results.push(spt);
   const dcp = formatDCPResults(layer);
   if (dcp) results.push(dcp);
-  if (layer.cptValue) results.push(`CPT = ${layer.cptValue}`);
+  if ("cptValue" in layer && (layer as BoreholeEntry).cptValue) results.push(`CPT = ${(layer as BoreholeEntry).cptValue}`);
   if (layer.liquidLimit) results.push(`LL = ${layer.liquidLimit}%`);
   if (layer.plasticLimit) results.push(`PL = ${layer.plasticLimit}%`);
   if (layer.plasticityIndex) results.push(`PI = ${layer.plasticityIndex}%`);
   if (layer.moistureContent) results.push(`MC = ${layer.moistureContent}%`);
   if (layer.cbrValue) results.push(`CBR = ${layer.cbrValue}%`);
+  if ("salinity" in layer && layer.salinity) results.push(`Salinity = ${layer.salinity}`);
+  if ("aggressivity" in layer && layer.aggressivity) results.push(`Aggressivity = ${layer.aggressivity}`);
   return results;
 }
 
@@ -250,7 +254,7 @@ export function layerToEntry(layer: SoilLayer, project: BoreholeProject): Boreho
     sptN: "",
     sptN60: "",
     dcpBlows: "",
-    cptValue: layer.cptValue,
+    cptValue: "",
     liquidLimit: layer.liquidLimit,
     plasticLimit: layer.plasticLimit,
     plasticityIndex: layer.plasticityIndex,

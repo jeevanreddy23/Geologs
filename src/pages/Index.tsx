@@ -63,6 +63,26 @@ function CompletionRing({ percentage }: { percentage: number }) {
 }
 
 export default function Index() {
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) navigate("/auth", { replace: true });
+      setAuthChecked(true);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate("/auth", { replace: true });
+      setAuthChecked(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
+  };
+
   const [project, setProject] = useState<BoreholeProject>(() => {
     try {
       const saved = localStorage.getItem("autosoil_current");

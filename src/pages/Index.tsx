@@ -222,6 +222,14 @@ export default function Index() {
 
   const layerCount = project.layers.length;
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Layers className="h-8 w-8 text-primary animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Header — Linear.app-style glass ─── */}

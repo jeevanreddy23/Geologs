@@ -19,17 +19,17 @@ export function LogPreview({ layer, boreholeId }: LogPreviewProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
-        <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-          Live AS 1726 Output
+        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
+        <h3 className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
+          Live Output
         </h3>
       </div>
 
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 glow-border">
+      <div className="rounded-lg border border-primary/15 bg-primary/5 p-4 glow-border">
         {hasContent ? (
           <div className="space-y-3">
             {depthRange && (
-              <div className="text-xs text-muted-foreground font-mono">
+              <div className="text-[11px] text-muted-foreground font-mono">
                 {boreholeId && `${boreholeId} · `}
                 {depthRange}
               </div>
@@ -38,12 +38,12 @@ export function LogPreview({ layer, boreholeId }: LogPreviewProps) {
               {description}
             </p>
             {testResults.length > 0 && (
-              <div className="pt-2 border-t border-border/50">
-                <div className="flex flex-wrap gap-2">
+              <div className="pt-2 border-t border-border/30">
+                <div className="flex flex-wrap gap-1.5">
                   {testResults.map((r, i) => (
                     <span
                       key={i}
-                      className="text-xs font-mono text-accent bg-accent/10 px-2 py-0.5 rounded"
+                      className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded"
                     >
                       {r}
                     </span>
@@ -52,14 +52,14 @@ export function LogPreview({ layer, boreholeId }: LogPreviewProps) {
               </div>
             )}
             {layer.gradingSummary && (
-              <p className="text-xs text-muted-foreground font-mono">
+              <p className="text-[11px] text-muted-foreground font-mono">
                 Grading: {layer.gradingSummary}
               </p>
             )}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground italic">
-            Start entering soil data to see the AS 1726 formatted description…
+          <p className="text-xs text-muted-foreground italic">
+            Start entering data to see formatted output…
           </p>
         )}
       </div>

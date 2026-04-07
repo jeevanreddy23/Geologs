@@ -125,9 +125,10 @@ export function DCPInput({ readings, startDepth, onReadingsChange, onStartDepthC
 
       {/* DCP Graph: Depth (x) vs Blows (y) */}
       {readings.length > 1 && (
-        <div className="rounded-lg border border-border p-3 bg-muted/30">
+        <div className="rounded-lg border border-border p-3 bg-muted/30" style={{ minWidth: 0 }}>
           <Label className="text-xs text-muted-foreground font-semibold mb-2 block">DCP Profile</Label>
-          <ResponsiveContainer width="100%" height={200}>
+          <div style={{ width: "100%", height: 200 }}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={readings.map((r, i) => ({
                 depth: parseFloat((start + i * 0.1).toFixed(1)),
@@ -162,6 +163,7 @@ export function DCPInput({ readings, startDepth, onReadingsChange, onStartDepthC
               />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </div>
       )}
 

@@ -111,9 +111,10 @@ export function SPTInput({ sptResult, onChange }: SPTInputProps) {
       )}
 
       {sptResult && (sptResult.n1 || sptResult.n2 || sptResult.n3) && (
-        <div className="rounded-lg border border-border p-3 bg-muted/30">
+        <div className="rounded-lg border border-border p-3 bg-muted/30" style={{ minWidth: 0 }}>
           <Label className="text-xs text-muted-foreground font-semibold mb-2 block">SPT Profile</Label>
-          <ResponsiveContainer width="100%" height={180}>
+          <div style={{ width: "100%", height: 180 }}>
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={[
                 { depth: "0–150", blows: parseInt(sptResult.n1) || 0 },
@@ -140,6 +141,7 @@ export function SPTInput({ sptResult, onChange }: SPTInputProps) {
               <Bar dataKey="blows" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>

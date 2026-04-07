@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Layers, Plus, Download, FileDown, Timer, CheckCircle2,
-  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles,
+  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles, LogOut,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,6 +63,26 @@ function CompletionRing({ percentage }: { percentage: number }) {
 }
 
 export default function Index() {
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) navigate("/auth", { replace: true });
+      setAuthChecked(true);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate("/auth", { replace: true });
+      setAuthChecked(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
+  };
+
   const [project, setProject] = useState<BoreholeProject>(() => {
     try {
       const saved = localStorage.getItem("autosoil_current");
@@ -200,6 +222,14 @@ export default function Index() {
 
   const layerCount = project.layers.length;
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Layers className="h-8 w-8 text-primary animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* ─── Header — Linear.app-style glass ─── */}
@@ -278,6 +308,14 @@ export default function Index() {
             >
               <Plus className="h-3.5 w-3.5 mr-1" />
               New
+            </Button>
+            <Button
+              variant="ghost" size="sm"
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+              title="Sign out"
+            >
+              <LogOut className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>

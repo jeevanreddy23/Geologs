@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Layers, Plus, Download, FileDown, Timer, CheckCircle2,
-  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles,
+  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles, LogOut,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

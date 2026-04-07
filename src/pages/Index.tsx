@@ -301,6 +301,14 @@ export default function Index() {
               <Plus className="h-3.5 w-3.5 mr-1" />
               New
             </Button>
+            <Button
+              variant="ghost" size="sm"
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+              title="Sign out"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </Button>
           </div>
         </div>
 

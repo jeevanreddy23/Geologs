@@ -6,24 +6,77 @@
 
 @layer base {
   :root {
-    /* Geologs 2.0 — Deep Teal + Neutral Premium (Calm.com × Linear.app) */
-    --background: 200 20% 6%;
-    --foreground: 180 5% 90%;
+    /* Geologs 2.0 — Light Minimalist (Apple × Linear × Notion × Stripe × Calm)
+       Bg: crisp off-white (#FAFAFA)
+       Text: deep ink (#111827)
+       Accent: deep teal (#0A7C7C) */
 
-    --card: 200 18% 9%;
-    --card-foreground: 180 5% 90%;
+    --background: 0 0% 98.4%;
+    --foreground: 220 26% 9%;
 
-    --popover: 200 18% 10%;
-    --popover-foreground: 180 5% 90%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 26% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 26% 9%;
+
+    --primary: 174 84% 26%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 10% 96%;
+    --secondary-foreground: 220 14% 40%;
+
+    --muted: 210 10% 95%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 160 70% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 9% 89%;
+    --input: 220 9% 89%;
+    --ring: 174 84% 26%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 14% 40%;
+    --sidebar-primary: 174 84% 26%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 10% 95%;
+    --sidebar-accent-foreground: 220 14% 40%;
+    --sidebar-border: 220 9% 91%;
+    --sidebar-ring: 174 84% 26%;
+
+    --earth: 32 40% 45%;
+    --earth-foreground: 32 60% 20%;
+    --surface: 210 10% 97%;
+    --glow: 174 60% 42%;
+
+    --success: 160 70% 36%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 220 18% 7%;
+    --foreground: 210 10% 90%;
+
+    --card: 220 16% 10%;
+    --card-foreground: 210 10% 90%;
+
+    --popover: 220 16% 11%;
+    --popover-foreground: 210 10% 90%;
 
     --primary: 174 60% 42%;
-    --primary-foreground: 200 20% 6%;
+    --primary-foreground: 220 18% 7%;
 
-    --secondary: 200 14% 14%;
-    --secondary-foreground: 180 5% 72%;
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 210 10% 72%;
 
-    --muted: 200 14% 12%;
-    --muted-foreground: 200 10% 48%;
+    --muted: 220 14% 13%;
+    --muted-foreground: 220 10% 48%;
 
     --accent: 38 70% 50%;
     --accent-foreground: 38 80% 95%;
@@ -31,24 +84,22 @@
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 200 14% 16%;
-    --input: 200 14% 16%;
+    --border: 220 14% 17%;
+    --input: 220 14% 17%;
     --ring: 174 60% 42%;
 
-    --radius: 0.625rem;
-
-    --sidebar-background: 200 18% 7%;
-    --sidebar-foreground: 180 5% 72%;
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 210 10% 72%;
     --sidebar-primary: 174 60% 42%;
-    --sidebar-primary-foreground: 200 20% 6%;
-    --sidebar-accent: 200 14% 12%;
-    --sidebar-accent-foreground: 180 5% 72%;
-    --sidebar-border: 200 14% 14%;
+    --sidebar-primary-foreground: 220 18% 7%;
+    --sidebar-accent: 220 14% 13%;
+    --sidebar-accent-foreground: 210 10% 72%;
+    --sidebar-border: 220 14% 15%;
     --sidebar-ring: 174 60% 42%;
 
     --earth: 32 40% 30%;
     --earth-foreground: 32 60% 85%;
-    --surface: 200 16% 11%;
+    --surface: 220 16% 11%;
     --glow: 174 70% 50%;
 
     --success: 152 60% 42%;
@@ -65,15 +116,13 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  /* Smooth transitions everywhere — Linear.app style */
   button, input, select, textarea, [role="button"] {
     @apply transition-all duration-150;
   }
 
-  /* Focus ring — Figma style */
   input:focus-visible, select:focus-visible, textarea:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.25);
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
   }
 }
 
@@ -83,48 +132,35 @@
   }
 
   .glow-border {
-    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 0 20px -6px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 1px 8px -3px hsl(var(--primary) / 0.06);
   }
 
   .glow-border-strong {
-    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 0 30px -5px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 4px 16px -4px hsl(var(--primary) / 0.1);
   }
 
   .surface-elevated {
     background: linear-gradient(
       180deg,
       hsl(var(--card)) 0%,
-      hsl(200 18% 8%) 100%
+      hsl(var(--surface)) 100%
     );
   }
 
   .glass {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(20px) saturate(1.4);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
   }
 
-  /* Notion-style card hover */
   .card-hover {
     @apply transition-all duration-200;
   }
   .card-hover:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.08);
+    box-shadow: 0 2px 12px -3px hsl(var(--primary) / 0.06), 0 0 0 1px hsl(var(--border));
   }
 
-  /* Linear-style shimmer loading */
-  .shimmer-bg {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--muted)) 25%,
-      hsl(var(--muted-foreground) / 0.08) 50%,
-      hsl(var(--muted)) 75%
-    );
-    background-size: 200% 100%;
-  }
-
-  /* Stripe-style dramatic text */
   .text-gradient {
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--glow)));
     -webkit-background-clip: text;
@@ -132,12 +168,19 @@
     background-clip: text;
   }
 
-  /* Figma-style selection ring */
-  .ring-focus {
-    @apply ring-2 ring-primary/25 ring-offset-0;
+  .attention-ring {
+    @apply relative;
+  }
+  .attention-ring::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl pointer-events-none;
+    box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.06);
+    transition: box-shadow 0.2s;
+  }
+  .attention-ring:focus-within::after {
+    box-shadow: inset 0 0 0 2px hsl(var(--primary) / 0.15);
   }
 
-  /* Custom scrollbar — thin, minimal */
   .custom-scroll::-webkit-scrollbar {
     width: 3px;
   }
@@ -148,34 +191,15 @@
     background: hsl(var(--border));
     border-radius: 4px;
   }
-  .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.3);
-  }
 
-  /* Hover scale — subtle, Apple-style */
   .hover-scale {
     @apply transition-transform duration-200;
   }
   .hover-scale:hover {
     transform: scale(1.02);
   }
-
-  /* Away.travel-style focus attention */
-  .attention-ring {
-    @apply relative;
-  }
-  .attention-ring::after {
-    content: '';
-    @apply absolute inset-0 rounded-xl pointer-events-none;
-    box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.12);
-    transition: box-shadow 0.2s;
-  }
-  .attention-ring:focus-within::after {
-    box-shadow: inset 0 0 0 2px hsl(var(--primary) / 0.3);
-  }
 }
 
-/* Stagger children animations — Superlist style */
 @layer utilities {
   .stagger-children > * {
     opacity: 0;
@@ -187,8 +211,6 @@
   .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
   .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
-  .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
-  .stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
 
   @keyframes staggerIn {
     from { opacity: 0; transform: translateY(8px); }

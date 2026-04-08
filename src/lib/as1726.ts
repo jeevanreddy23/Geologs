@@ -10,6 +10,16 @@ export interface SPTResult {
   penetration: string;
 }
 
+export interface SPTTest {
+  depth: number;
+  n1: string;
+  n2: string;
+  n3: string;
+  penetration: string;
+}
+
+export const MOISTURE_OPTIONS = ["Dry", "Moist", "Wet"] as const;
+
 export interface SoilLayer {
   id: string;
   depthFrom: string;

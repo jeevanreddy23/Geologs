@@ -279,6 +279,8 @@ function drawLayer(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, index:
   let materialLabel = (entry.primarySoilType || "—").toUpperCase();
   if (materialLabel === "ROAD BASE") {
     materialLabel = "ROAD BASE MATERIAL";
+  } else if (materialLabel === "SAND") {
+    materialLabel = "fine grained SAND";
   }
   doc.text(materialLabel, dx, yTop + 7);
 

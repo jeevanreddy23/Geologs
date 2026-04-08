@@ -95,6 +95,7 @@ export const defaultLayer: SoilLayer = {
   primarySoilType: "",
   secondaryDescriptors: [],
   plasticity: "",
+  moisture: "",
   colour: "",
   colourBecoming: "",
   minorComponents: [],
@@ -120,6 +121,8 @@ export const defaultProject: BoreholeProject = {
   dcpReadings: [],
   dcpStartDepth: "",
   sptResult: null,
+  sptTests: [],
+};
 };
 
 export const defaultEntry: BoreholeEntry = {

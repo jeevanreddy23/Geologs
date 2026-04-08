@@ -14,6 +14,7 @@ import {
   SECONDARY_DESCRIPTORS,
   MINOR_COMPONENTS,
   COLOURS,
+  MOISTURE_OPTIONS,
 } from "@/lib/as1726";
 import { FlaskConical, Palette, Layers } from "lucide-react";
 
@@ -122,6 +123,24 @@ export function SoilInput({ layer, onChange }: SoilInputProps) {
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Moisture */}
+        <div className="space-y-1.5">
+          <Label className="text-[11px] text-muted-foreground">Moisture</Label>
+          <Select
+            value={layer.moisture || ""}
+            onValueChange={(v) => onChange({ moisture: v })}
+          >
+            <SelectTrigger className="bg-muted/40 border-border h-9 w-40">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
+            <SelectContent>
+              {MOISTURE_OPTIONS.map((m) => (
+                <SelectItem key={m} value={m}>{m}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

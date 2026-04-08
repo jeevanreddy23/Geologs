@@ -10,6 +10,16 @@ export interface SPTResult {
   penetration: string;
 }
 
+export interface SPTTest {
+  depth: number;
+  n1: string;
+  n2: string;
+  n3: string;
+  penetration: string;
+}
+
+export const MOISTURE_OPTIONS = ["Dry", "Moist", "Wet"] as const;
+
 export interface SoilLayer {
   id: string;
   depthFrom: string;
@@ -17,6 +27,7 @@ export interface SoilLayer {
   primarySoilType: string;
   secondaryDescriptors: string[];
   plasticity: string;
+  moisture: string;
   colour: string;
   colourBecoming: string;
   minorComponents: string[];
@@ -42,6 +53,7 @@ export interface BoreholeProject {
   dcpReadings: DCPReading[];
   dcpStartDepth: string;
   sptResult: SPTResult | null;
+  sptTests: SPTTest[];
 }
 
 // Keep backward-compat type alias for existing components
@@ -83,6 +95,7 @@ export const defaultLayer: SoilLayer = {
   primarySoilType: "",
   secondaryDescriptors: [],
   plasticity: "",
+  moisture: "",
   colour: "",
   colourBecoming: "",
   minorComponents: [],
@@ -108,6 +121,7 @@ export const defaultProject: BoreholeProject = {
   dcpReadings: [],
   dcpStartDepth: "",
   sptResult: null,
+  sptTests: [],
 };
 
 export const defaultEntry: BoreholeEntry = {
@@ -164,10 +178,20 @@ export function formatAS1726Description(layer: SoilLayer | BoreholeEntry): strin
     parts.push(layer.secondaryDescriptors.join(" "));
   }
   if (layer.primarySoilType) {
-    parts.push(layer.primarySoilType.toUpperCase());
+    const soilType = layer.primarySoilType.toUpperCase();
+    // Always use "fine grained SAND" for sand
+    if (soilType === "SAND") {
+      parts.push("fine grained SAND");
+    } else {
+      parts.push(soilType);
+    }
   }
-  if (layer.plasticity) {
+  if (layer.plasticity && layer.plasticity !== "none") {
     parts.push(`${layer.plasticity.toLowerCase()} plasticity`);
+  }
+  // Moisture
+  if ("moisture" in layer && (layer as SoilLayer).moisture) {
+    parts.push((layer as SoilLayer).moisture.toLowerCase());
   }
   if (layer.colour) {
     let colourStr = layer.colour;

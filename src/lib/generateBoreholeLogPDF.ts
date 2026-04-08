@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import {
   type BoreholeEntry,
   type BoreholeProject,
+  type SPTTest,
   formatAS1726Description,
   formatTestResults,
   formatSPTResult,
@@ -278,6 +279,8 @@ function drawLayer(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, index:
   let materialLabel = (entry.primarySoilType || "—").toUpperCase();
   if (materialLabel === "ROAD BASE") {
     materialLabel = "ROAD BASE MATERIAL";
+  } else if (materialLabel === "SAND") {
+    materialLabel = "fine grained SAND";
   }
   doc.text(materialLabel, dx, yTop + 7);
 
@@ -347,7 +350,7 @@ function drawBodyColumnLines(doc: jsPDF) {
 }
 
 // ── SPT N-Value vs Depth Graph ──
-function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number) {
+function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number, sptTests?: SPTTest[]) {
   const pixPerM = depthScale(totalDepthM);
   const graphX = ML + COL.sptGraph.x;
   const graphW = COL.sptGraph.w;
@@ -379,34 +382,47 @@ function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number)
   doc.setFontSize(4);
   doc.text("SPT N-Value", graphX + graphW / 2, BODY_TOP - 4, { align: "center" });
 
-  // Horizontal depth grid lines every metre
+  // Horizontal depth grid lines every 1.5m
   doc.setDrawColor(235, 238, 245);
   doc.setLineWidth(0.1);
-  for (let d = 1; d <= totalDepthM; d++) {
+  for (let d = 1.5; d <= totalDepthM; d += 1.5) {
     const gy = BODY_TOP + d * pixPerM;
     if (gy < BODY_BOT) doc.line(graphX, gy, graphX + graphW, gy);
   }
 
-  // Collect SPT data points
+  // Collect SPT data points - prefer sptTests array, fallback to per-entry
   const sptPoints: { depth: number; nVal: number; refusal: boolean }[] = [];
-  entries.forEach(entry => {
-    if (!entry.sptResult) return;
-    const n2 = parseInt(entry.sptResult.n2) || 0;
-    const n3 = parseInt(entry.sptResult.n3) || 0;
-    const nVal = n2 + n3;
-    if (nVal <= 0) return;
-    const depth = ((parseFloat(entry.depthFrom) || 0) + (parseFloat(entry.depthTo) || 0)) / 2;
-    sptPoints.push({ depth, nVal: Math.min(nVal, maxN), refusal: nVal >= 50 });
-  });
+
+  if (sptTests && sptTests.length > 0) {
+    sptTests.forEach(test => {
+      const n2 = parseInt(test.n2) || 0;
+      const n3 = parseInt(test.n3) || 0;
+      const nVal = n2 + n3;
+      if (nVal <= 0) return;
+      sptPoints.push({ depth: test.depth, nVal: Math.min(nVal, maxN), refusal: nVal >= 50 });
+    });
+  } else {
+    entries.forEach(entry => {
+      if (!entry.sptResult) return;
+      const n2 = parseInt(entry.sptResult.n2) || 0;
+      const n3 = parseInt(entry.sptResult.n3) || 0;
+      const nVal = n2 + n3;
+      if (nVal <= 0) return;
+      const depth = ((parseFloat(entry.depthFrom) || 0) + (parseFloat(entry.depthTo) || 0)) / 2;
+      sptPoints.push({ depth, nVal: Math.min(nVal, maxN), refusal: nVal >= 50 });
+    });
+  }
 
   if (sptPoints.length === 0) {
-    // Show "No SPT Data" message
     doc.setFontSize(6);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(...TEXT_GREY);
     doc.text("No SPT data", graphX + graphW / 2, BODY_TOP + BODY_H / 2, { align: "center" });
     return;
   }
+
+  // Sort by depth
+  sptPoints.sort((a, b) => a.depth - b.depth);
 
   // Draw connected line
   if (sptPoints.length > 1) {
@@ -429,16 +445,13 @@ function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number)
     const py = BODY_TOP + pt.depth * pixPerM;
 
     if (pt.refusal) {
-      // Red square for refusal
       doc.setFillColor(...SPT_RED);
       doc.rect(px - 1.2, py - 1.2, 2.4, 2.4, "F");
-      // "R" label
       doc.setFontSize(4);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(...SPT_RED);
       doc.text("R", px + 2.5, py + 1);
     } else {
-      // Blue circle
       doc.setFillColor(...SPT_BLUE);
       doc.circle(px, py, 1.2, "F");
     }
@@ -448,6 +461,12 @@ function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number)
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...TEXT_DARK);
     doc.text(`${pt.nVal}`, px + 2.5, py + (pt.refusal ? -1.5 : 1));
+
+    // Depth label on left side of graph
+    doc.setFontSize(3.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...TEXT_GREY);
+    doc.text(`${pt.depth}`, graphX + 1, py + 1);
   });
 
   // Legend at bottom of graph
@@ -460,7 +479,7 @@ function drawSPTGraph(doc: jsPDF, entries: BoreholeEntry[], totalDepthM: number)
   doc.text("N-value", graphX + 5, legY);
   doc.setFillColor(...SPT_RED);
   doc.rect(graphX + 18, legY - 1.3, 1.6, 1.6, "F");
-  doc.text("Refusal (N≥50)", graphX + 21, legY);
+  doc.text("Refusal (N>=50)", graphX + 21, legY);
 }
 
 // ── Footer ──
@@ -497,8 +516,7 @@ export function generateBoreholeLogPDF(
 
   entries.forEach((entry, i) => drawLayer(doc, entry, totalDepthM, i));
 
-  // SPT N-value graph (aligned with depth column)
-  drawSPTGraph(doc, entries, totalDepthM);
+  drawSPTGraph(doc, entries, totalDepthM, project?.sptTests);
 
   // In-situ testing notes
   if (project) {

@@ -361,8 +361,9 @@ export default function Index() {
                   In-Situ Testing
                 </h3>
                 <SPTInput
-                  sptResult={project.sptResult}
-                  onChange={(result) => updateProject({ sptResult: result })}
+                  sptTests={project.sptTests || []}
+                  totalDepth={project.totalDepth}
+                  onChange={(tests) => updateProject({ sptTests: tests })}
                 />
                 <div className="border-t border-border/40 pt-5">
                   <DCPInput

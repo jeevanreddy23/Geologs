@@ -27,6 +27,7 @@ export interface SoilLayer {
   primarySoilType: string;
   secondaryDescriptors: string[];
   plasticity: string;
+  moisture: string;
   colour: string;
   colourBecoming: string;
   minorComponents: string[];
@@ -52,6 +53,7 @@ export interface BoreholeProject {
   dcpReadings: DCPReading[];
   dcpStartDepth: string;
   sptResult: SPTResult | null;
+  sptTests: SPTTest[];
 }
 
 // Keep backward-compat type alias for existing components

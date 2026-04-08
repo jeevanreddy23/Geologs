@@ -54,6 +54,17 @@ export interface BoreholeProject {
   dcpStartDepth: string;
   sptResult: SPTResult | null;
   sptTests: SPTTest[];
+  // New gINT header fields
+  client?: string;
+  location?: string;
+  groundLevel?: string;
+  groundwaterDepth?: string;
+  eastings?: string;
+  northings?: string;
+  driller?: string;
+  drillRig?: string;
+  drillingMethod?: string;
+  jobNo?: string;
 }
 
 // Keep backward-compat type alias for existing components

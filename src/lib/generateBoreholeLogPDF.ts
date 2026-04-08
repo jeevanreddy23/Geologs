@@ -8,12 +8,13 @@ import {
   formatDCPResults,
 } from "./as1726";
 
-// ── Page constants (landscape A4) ──
-const PW = 297;
-const PH = 210;
-const ML = 8;
-const MR = 8;
-const MT = 2;
+// ── Page constants (Portrait A4) ──
+const PW = 210;
+const PH = 297;
+const ML = 10;
+const MR = 10;
+const MT = 8;
+const MB = 10;
 const CONTENT_W = PW - ML - MR;
 
 // ── gINT-style colour palette ──
@@ -37,21 +38,20 @@ const C = {
   rowAlt:     [250, 252, 255] as [number, number, number],
 };
 
-// ── Column layout — gINT proportions ──
+// ── Column layout — gINT Portrait ──
 const COL = {
-  depth:       { x: 0,    w: 14 },
-  graphic:     { x: 14,   w: 16 },
-  sample:      { x: 30,   w: 12 },
-  description: { x: 42,   w: 82 },  // widest — gINT style
-  plasticity:  { x: 124,  w: 14 },
-  ll:          { x: 138,  w: 11 },
-  pl:          { x: 149,  w: 11 },
-  pi:          { x: 160,  w: 11 },
-  mc:          { x: 171,  w: 11 },
-  cbr:         { x: 182,  w: 11 },
-  remarks:     { x: 193,  w: 42 },
-  sptGraph:    { x: 235,  w: CONTENT_W - 235 },
-};
+  depth:       { x: 0,    w: 12 },
+  rl:          { x: 12,   w: 12 },  // New: Reduced Level
+  graphic:     { x: 24,   w: 14 },
+  sample:      { x: 38,   w: 10 },
+  description: { x: 48,   w: 75 },  
+  plasticity:  { x: 123,  w: 10 },
+  ll:          { x: 133,  w: 8 },
+  pl:          { x: 141,  w: 8 },
+  pi:          { x: 149,  w: 8 },
+  mc:          { x: 157,  w: 8 },
+  remarks:     { x: 165,  w: 25 },
+} as const;
 
 const HEADER_H = 34;
 const COL_HDR_H = 14;
@@ -169,7 +169,8 @@ function drawHatch(doc: jsPDF, soilType: string, x: number, y: number, w: number
 // ══════════════════════════════════════
 //  Page Header — gINT professional
 // ══════════════════════════════════════
-function drawHeader(doc: jsPDF, projectName: string, boreholeId: string, totalDepth: string, pageNum: number, totalPages: number) {
+// ── Page Header — gINT professional ──
+function drawHeader(doc: jsPDF, project: BoreholeProject, pageNum: number, totalPages: number) {
   const y0 = MT;
 
   // Title bar
@@ -181,54 +182,76 @@ function drawHeader(doc: jsPDF, projectName: string, boreholeId: string, totalDe
   doc.text("BOREHOLE LOG", ML + 3, y0 + 7);
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
-  doc.text("AS 1726:2017 \u2014 Geotechnical Site Investigation", ML + 45, y0 + 7);
+  doc.text("AS 1726:2017 \u2014 Geotechnical Site Investigation", ML + CONTENT_W / 2, y0 + 7, { align: "center" });
   doc.setFont("helvetica", "bold");
-  doc.text("GeoLogs.com.au", ML + CONTENT_W - 2, y0 + 7, { align: "right" });
+  doc.text("www.geologs.com.au", ML + CONTENT_W - 3, y0 + 7, { align: "right" });
 
   // Meta fields box
   const mY = y0 + 10;
-  const mH = HEADER_H - 10;
+  const mH = 24; 
   doc.setFillColor(...C.metaBg);
   doc.rect(ML, mY, CONTENT_W, mH, "F");
   doc.setDrawColor(...C.border);
   doc.setLineWidth(0.3);
   doc.rect(ML, mY, CONTENT_W, mH, "S");
 
-  const c1 = ML + 3, c2 = ML + 75, c3 = ML + 145, c4 = ML + 215;
-  const r1 = mY + 6, r2 = mY + 12, r3 = mY + 18;
-  doc.setFontSize(6.5);
+  const c1 = ML + 2, c2 = ML + 50, c3 = ML + 95, c4 = ML + 140;
+  const r1 = mY + 5, r2 = mY + 11, r3 = mY + 17, r4 = mY + 22;
+  doc.setFontSize(6);
   doc.setTextColor(...C.text);
 
-  const field = (label: string, value: string, fx: number, fy: number) => {
+  const field = (label: string, value?: string, fx: number, fy: number) => {
     doc.setFont("helvetica", "bold");
     doc.text(label + ":", fx, fy);
     const lw = doc.getTextWidth(label + ": ");
     doc.setFont("helvetica", "normal");
-    doc.text(value || "\u2014", fx + lw + 0.5, fy);
+    doc.text(value || "\u2014", fx + lw + 1, fy);
   };
 
-  field("Project", projectName, c1, r1);
-  field("Borehole ID", boreholeId, c2, r1);
-  field("Total Depth", `${totalDepth} m`, c3, r1);
-  field("Date", new Date().toLocaleDateString("en-AU"), c4, r1);
-  field("Client", "\u2014", c1, r2);
-  field("Location", "\u2014", c2, r2);
-  field("Driller", "\u2014", c3, r2);
-  field("Rig", "\u2014", c4, r2);
-  field("Method", "Rotary / Wash Boring", c1, r3);
-  field("Casing Dia.", "\u2014", c2, r3);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Page ${pageNum} of ${totalPages}`, ML + CONTENT_W - 3, r3, { align: "right" });
+  field("Client", project.client, c1, r1);
+  field("Project", project.projectName, c1, r2);
+  field("Location", project.location, c1, r3);
+  
+  field("Borehole ID", project.boreholeId, c2, r1);
+  field("Job No.", project.jobNo, c2, r2);
+  field("Ground RL", project.groundLevel ? `${project.groundLevel} m` : "\u2014", c2, r3);
 
-  // Bottom border of header
-  doc.setDrawColor(...C.headerBg);
-  doc.setLineWidth(0.6);
-  doc.line(ML, y0 + HEADER_H, ML + CONTENT_W, y0 + HEADER_H);
+  field("Easting", project.eastings, c3, r1);
+  field("Northing", project.northings, c3, r2);
+  field("Total Depth", `${project.totalDepth} m`, c3, r3);
+
+  field("Driller", project.driller, c4, r1);
+  field("Rig", project.drillRig, c4, r2);
+  field("Date", new Date().toLocaleDateString("en-AU"), c4, r3);
+
+  doc.setFont("helvetica", "bold");
+  doc.text(`Page ${pageNum} of ${totalPages}`, ML + CONTENT_W - 3, r4, { align: "right" });
+
+  if (project.groundwaterDepth) {
+     doc.setFont("helvetica", "bold");
+     doc.text(`Water Level: ${project.groundwaterDepth} m`, c1, r4);
+  }
+}
+
+function drawWaterLevel(doc: jsPDF, depth: number, totalDepthM: number) {
+  const scale = pxPerM(totalDepthM);
+  const y = BODY_TOP + depth * scale;
+  if (y > BODY_BOT) return;
+
+  const symbolX = ML + COL.depth.w + 1;
+  doc.setDrawColor(30, 100, 200);
+  doc.setFillColor(30, 100, 200);
+  doc.setLineWidth(0.2);
+  
+  doc.triangle(symbolX, y, symbolX + 2.5, y, symbolX + 1.25, y + 2.5, "FD");
+  doc.setLineWidth(0.1);
+  doc.line(symbolX - 1, y, symbolX + 3.5, y);
 }
 
 // ══════════════════════════════════════
 //  Column Headers — gINT compact
 // ══════════════════════════════════════
+// ── Column Headers — gINT compact ──
 function drawColHeaders(doc: jsPDF) {
   const y = MT + HEADER_H;
   const h = COL_HDR_H;
@@ -236,7 +259,7 @@ function drawColHeaders(doc: jsPDF) {
   doc.setFillColor(...C.colHdrBg);
   doc.rect(ML, y, CONTENT_W, h, "F");
 
-  doc.setFontSize(5.5);
+  doc.setFontSize(5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...C.colHdrText);
 
@@ -251,60 +274,63 @@ function drawColHeaders(doc: jsPDF) {
   };
 
   hdr(["DEPTH", "(m)"], COL.depth);
+  hdr(["R.L.", "(m)"], COL.rl);
   hdr(["GRAPHIC", "LOG"], COL.graphic);
-  hdr(["SAMPLE", "TYPE"], COL.sample);
-  hdr(["MATERIAL DESCRIPTION", "(AS 1726:2017)"], COL.description);
-  hdr(["PLAST."], COL.plasticity);
-  hdr(["LL", "(%)"], COL.ll);
-  hdr(["PL", "(%)"], COL.pl);
-  hdr(["PI", "(%)"], COL.pi);
-  hdr(["MC", "(%)"], COL.mc);
-  hdr(["CBR", "(%)"], COL.cbr);
-  hdr(["REMARKS /", "GRADING"], COL.remarks);
-  hdr(["SPT N", "vs DEPTH"], COL.sptGraph);
+  hdr(["SAM.", "TYP."], COL.sample);
+  hdr(["MATERIAL DESCRIPTION", "AS 1726-2017"], COL.description);
+  hdr(["PLS."], COL.plasticity);
+  hdr(["LL", "%"], COL.ll);
+  hdr(["PL", "%"], COL.pl);
+  hdr(["PI", "%"], COL.pi);
+  hdr(["MC", "%"], COL.mc);
+  hdr(["REMARKS / GRADING", "IN-SITU TESTS"], COL.remarks);
 
   // Vertical separators in header
   doc.setDrawColor(...C.colHdrText);
-  doc.setLineWidth(0.15);
-  const allCols = [COL.graphic, COL.sample, COL.description, COL.plasticity,
-    COL.ll, COL.pl, COL.pi, COL.mc, COL.cbr, COL.remarks, COL.sptGraph];
+  doc.setLineWidth(0.1);
+  const allCols = [COL.rl, COL.graphic, COL.sample, COL.description, COL.plasticity,
+    COL.ll, COL.pl, COL.pi, COL.mc, COL.remarks];
   allCols.forEach(col => {
     doc.line(ML + col.x, y, ML + col.x, y + h);
   });
 }
 
-// ══════════════════════════════════════
-//  Depth Scale — gINT ruler
-// ══════════════════════════════════════
-function drawDepthRuler(doc: jsPDF, totalDepthM: number) {
+// ── Depth Scale — gINT ruler ──
+function drawDepthRuler(doc: jsPDF, totalDepthM: number, groundLevel?: string) {
   const scale = pxPerM(totalDepthM);
   const x = ML;
   const w = COL.depth.w;
+  const rlW = COL.rl.w;
+  const gl = parseFloat(groundLevel || "0") || 0;
 
   // Background
   doc.setFillColor(...C.white);
-  doc.rect(x, BODY_TOP, w, BODY_H, "F");
+  doc.rect(x, BODY_TOP, w + rlW, BODY_H, "F");
 
   doc.setDrawColor(...C.gridLight);
   for (let d = 0; d <= totalDepthM; d += 0.5) {
     const dy = BODY_TOP + d * scale;
     if (dy > BODY_BOT) break;
     const isMajor = d % 1 === 0;
-    const is15 = d % 1.5 < 0.01 || Math.abs(d % 1.5 - 1.5) < 0.01;
 
     if (isMajor) {
       doc.setLineWidth(0.3);
-      doc.line(x + w - 4, dy, x + w, dy);
+      doc.line(x + w + rlW - 4, dy, x + w + rlW, dy);
       doc.setFontSize(6);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(...C.text);
-      doc.text(d.toFixed(1), x + w - 5, dy + 1.5, { align: "right" });
+      doc.text(d.toFixed(1), x + w - 1, dy + 1.5, { align: "right" });
+      
+      // RL value
+      if (groundLevel) {
+        doc.setFont("helvetica", "normal");
+        doc.text((gl - d).toFixed(1), x + w + rlW - 1, dy + 1.5, { align: "right" });
+      }
     } else {
       doc.setLineWidth(0.15);
-      doc.line(x + w - 2, dy, x + w, dy);
+      doc.line(x + w + rlW - 2, dy, x + w + rlW, dy);
     }
 
-    // Faint horizontal grid across all columns for major depths
     if (isMajor && d > 0) {
       doc.setDrawColor(...C.gridFaint);
       doc.setLineWidth(0.08);
@@ -314,41 +340,37 @@ function drawDepthRuler(doc: jsPDF, totalDepthM: number) {
   }
 }
 
-// ══════════════════════════════════════
-//  Body Column Lines — gINT bordered table
-// ══════════════════════════════════════
+// ── Body Column Lines ──
 function drawBodyGrid(doc: jsPDF) {
-  // Outer border
   doc.setDrawColor(...C.border);
   doc.setLineWidth(0.5);
   doc.rect(ML, BODY_TOP, CONTENT_W, BODY_H, "S");
 
-  // Column dividers
   doc.setDrawColor(...C.gridLight);
-  doc.setLineWidth(0.25);
-  const allCols = [COL.graphic, COL.sample, COL.description, COL.plasticity,
-    COL.ll, COL.pl, COL.pi, COL.mc, COL.cbr, COL.remarks, COL.sptGraph];
+  doc.setLineWidth(0.2);
+  const allCols = [COL.rl, COL.graphic, COL.sample, COL.description, COL.plasticity,
+    COL.ll, COL.pl, COL.pi, COL.mc, COL.remarks];
   allCols.forEach(col => {
     doc.line(ML + col.x, BODY_TOP, ML + col.x, BODY_BOT);
   });
 
-  // Heavier borders around description and SPT graph
   doc.setDrawColor(...C.border);
   doc.setLineWidth(0.35);
   doc.line(ML + COL.description.x, BODY_TOP, ML + COL.description.x, BODY_BOT);
-  doc.line(ML + COL.sptGraph.x, BODY_TOP, ML + COL.sptGraph.x, BODY_BOT);
 }
 
 // ══════════════════════════════════════
 //  Layer Row — gINT material description
 // ══════════════════════════════════════
-function drawLayerRow(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, idx: number) {
+// ── Layer Row — gINT material description ──
+function drawLayerRow(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, idx: number, groundLevel?: string) {
   const scale = pxPerM(totalDepthM);
   const from = parseFloat(entry.depthFrom) || 0;
   const to = parseFloat(entry.depthTo) || from + 0.5;
   const yTop = BODY_TOP + from * scale;
   const yBot = BODY_TOP + to * scale;
   const h = Math.max(yBot - yTop, 6);
+  const gl = parseFloat(groundLevel || "0") || 0;
 
   // Alternating subtle row background
   if (idx % 2 === 0) {
@@ -361,19 +383,20 @@ function drawLayerRow(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, idx
   doc.setFillColor(...C.white);
   doc.rect(gx, yTop, gw, h, "F");
   drawHatch(doc, entry.primarySoilType, gx, yTop, gw, h);
-  doc.setDrawColor(...C.gridLight);
+  doc.setDrawColor(...C.border);
   doc.setLineWidth(0.15);
   doc.rect(gx, yTop, gw, h, "S");
 
-  // ── Depth labels (top and bottom of layer) ──
-  doc.setFontSize(5.5);
+  // ── Depth labels ──
+  doc.setFontSize(5);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(...C.textGrey);
   if (from > 0) {
-    doc.text(from.toFixed(1), ML + COL.depth.w - 1, yTop + 2, { align: "right" });
+    doc.text(from.toFixed(2), ML + COL.depth.w - 1, yTop + 2, { align: "right" });
+    if (groundLevel) {
+       doc.text((gl - from).toFixed(2), ML + COL.rl.x + COL.rl.w - 1, yTop + 2, { align: "right" });
+    }
   }
-  doc.setFont("helvetica", "bold");
-  doc.text(to.toFixed(1), ML + COL.depth.w - 1, yBot - 0.5, { align: "right" });
 
   // ── Sample column ──
   if (entry.sptResult && (entry.sptResult.n1 || entry.sptResult.n2 || entry.sptResult.n3)) {
@@ -381,117 +404,61 @@ function drawLayerRow(doc: jsPDF, entry: BoreholeEntry, totalDepthM: number, idx
     const sw = COL.sample.w - 2;
     const cy = yTop + Math.min(h / 2, 8);
     doc.setFillColor(...C.colHdrBg);
-    doc.roundedRect(sx, cy - 3.5, sw, 7, 0.8, 0.8, "F");
-    doc.setFontSize(4.5);
+    doc.roundedRect(sx, cy - 3, sw, 6, 0.5, 0.5, "F");
+    doc.setFontSize(4);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...C.white);
-    doc.text("SPT", sx + sw / 2, cy + 0.5, { align: "center" });
+    doc.text("SPT", sx + sw / 2, cy + 1, { align: "center" });
   }
 
-  // ── Material Description — gINT continuous block ──
-  const dx = ML + COL.description.x + 2;
-  const dw = COL.description.w - 4;
-
-  // Build the full gINT-style description as one continuous string
-  let soilType = (entry.primarySoilType || "").toUpperCase();
-  let descBlock = "";
-
-  if (soilType === "ROAD BASE") {
-    descBlock = "ROAD BASE MATERIAL";
-  } else if (soilType === "SAND") {
-    descBlock = "fine grained SAND";
-  } else {
-    // Build: "Secondary PRIMARY" e.g. "Sandy CLAY"
-    const secondary = entry.secondaryDescriptors.length > 0
-      ? entry.secondaryDescriptors.join(" ") + " "
-      : "";
-    descBlock = secondary + soilType;
-  }
-
-  // Plasticity
-  if (entry.plasticity && entry.plasticity !== "none") {
-    descBlock += `, ${entry.plasticity.toLowerCase()} plasticity`;
-  }
-
-  // Colour
-  if (entry.colour) {
-    let colourPart = entry.colour;
-    if (entry.colourBecoming) {
-      colourPart += ` becoming ${entry.colourBecoming}`;
-    }
-    descBlock += `, ${colourPart}`;
-  }
-
-  // Minor components
-  if (entry.minorComponents.length > 0) {
-    descBlock += `, ${entry.minorComponents.join(", ")}`;
-  }
-
-  // Render: primary bold + description normal on same line
-  doc.setFontSize(6.5);
+  // ── Material Description ──
+  const dx = ML + COL.description.x + 1.5;
+  const dw = COL.description.w - 3;
+  
+  const descBlock = formatAS1726Description(entry);
+  doc.setFontSize(6);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(...C.text);
 
-  // Use splitTextToSize for proper word wrapping — no mid-word breaks
   const descLines = doc.splitTextToSize(descBlock, dw);
-  const lineH = 3.2;
-  const maxLines = Math.max(Math.floor((h - 2) / lineH), 1);
-  const startY = yTop + 4.5;
+  const lineH = 2.8;
+  const startY = yTop + 3.5;
 
-  descLines.slice(0, maxLines).forEach((line: string, li: number) => {
-    doc.text(line, dx, startY + li * lineH);
+  descLines.forEach((line: string, li: number) => {
+    if (startY + li * lineH < yBot - 1) {
+      doc.text(line, dx, startY + li * lineH);
+    }
   });
 
-  // ── Plasticity column ──
-  const plastVal = entry.plasticity || "\u2014";
-  const displayPlast = plastVal === "none" ? "None"
-    : plastVal === "\u2014" ? "\u2014"
-    : plastVal.charAt(0).toUpperCase() + plastVal.slice(1);
-  doc.setFontSize(5.5);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(...C.text);
-  doc.text(displayPlast, ML + COL.plasticity.x + COL.plasticity.w / 2, yTop + h / 2 + 1, { align: "center" });
-
-  // ── Lab value cells ──
+  // ── Plasticity/Lab columns ──
   const midY = yTop + h / 2 + 1;
-  doc.setFontSize(6);
-  const numCell = (val: string, col: { x: number; w: number }) => {
+  doc.setFontSize(5.5);
+  const cell = (val: string, col: { x: number; w: number }) => {
     doc.text(val || "\u2014", ML + col.x + col.w / 2, midY, { align: "center" });
   };
-  numCell(entry.liquidLimit, COL.ll);
-  numCell(entry.plasticLimit, COL.pl);
-  numCell(entry.plasticityIndex, COL.pi);
-  numCell(entry.moistureContent, COL.mc);
-  numCell(entry.cbrValue, COL.cbr);
+  
+  cell(entry.plasticity?.charAt(0).toUpperCase() || "", COL.plasticity);
+  cell(entry.liquidLimit, COL.ll);
+  cell(entry.plasticLimit, COL.pl);
+  cell(entry.plasticityIndex, COL.pi);
+  cell(entry.moistureContent, COL.mc);
 
-  // ── Remarks / Grading ──
-  const rx = ML + COL.remarks.x + 1.5;
-  const rw = COL.remarks.w - 3;
-  const remarkParts: string[] = [];
-
-  // SPT blow counts in gINT format
-  if (entry.sptResult && (entry.sptResult.n2 || entry.sptResult.n3)) {
-    const n1 = entry.sptResult.n1 || "0";
-    const n2 = entry.sptResult.n2 || "0";
-    const n3 = entry.sptResult.n3 || "0";
-    const nVal = (parseInt(n2) || 0) + (parseInt(n3) || 0);
-    remarkParts.push(`SPT N = ${n1}/${n2}/${n3}, N-value = ${nVal}${nVal >= 50 ? " (Refusal)" : ""}`);
-  }
-
-  const dcp = formatDCPResults(entry);
-  if (dcp) remarkParts.push(dcp);
-  if (entry.gradingSummary) remarkParts.push(`Grading: ${entry.gradingSummary}`);
-
-  doc.setFontSize(5);
-  doc.setFont("helvetica", "normal");
+  // ── Remarks / Tests ──
+  const rx = ML + COL.remarks.x + 1;
+  const rw = COL.remarks.w - 2;
+  const tests = formatTestResults(entry).join(", ");
+  
+  doc.setFontSize(4.5);
   doc.setTextColor(...C.textGrey);
-  const remarkText = remarkParts.join(" | ");
-  const remarkLines = doc.splitTextToSize(remarkText, rw);
-  const maxRemarkLines = Math.max(Math.floor(h / 3.5), 1);
-  doc.text(remarkLines.slice(0, maxRemarkLines), rx, yTop + 4.5);
+  const testLines = doc.splitTextToSize(tests, rw);
+  testLines.forEach((line: string, li: number) => {
+    if (yTop + 3.5 + li * 2.5 < yBot) {
+      doc.text(line, rx, yTop + 3.5 + li * 2.5);
+    }
+  });
 
-  // ── Layer divider line ──
-  doc.setDrawColor(...C.layerDiv);
+  // ── Layer divider ──
+  doc.setDrawColor(...C.border);
   doc.setLineWidth(0.25);
   doc.line(ML, yBot, ML + CONTENT_W, yBot);
 }
@@ -663,41 +630,37 @@ function drawFooter(doc: jsPDF, totalPages: number) {
 // ══════════════════════════════════════
 //  Main Export
 // ══════════════════════════════════════
+// ── Main Export — gINT Portrait Clone ──
 export function generateBoreholeLogPDF(
   entries: BoreholeEntry[],
   projectName: string,
   boreholeId: string,
   project?: BoreholeProject
 ) {
-  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "landscape" });
-  const totalDepthM = parseFloat(project?.totalDepth || "15") || 15;
+  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  const totalDepthM = parseFloat(project?.totalDepth || "10") || 10;
+  const gl = project?.groundLevel || "0";
 
-  drawHeader(doc, projectName, boreholeId, project?.totalDepth || "\u2014", 1, 1);
+  // Initial Page
+  drawHeader(doc, project || { projectName, boreholeId, totalDepth: "10", layers: [] } as any, 1, 1);
   drawColHeaders(doc);
-  drawDepthRuler(doc, totalDepthM);
+  drawDepthRuler(doc, totalDepthM, gl);
   drawBodyGrid(doc);
 
-  entries.forEach((entry, i) => drawLayerRow(doc, entry, totalDepthM, i));
+  // Layers
+  entries.forEach((entry, i) => drawLayerRow(doc, entry, totalDepthM, i, gl));
 
-  drawSPTGraph(doc, entries, totalDepthM, project?.sptTests);
-
-  // In-situ testing notes below table
-  if (project) {
-    const dcpStr = formatDCPResults(project as any);
-    if (dcpStr) {
-      const noteX = ML + 3;
-      const noteY = BODY_BOT + 5;
-      doc.setFontSize(5.5);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...C.text);
-      doc.text("IN-SITU TESTING:", noteX, noteY);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...C.textGrey);
-      const dcpLines = doc.splitTextToSize(dcpStr, 200);
-      doc.text(dcpLines, noteX, noteY + 3.5);
-    }
+  // Groundwater symbol
+  if (project?.groundwaterDepth) {
+     const dw = parseFloat(project.groundwaterDepth);
+     if (!isNaN(dw)) drawWaterLevel(doc, dw, totalDepthM);
   }
 
-  drawFooter(doc, doc.getNumberOfPages());
-  doc.save(`${projectName || "borehole"}_${boreholeId || "log"}_TabLog.pdf`);
+  // Footer branding
+  drawFooter(doc, 1);
+
+  // Note: For deep boreholes (>15m in portrait), we would implement 
+  // page splitting here. For now, we fit as much as possible on A4.
+
+  doc.save(`${projectName || "borehole"}_${boreholeId || "log"}_gINT.pdf`);
 }

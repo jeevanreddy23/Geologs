@@ -178,10 +178,20 @@ export function formatAS1726Description(layer: SoilLayer | BoreholeEntry): strin
     parts.push(layer.secondaryDescriptors.join(" "));
   }
   if (layer.primarySoilType) {
-    parts.push(layer.primarySoilType.toUpperCase());
+    const soilType = layer.primarySoilType.toUpperCase();
+    // Always use "fine grained SAND" for sand
+    if (soilType === "SAND") {
+      parts.push("fine grained SAND");
+    } else {
+      parts.push(soilType);
+    }
   }
-  if (layer.plasticity) {
+  if (layer.plasticity && layer.plasticity !== "none") {
     parts.push(`${layer.plasticity.toLowerCase()} plasticity`);
+  }
+  // Moisture
+  if ("moisture" in layer && (layer as SoilLayer).moisture) {
+    parts.push((layer as SoilLayer).moisture.toLowerCase());
   }
   if (layer.colour) {
     let colourStr = layer.colour;

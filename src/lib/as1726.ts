@@ -123,7 +123,6 @@ export const defaultProject: BoreholeProject = {
   sptResult: null,
   sptTests: [],
 };
-};
 
 export const defaultEntry: BoreholeEntry = {
   projectName: "",

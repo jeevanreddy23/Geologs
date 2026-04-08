@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Layers, Plus, Download, FileDown, Timer, CheckCircle2,
-  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles, LogOut,
+  Cloud, Keyboard, Zap, Flame, Trophy, Sparkles, LogOut, Save,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -301,6 +301,18 @@ export default function Index() {
               title="Keyboard shortcuts"
             >
               <Keyboard className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost" size="sm"
+              onClick={() => {
+                localStorage.setItem("autosoil_current", JSON.stringify(project));
+                toast.success("Saved", { duration: 800 });
+              }}
+              className="text-muted-foreground hover:text-foreground h-8 px-2 text-xs"
+              title="Save (⌘S)"
+            >
+              <Save className="h-3.5 w-3.5 mr-1" />
+              Save
             </Button>
             <Button
               size="sm" onClick={handleNewBorehole}

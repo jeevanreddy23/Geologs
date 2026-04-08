@@ -118,6 +118,7 @@ export function SoilInput({ layer, onChange }: SoilInputProps) {
               <SelectValue placeholder="Select…" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none">None</SelectItem>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>

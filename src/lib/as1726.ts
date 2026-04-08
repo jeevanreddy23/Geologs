@@ -139,7 +139,7 @@ export const defaultEntry: BoreholeEntry = {
 
 export const PRIMARY_SOIL_TYPES = [
   "CLAY", "SILT", "SAND", "GRAVEL", "COBBLES",
-  "BOULDERS", "FILL", "TOPSOIL", "PEAT", "ROCK",
+  "BOULDERS", "FILL", "TOPSOIL", "PEAT", "ROCK", "ROAD BASE",
 ];
 
 export const SECONDARY_DESCRIPTORS = [

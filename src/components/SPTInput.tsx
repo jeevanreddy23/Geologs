@@ -159,7 +159,7 @@ export function SPTInput({ sptTests, totalDepth, onChange }: SPTInputProps) {
           </Label>
           <div style={{ width: "100%", height: Math.max(180, chartData.length * 24) }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+              <LineChart
                 data={chartData}
                 layout="vertical"
                 margin={{ top: 5, right: 10, left: 5, bottom: 5 }}
@@ -183,8 +183,8 @@ export function SPTInput({ sptTests, totalDepth, onChange }: SPTInputProps) {
                   formatter={(value: number) => [value, "N-Value"]}
                   labelFormatter={(label) => `Depth: ${label}`}
                 />
-                <Bar dataKey="N" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-              </BarChart>
+                <Line type="monotone" dataKey="N" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>

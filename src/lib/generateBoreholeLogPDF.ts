@@ -50,7 +50,8 @@ const COL = {
   pl:          { x: 141,  w: 8 },
   pi:          { x: 149,  w: 8 },
   mc:          { x: 157,  w: 8 },
-  remarks:     { x: 165,  w: 25 },
+  remarks:     { x: 165,  w: 15 },
+  sptGraph:    { x: 180,  w: 10 },
 } as const;
 
 const HEADER_H = 34;
@@ -200,7 +201,7 @@ function drawHeader(doc: jsPDF, project: BoreholeProject, pageNum: number, total
   doc.setFontSize(6);
   doc.setTextColor(...C.text);
 
-  const field = (label: string, value?: string, fx: number, fy: number) => {
+  const field = (label: string, value: string | undefined, fx: number, fy: number) => {
     doc.setFont("helvetica", "bold");
     doc.text(label + ":", fx, fy);
     const lw = doc.getTextWidth(label + ": ");

@@ -6,49 +6,104 @@
 
 @layer base {
   :root {
-    --background: 210 20% 7%;
-    --foreground: 140 10% 88%;
+    /* Geologs 2.0 — Light Minimalist (Apple × Linear × Notion × Stripe × Calm)
+       Bg: crisp off-white (#FAFAFA)
+       Text: deep ink (#111827)
+       Accent: deep teal (#0A7C7C) */
 
-    --card: 210 18% 10%;
-    --card-foreground: 140 10% 88%;
+    --background: 0 0% 98.4%;
+    --foreground: 220 26% 9%;
 
-    --popover: 210 18% 10%;
-    --popover-foreground: 140 10% 88%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 26% 9%;
 
-    --primary: 142 50% 48%;
-    --primary-foreground: 210 20% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 26% 9%;
 
-    --secondary: 210 14% 15%;
-    --secondary-foreground: 140 10% 78%;
+    --primary: 174 84% 26%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 210 14% 13%;
-    --muted-foreground: 210 10% 50%;
+    --secondary: 210 10% 96%;
+    --secondary-foreground: 220 14% 40%;
 
-    --accent: 32 60% 45%;
-    --accent-foreground: 32 80% 92%;
+    --muted: 210 10% 95%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 160 70% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 9% 89%;
+    --input: 220 9% 89%;
+    --ring: 174 84% 26%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 14% 40%;
+    --sidebar-primary: 174 84% 26%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 10% 95%;
+    --sidebar-accent-foreground: 220 14% 40%;
+    --sidebar-border: 220 9% 91%;
+    --sidebar-ring: 174 84% 26%;
+
+    --earth: 32 40% 45%;
+    --earth-foreground: 32 60% 20%;
+    --surface: 210 10% 97%;
+    --glow: 174 60% 42%;
+
+    --success: 160 70% 36%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 220 18% 7%;
+    --foreground: 210 10% 90%;
+
+    --card: 220 16% 10%;
+    --card-foreground: 210 10% 90%;
+
+    --popover: 220 16% 11%;
+    --popover-foreground: 210 10% 90%;
+
+    --primary: 174 60% 42%;
+    --primary-foreground: 220 18% 7%;
+
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 210 10% 72%;
+
+    --muted: 220 14% 13%;
+    --muted-foreground: 220 10% 48%;
+
+    --accent: 38 70% 50%;
+    --accent-foreground: 38 80% 95%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 210 14% 18%;
-    --input: 210 14% 18%;
-    --ring: 142 50% 48%;
+    --border: 220 14% 17%;
+    --input: 220 14% 17%;
+    --ring: 174 60% 42%;
 
-    --radius: 0.5rem;
-
-    --sidebar-background: 210 18% 8%;
-    --sidebar-foreground: 140 10% 78%;
-    --sidebar-primary: 142 50% 48%;
-    --sidebar-primary-foreground: 210 20% 7%;
-    --sidebar-accent: 210 14% 13%;
-    --sidebar-accent-foreground: 140 10% 78%;
-    --sidebar-border: 210 14% 16%;
-    --sidebar-ring: 142 50% 48%;
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 210 10% 72%;
+    --sidebar-primary: 174 60% 42%;
+    --sidebar-primary-foreground: 220 18% 7%;
+    --sidebar-accent: 220 14% 13%;
+    --sidebar-accent-foreground: 210 10% 72%;
+    --sidebar-border: 220 14% 15%;
+    --sidebar-ring: 174 60% 42%;
 
     --earth: 32 40% 30%;
     --earth-foreground: 32 60% 85%;
-    --surface: 210 16% 12%;
-    --glow: 142 60% 55%;
+    --surface: 220 16% 11%;
+    --glow: 174 70% 50%;
+
+    --success: 152 60% 42%;
+    --success-foreground: 152 80% 95%;
   }
 }
 
@@ -60,6 +115,15 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+
+  button, input, select, textarea, [role="button"] {
+    @apply transition-all duration-150;
+  }
+
+  input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
 }
 
 @layer utilities {
@@ -68,14 +132,88 @@
   }
 
   .glow-border {
-    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 0 20px -5px hsl(var(--primary) / 0.15);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 1px 8px -3px hsl(var(--primary) / 0.06);
+  }
+
+  .glow-border-strong {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), 0 4px 16px -4px hsl(var(--primary) / 0.1);
   }
 
   .surface-elevated {
     background: linear-gradient(
       180deg,
       hsl(var(--card)) 0%,
-      hsl(210 18% 9%) 100%
+      hsl(var(--surface)) 100%
     );
+  }
+
+  .glass {
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  }
+
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+  .card-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 12px -3px hsl(var(--primary) / 0.06), 0 0 0 1px hsl(var(--border));
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--glow)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .attention-ring {
+    @apply relative;
+  }
+  .attention-ring::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl pointer-events-none;
+    box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.06);
+    transition: box-shadow 0.2s;
+  }
+  .attention-ring:focus-within::after {
+    box-shadow: inset 0 0 0 2px hsl(var(--primary) / 0.15);
+  }
+
+  .custom-scroll::-webkit-scrollbar {
+    width: 3px;
+  }
+  .custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+}
+
+@layer utilities {
+  .stagger-children > * {
+    opacity: 0;
+    animation: staggerIn 0.3s ease-out forwards;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+  @keyframes staggerIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

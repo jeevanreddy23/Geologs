@@ -1,0 +1,72 @@
+﻿/* frontend/src/App.css */
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.1);
+  --text: #1a1a18;
+  --muted: #6b6b66;
+  --accent: #1d4ed8;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --warning: #b45309;
+  --radius: 10px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; }
+.app { max-width: 600px; margin: 0 auto; padding: 0 16px 60px; }
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0 16px; border-bottom: 0.5px solid var(--border); margin-bottom: 20px;
+}
+.logo { font-weight: 600; font-size: 17px; letter-spacing: -0.3px; }
+.standard { font-size: 12px; color: var(--muted); background: #f0f0ed; padding: 3px 8px; border-radius: 20px; }
+.step-nav { display: flex; align-items: center; gap: 4px; margin-bottom: 28px; flex-wrap: wrap; }
+.step-pill { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
+.step-pill.active { color: var(--accent); font-weight: 500; }
+.step-pill.done { color: var(--success); }
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.step-sep { color: var(--border); font-size: 16px; margin-left: 4px; }
+.error-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fef2f2; border: 0.5px solid #fca5a5; border-radius: var(--radius);
+  padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--danger);
+}
+.error-banner button { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 16px; }
+.card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; }
+.card h2 { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+.card .sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.field input, .field select {
+  width: 100%; padding: 9px 12px; font-size: 15px; font-family: var(--font);
+  border: 0.5px solid var(--border); border-radius: 8px; background: var(--surface);
+  color: var(--text); outline: none; transition: border-color .15s;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: var(--font); cursor: pointer; border: 0.5px solid var(--border); transition: background .15s, transform .1s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+.btn-primary:hover { background: #333; }
+.btn-ghost { background: transparent; color: var(--text); }
+.btn-ghost:hover { background: #f0f0ed; }
+.btn-row { display: flex; justify-content: space-between; margin-top: 20px; }
+.upload-zone {
+  border: 1.5px dashed var(--border); border-radius: var(--radius);
+  padding: 32px; text-align: center; cursor: pointer; transition: border-color .15s;
+  background: #fafaf9; margin-bottom: 14px;
+}
+.upload-zone:hover { border-color: var(--accent); }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-hint { font-size: 13px; color: var(--muted); }
+.upload-zone img { max-width: 100%; max-height: 200px; border-radius: 6px; margin-top: 10px; }
+.qa-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-top: 8px; }
+.qa-pass { background: #f0fdf4; color: var(--success); }
+.qa-fail { background: #fef2f2; color: var(--danger); }
+.layer-field { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; }
+.layer-field:last-child { border-bottom: none; }
+.layer-field .key { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.layer-field .val { font-weight: 500; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,16 @@
+﻿langgraph>=0.2.0,<0.3.0
+langgraph-supervisor
+langchain-openai
+langchain-anthropic
+langchain-core
+langsmith
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+reportlab
+python-dotenv
+pydantic>=2.0.0,<3.0.0
+httpx
+aiofiles
+anthropic

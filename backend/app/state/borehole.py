@@ -1,4 +1,4 @@
-﻿# app/state/borehole.py
+# app/state/borehole.py
 
 from typing import Annotated, List, Optional, TypedDict
 from langgraph.graph.message import add_messages
@@ -54,3 +54,11 @@ class BoreholeState(TypedDict):
     
     # Internal Working Storage (current layer being classified)
     current_layer: Optional[SoilLayer]
+
+    # Pipeline Extension (10 Agents)
+    validation_errors: List[str]
+    historical_context: Optional[str]
+    compliance_check: Optional[str]
+    executive_summary: Optional[str]
+    dispatch_status: Optional[str]
+    is_dispatched: bool

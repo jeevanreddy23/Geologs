@@ -4,6 +4,14 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# Patch for langchain attribute error
+try:
+    import langchain
+    if not hasattr(langchain, 'debug'):
+        langchain.debug = False
+except ImportError:
+    pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router

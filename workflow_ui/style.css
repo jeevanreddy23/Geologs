@@ -1,0 +1,229 @@
+:root {
+    --bg-dark: #0a0a0c;
+    --bg-card: #141418;
+    --bg-accent: #1e1e24;
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --accent-blue: #3b82f6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-crimson: #ef4444;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(20, 20, 24, 0.7);
+    --font-family: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    overflow: hidden;
+    height: 100vh;
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 80px 1fr 350px;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    gap: 2rem;
+}
+
+.nav-item {
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0.75rem;
+    border-radius: 12px;
+}
+
+.nav-item:hover, .nav-item.active {
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Main Content */
+.main-content {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 2rem;
+    gap: 2rem;
+    overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.status-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent-emerald);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Agent Swarm Visualization */
+.swarm-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+}
+
+.agent-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.agent-card.working {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.agent-card.working::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent-blue);
+    animation: slide 2s linear infinite;
+}
+
+@keyframes slide {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+.agent-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.working .agent-icon {
+    color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.done .agent-icon {
+    color: var(--accent-emerald);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.agent-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Live Terminal */
+.terminal {
+    background: #000;
+    border-radius: 12px;
+    padding: 1.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+.log-entry {
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.log-time { color: var(--text-secondary); }
+.log-agent { color: var(--accent-blue); font-weight: 600; }
+.log-msg { color: #e2e8f0; }
+
+/* Right Panel: Analysis Details */
+.details-panel {
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.card {
+    background: var(--bg-accent);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.analysis-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-color);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-primary {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}

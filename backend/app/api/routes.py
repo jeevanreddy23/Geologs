@@ -1,8 +1,8 @@
-﻿# app/api/routes.py
+# app/api/routes.py
 
 import base64
 import uuid
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -35,8 +35,16 @@ async def log_interval(request: LogIntervalRequest):
     Log a soil interval without a photo.
     The classifier agent will attempt classification from existing state context.
     """
-    thread_id = f"{request.borehole_id}-{request.depth_from}-{request.depth_to}"
+    thread_id = f"{request.project_id}-{request.borehole_id}"
     config = {"configurable": {"thread_id": thread_id}}
+
+    # Try to get existing state to preserve soil_layers
+    existing_state = await graph.aget_state(config)
+    soil_layers = []
+    test_results = []
+    if existing_state and existing_state.values:
+        soil_layers = existing_state.values.get("soil_layers", [])
+        test_results = existing_state.values.get("test_results", [])
 
     initial_state = {
         "project_id": request.project_id,
@@ -45,8 +53,8 @@ async def log_interval(request: LogIntervalRequest):
         "depth_from": request.depth_from,
         "depth_to": request.depth_to,
         "sample_id": request.sample_id,
-        "soil_layers": [],
-        "test_results": [],
+        "soil_layers": soil_layers,
+        "test_results": test_results,
         "qa_score": 0.0,
         "qa_passed": False,
         "retry_count": 0,
@@ -54,7 +62,15 @@ async def log_interval(request: LogIntervalRequest):
         "last_agent": "start",
         "error": None,
         "pending_human_review": False,
+        "validation_errors": [],
+        "historical_context": None,
+        "compliance_check": None,
+        "executive_summary": None,
+        "dispatch_status": None,
+        "is_dispatched": False,
         "current_layer": {
+            "depth_from": request.depth_from,
+            "depth_to": request.depth_to,
             "colour": request.colour or "",
             "moisture": request.moisture or "",
             "consistency": request.consistency or "",
@@ -84,20 +100,28 @@ async def log_interval(request: LogIntervalRequest):
 
 @router.post("/log-interval-photo")
 async def log_interval_with_photo(
-    project_id: str,
-    project_name: str,
-    borehole_id: str,
-    depth_from: float,
-    depth_to: float,
-    sample_id: str = "",
+    project_id: str = Form(...),
+    project_name: str = Form(...),
+    borehole_id: str = Form(...),
+    depth_from: float = Form(...),
+    depth_to: float = Form(...),
+    sample_id: str = Form(""),
     photo: UploadFile = File(...),
 ):
     """Log a soil interval with a field photo. Triggers photo -> classify -> QA -> log chain."""
     contents = await photo.read()
     b64 = base64.b64encode(contents).decode("utf-8")
 
-    thread_id = f"{borehole_id}-{depth_from}-{depth_to}"
+    thread_id = f"{project_id}-{borehole_id}"
     config = {"configurable": {"thread_id": thread_id}}
+
+    # Try to get existing state to preserve soil_layers
+    existing_state = await graph.aget_state(config)
+    soil_layers = []
+    test_results = []
+    if existing_state and existing_state.values:
+        soil_layers = existing_state.values.get("soil_layers", [])
+        test_results = existing_state.values.get("test_results", [])
 
     initial_state = {
         "project_id": project_id,
@@ -107,8 +131,8 @@ async def log_interval_with_photo(
         "depth_to": depth_to,
         "sample_id": sample_id,
         "photo_base64": b64,
-        "soil_layers": [],
-        "test_results": [],
+        "soil_layers": soil_layers,
+        "test_results": test_results,
         "qa_score": 0.0,
         "qa_passed": False,
         "retry_count": 0,
@@ -116,6 +140,12 @@ async def log_interval_with_photo(
         "last_agent": "start",
         "error": None,
         "pending_human_review": False,
+        "validation_errors": [],
+        "historical_context": None,
+        "compliance_check": None,
+        "executive_summary": None,
+        "dispatch_status": None,
+        "is_dispatched": False,
     }
 
     result = await graph.ainvoke(initial_state, config=config)
@@ -144,12 +174,22 @@ async def generate_report(borehole_id: str, project_id: str, project_name: str):
     """Generate AS 1726:2017 PDF report for a completed borehole."""
     from app.agents.report_agent import report_agent
 
+    thread_id = f"{project_id}-{borehole_id}"
+    config = {"configurable": {"thread_id": thread_id}}
+    
+    existing_state = await graph.aget_state(config)
+    soil_layers = []
+    test_results = []
+    if existing_state and existing_state.values:
+        soil_layers = existing_state.values.get("soil_layers", [])
+        test_results = existing_state.values.get("test_results", [])
+
     state = {
         "project_id": project_id,
         "project_name": project_name,
         "borehole_id": borehole_id,
-        "soil_layers": [],      # ← Replace with real DB query in production
-        "test_results": [],
+        "soil_layers": soil_layers,
+        "test_results": test_results,
         "messages": [],
     }
 

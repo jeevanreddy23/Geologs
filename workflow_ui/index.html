@@ -3,92 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoLogs | Command Center</title>
+    <title>GeoLogs | Intelligent Workflow</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="nav-item active"><i data-lucide="layout-dashboard"></i></div>
-            <div class="nav-item"><i data-lucide="folder"></i></div>
-            <div class="nav-item"><i data-lucide="settings"></i></div>
-            <div style="margin-top: auto;" class="nav-item"><i data-lucide="log-out"></i></div>
+            <div class="logo">
+                <i data-lucide="layers"></i>
+                GEOLOGS
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li class="nav-item active"><i data-lucide="layout-dashboard"></i> Dashboard</li>
+                    <li class="nav-item"><i data-lucide="file-text"></i> Templates</li>
+                    <li class="nav-item"><i data-lucide="database"></i> Field Data</li>
+                    <li class="nav-item"><i data-lucide="check-circle"></i> QA/QC</li>
+                    <li class="nav-item"><i data-lucide="settings"></i> Settings</li>
+                </ul>
+            </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <div>
-                    <p class="text-secondary" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Project Pipeline</p>
-                    <h1>GeoLogs Command Center</h1>
+                <div class="project-info">
+                    <h1>Active Workflow: <span id="project-id">#2026-G042</span></h1>
+                    <p class="text-secondary">Template: Geotechnical Investigation - Cored</p>
                 </div>
-                <div class="status-badge" id="global-status">
-                    <span class="pulse"></span> System Ready
+                <div class="header-actions">
+                    <span class="status-badge">Processing</span>
                 </div>
             </header>
 
-            <!-- Agent Swarm Grid -->
-            <div class="swarm-container" id="agent-grid">
-                <!-- 10 Agents will be injected here -->
+            <!-- Workflow Stepper -->
+            <div class="workflow-stepper">
+                <div class="step completed">
+                    <div class="step-node"><i data-lucide="search"></i></div>
+                    <span class="step-label">Scope</span>
+                </div>
+                <div class="step completed">
+                    <div class="step-node"><i data-lucide="copy"></i></div>
+                    <span class="step-label">Template</span>
+                </div>
+                <div class="step active">
+                    <div class="step-node"><i data-lucide="zap"></i></div>
+                    <span class="step-label">Validation</span>
+                </div>
+                <div class="step">
+                    <div class="step-node"><i data-lucide="eye"></i></div>
+                    <span class="step-label">Review</span>
+                </div>
+                <div class="step">
+                    <div class="step-node"><i data-lucide="send"></i></div>
+                    <span class="step-label">Issue</span>
+                </div>
             </div>
 
-            <!-- Terminal Feed -->
-            <div class="terminal" id="terminal-feed">
-                <div class="log-entry">
-                    <span class="log-time">[21:42:25]</span>
-                    <span class="log-agent">SYSTEM</span>
-                    <span class="log-msg">Initializing Agent Swarm v2.1...</span>
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Validation Details -->
+                <div class="card">
+                    <div class="card-title">
+                        <i data-lucide="alert-triangle" style="color: var(--accent-amber)"></i>
+                        Missing Requirements
+                    </div>
+                    <div class="field-list" id="missing-fields-container">
+                        <!-- Populated by JS -->
+                        <div class="field-item">
+                            <span class="field-name">Client Name</span>
+                            <span class="field-status">MISSING</span>
+                        </div>
+                        <div class="field-item">
+                            <span class="field-name">DCP/SPT Data</span>
+                            <span class="field-status">MISSING</span>
+                        </div>
+                        <div class="field-item">
+                            <span class="field-name">Stratigraphy interpretation</span>
+                            <span class="field-status">PENDING</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" id="auto-inject-btn">Auto-Inject Data</button>
+                        <button class="btn" style="background: rgba(255,255,255,0.05)">Manual Entry</button>
+                    </div>
+                </div>
+
+                <!-- Risk & Intelligence -->
+                <div class="card">
+                    <div class="card-title">
+                        <i data-lucide="brain" style="color: var(--accent-blue)"></i>
+                        Risk Profile
+                    </div>
+                    <div class="risk-meter">
+                        <div class="risk-fill"></div>
+                    </div>
+                    <div class="risk-stats">
+                        <div class="stat-box">
+                            <span class="stat-value" style="color: var(--accent-red)">High</span>
+                            <span class="stat-label">Automation Risk</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">16</span>
+                            <span class="stat-label">Audit Points</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h4 style="font-size: 0.875rem; margin-bottom: 0.5rem;">Intelligence Note:</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            This template requires manual engineer review of every design parameter due to AS 1726 compliance rules.
+                        </p>
+                    </div>
                 </div>
             </div>
         </main>
-
-        <!-- Right Details Panel -->
-        <aside class="details-panel">
-            <div class="card">
-                <h3 style="margin-bottom: 1rem;">Interval Controls</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div>
-                        <label class="text-secondary" style="font-size: 0.75rem;">Borehole ID</label>
-                        <input type="text" id="bh-id" value="BH-101" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); color: white; padding: 0.5rem; border-radius: 8px;">
-                    </div>
-                    <div>
-                        <label class="text-secondary" style="font-size: 0.75rem;">Depth (m)</label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="number" id="depth-from" value="0.0" step="0.1" style="width: 50%; background: var(--bg-dark); border: 1px solid var(--border-color); color: white; padding: 0.5rem; border-radius: 8px;">
-                            <input type="number" id="depth-to" value="1.5" step="0.1" style="width: 50%; background: var(--bg-dark); border: 1px solid var(--border-color); color: white; padding: 0.5rem; border-radius: 8px;">
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" id="start-btn">Launch Pipeline</button>
-                </div>
-            </div>
-
-            <div class="card" id="analysis-preview">
-                <h3 style="margin-bottom: 0.5rem;">Live Analysis</h3>
-                <p class="text-secondary" style="font-size: 0.875rem;">Real-time geological insights</p>
-                <div class="analysis-image" id="photo-preview">
-                    No Photo Loaded
-                </div>
-                <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span class="text-secondary">USCS Code</span>
-                        <span id="uscs-display" style="font-weight: 700; color: var(--accent-blue);">--</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span class="text-secondary">Consistency</span>
-                        <span id="const-display">--</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span class="text-secondary">QA Score</span>
-                        <span id="qa-display">--</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
     </div>
 
     <script src="app.js"></script>

@@ -1,80 +1,80 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  --primary: #0ea5e9;
-  --primary-dark: #0284c7;
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --accent: #c084fc;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --bg-dark: #070709;
+  --bg-card: #111116;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --border-color: rgba(255, 255, 255, 0.08);
 }
 
 body {
-  font-family: 'Inter', sans-serif;
   background-color: var(--bg-dark);
-  color: var(--text-main);
-  overflow-x: hidden;
-}
-
-h1, h2, h3, .font-display {
-  font-family: 'Outfit', sans-serif;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  background: rgba(17, 17, 22, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
-}
-
 .input-field {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border);
-  color: white;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.2s ease;
+  @apply w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-sky-500/50 transition-all text-white;
 }
 
-.input-field:focus {
-  border-color: var(--primary);
+.btn-primary {
+  @apply bg-sky-600 hover:bg-sky-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95;
+}
+
+.agent-node {
+  @apply bg-black/40 border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-500;
+}
+
+.agent-node.active {
+  @apply border-sky-500/50 bg-sky-500/10 shadow-[0_0_20px_rgba(56,189,248,0.2)];
+}
+
+.agent-node.done {
+  @apply border-emerald-500/50 bg-emerald-500/5;
+}
+
+.agent-icon-container {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 text-white/40 transition-colors;
+}
+
+.active .agent-icon-container {
+  @apply bg-sky-500/20 text-sky-400;
+}
+
+.done .agent-icon-container {
+  @apply bg-emerald-500/20 text-emerald-400;
+}
+
+.pulse {
+  @apply w-2 h-2 rounded-full bg-sky-500 animate-pulse;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
 }

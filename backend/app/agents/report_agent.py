@@ -1,4 +1,4 @@
-﻿# app/agents/report_agent.py
+# app/agents/report_agent.py
 
 import os
 from app.state.borehole import BoreholeState

@@ -1,7 +1,7 @@
 from app.state.borehole import BoreholeState
 
 async def validation_agent(state: BoreholeState) -> dict:
-    \"\"\"Validates input data integrity before processing.\"\"\"
+    """Validates input data integrity before processing."""
     errors = []
     if not state.get("project_id"):
         errors.append("Missing project_id")

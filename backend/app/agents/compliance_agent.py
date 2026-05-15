@@ -1,7 +1,7 @@
 from app.state.borehole import BoreholeState
 
 async def compliance_agent(state: BoreholeState) -> dict:
-    \"\"\"Verifies AS 1726 compliance of the current classification.\"\"\"
+    """Verifies AS 1726 compliance of the current classification."""
     layer = state.get("current_layer")
     check = "Compliance Check: PASS. All required AS 1726 fields (Color, Moisture, Consistency) are present."
     

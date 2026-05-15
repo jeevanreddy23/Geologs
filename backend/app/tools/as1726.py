@@ -1,4 +1,4 @@
-﻿# app/tools/as1726.py
+# app/tools/as1726.py
 
 from langchain_core.tools import tool
 

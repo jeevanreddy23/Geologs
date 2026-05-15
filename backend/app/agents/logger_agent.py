@@ -1,4 +1,4 @@
-﻿# app/agents/logger_agent.py
+# app/agents/logger_agent.py
 
 from app.state.borehole import BoreholeState, SoilLayer
 from app.tools.as1726 import validate_depth_interval

@@ -1,4 +1,4 @@
-﻿# app/tools/reporting.py
+# app/tools/reporting.py
 
 import os
 from datetime import datetime

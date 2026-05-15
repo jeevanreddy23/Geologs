@@ -1,4 +1,4 @@
-﻿# app/tools/vision.py
+# app/tools/vision.py
 
 import base64
 import os

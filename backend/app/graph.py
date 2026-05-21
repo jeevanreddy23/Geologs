@@ -19,15 +19,22 @@ from app.agents.logger_agent import logger_agent
 from app.agents.report_agent import report_agent
 from app.agents.dispatch_agent import dispatch_agent
 
-# Standardized Agent Wrapper for Supervisor
-def agent_node(func, name):
-    async def node(state: BoreholeState):
-        result = await func(state)
-        return {**result, "last_agent": name}
-    return node
-
 def build_graph():
-    model = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+    provider = os.getenv("MODEL_PROVIDER", "openai")
+    
+    if provider == "mock" or not os.getenv("OPENAI_API_KEY") or "your-key" in os.getenv("OPENAI_API_KEY", ""):
+        print("Using Mock LLM for supervisor (API key missing or provider=mock)")
+        from langchain_community.chat_models.fake import FakeMessagesListChatModel
+        from langchain_core.messages import AIMessage
+        
+        # Patching FakeMessagesListChatModel to support tool binding for supervisor
+        class MockSupervisorLLM(FakeMessagesListChatModel):
+            def bind_tools(self, tools, **kwargs):
+                return self
+        
+        model = MockSupervisorLLM(responses=[AIMessage(content="I will delegate to validation_agent")])
+    else:
+        model = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
     
     # Ensure all agents have a name attribute for the supervisor
     agents = [

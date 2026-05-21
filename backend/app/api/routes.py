@@ -2,10 +2,11 @@
 
 import base64
 import uuid
+import os
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 from app.graph import graph
 
 router = APIRouter(prefix="/api/v1")
@@ -27,6 +28,16 @@ class LogIntervalRequest(BaseModel):
 
 class LogIntervalWithPhotoRequest(LogIntervalRequest):
     photo_base64: Optional[str] = None
+
+
+class TemplateGenerateRequest(BaseModel):
+    template_id: str
+    replacements: Dict[str, str]
+    selected_historical_report_path: Optional[str] = None
+
+
+class ExtractRequest(BaseModel):
+    file_path: str
 
 
 @router.post("/log-interval")
@@ -202,6 +213,120 @@ async def generate_report(borehole_id: str, project_id: str, project_name: str):
         media_type="application/pdf",
         filename=f"{borehole_id}_log.pdf",
     )
+
+
+@router.get("/templates")
+async def get_templates():
+    """List all templates in Main STS Templates folder."""
+    from app.utils.template_manager import list_templates
+    try:
+        return list_templates()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/templates/placeholders")
+async def get_template_placeholders(template_id: str):
+    """Scan and retrieve all bracketed placeholders inside a selected template."""
+    from app.utils.template_manager import extract_placeholders, TEMPLATES_DIR
+    try:
+        path_suffix = template_id.replace("/", os.sep)
+        full_path = os.path.join(TEMPLATES_DIR, path_suffix)
+        if not os.path.exists(full_path):
+            raise HTTPException(status_code=404, detail="Template file not found")
+        return {
+            "template_id": template_id,
+            "placeholders": extract_placeholders(full_path)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/templates/generate")
+async def generate_from_template(request: TemplateGenerateRequest):
+    """Instantiate a completed geotechnical report .docx by replacing all template placeholders via a Multi-Agent Swarm."""
+    from app.utils.template_manager import TEMPLATES_DIR
+    from app.agents.template_swarm import template_swarm
+    try:
+        path_suffix = request.template_id.replace("/", os.sep)
+        template_path = os.path.join(TEMPLATES_DIR, path_suffix)
+        
+        if not os.path.exists(template_path):
+            raise HTTPException(status_code=404, detail="Template not found")
+            
+        initial_state = {
+            "template_id": request.template_id,
+            "template_path": template_path,
+            "selected_historical_report_path": request.selected_historical_report_path,
+            "input_replacements": request.replacements,
+            "placeholders": [],
+            "replacements": {},
+            "compliance_check": "",
+            "qa_score": 0.0,
+            "qa_passed": False,
+            "qa_feedback": [],
+            "output_path": None,
+            "dispatch_status": "",
+            "messages": [],
+            "last_agent": "",
+            "error": None
+        }
+        
+        # Invoke our production-grade multi-agent geotechnical swarm!
+        result = await template_swarm.ainvoke(initial_state)
+        
+        if result.get("error"):
+            raise HTTPException(status_code=500, detail=result["error"])
+            
+        completed_path = result.get("output_path")
+        if not completed_path or not os.path.exists(completed_path):
+            raise HTTPException(status_code=500, detail="Compilation agent failed to generate output path.")
+            
+        file_name = f"Generated_{os.path.basename(template_path)}"
+        
+        # Expose QA score and compliance checks via response headers
+        headers = {
+            "X-QA-Score": str(result.get("qa_score", 0.0)),
+            "X-QA-Passed": "true" if result.get("qa_passed", False) else "false",
+            "X-Compliance-Check": result.get("compliance_check", ""),
+            "Access-Control-Expose-Headers": "X-QA-Score, X-QA-Passed, X-Compliance-Check"
+        }
+        
+        return FileResponse(
+            path=completed_path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename=file_name,
+            headers=headers
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/reports/history")
+async def get_reports_history():
+    """List completed historical reports inside Reports 1, 2, 3 directories."""
+    from app.utils.template_manager import list_history
+    try:
+        return list_history()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/reports/history/extract")
+async def extract_report_variables(request: ExtractRequest):
+    """Triggers smart extraction agent to pull all client and site address parameters from a completed report."""
+    from app.utils.template_manager import extract_variables_from_docx
+    try:
+        if not os.path.exists(request.file_path):
+            raise HTTPException(status_code=404, detail="Report file not found")
+            
+        data = extract_variables_from_docx(request.file_path)
+        return {
+            "status": "success",
+            "extracted_data": data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/health")

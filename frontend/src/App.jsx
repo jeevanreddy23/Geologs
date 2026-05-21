@@ -17,6 +17,7 @@ import ProjectStep from "./steps/ProjectStep";
 import CaptureStep from "./steps/CaptureStep";
 import ClassifyStep from "./steps/ClassifyStep";
 import ReportStep from "./steps/ReportStep";
+import SwarmDashboard from "./components/SwarmDashboard";
 import "./App.css";
 
 const STEPS = [
@@ -33,6 +34,8 @@ export default function App() {
   const [interval, setInterval] = useState({ depthFrom: "", depthTo: "", sampleId: "" });
   const [layer, setLayer] = useState(null);
   const [error, setError] = useState(null);
+  const [activeAgent, setActiveAgent] = useState("validation");
+  const [completedAgents, setCompletedAgents] = useState([]);
 
   const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep(s => Math.max(s - 1, 0));
@@ -88,7 +91,7 @@ export default function App() {
         <div className="wizard-body">
           {error && (
             <div className="card" style={{ border: "1px solid var(--accent-red)", marginBottom: "2rem" }}>
-              <p style={{ color: "var(--accent-red)", fontWeight: 700 }}>? {error}</p>
+              <p style={{ color: "var(--accent-red)", fontWeight: 700 }}>?? {error}</p>
               <button onClick={() => setError(null)} className="btn-ghost" style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>Dismiss</button>
             </div>
           )}
@@ -105,6 +108,8 @@ export default function App() {
               setError={setError}
               onNext={next}
               onBack={back}
+              setActiveAgent={setActiveAgent}
+              setCompletedAgents={setCompletedAgents}
             />
           )}
           {step === 2 && (
@@ -125,6 +130,14 @@ export default function App() {
               onBack={back}
             />
           )}
+        </div>
+
+        {/* Swarm Intelligence Monitoring */}
+        <div className="monitoring-section" style={{ marginTop: "2rem" }}>
+          <SwarmDashboard 
+            activeAgent={activeAgent} 
+            completedAgents={completedAgents} 
+          />
         </div>
       </main>
     </div>

@@ -2,6 +2,7 @@
 
 from app.state.borehole import BoreholeState, SoilLayer
 from app.tools.as1726 import validate_depth_interval
+from app.utils.db import save_layer
 
 
 async def logger_agent(state: BoreholeState) -> dict:
@@ -51,6 +52,17 @@ async def logger_agent(state: BoreholeState) -> dict:
     }
 
     existing.append(new_layer)
+
+    # Save to persistent storage (SQLite & Supabase)
+    try:
+        save_layer(
+            project_id=state.get("project_id", ""),
+            project_name=state.get("project_name", ""),
+            borehole_id=state.get("borehole_id", ""),
+            layer=new_layer
+        )
+    except Exception as db_err:
+        print(f"logger_agent database save error: {db_err}")
 
     return {
         "soil_layers": existing,

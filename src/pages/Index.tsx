@@ -17,6 +17,7 @@ import { DCPInput } from "@/components/DCPInput";
 import { SPTInput } from "@/components/SPTInput";
 import { generateBoreholeLogPDF } from "@/lib/generateBoreholeLogPDF";
 import { useAutoSave } from "@/hooks/useAutoSave";
+import { TemplateAutomation } from "@/components/TemplateAutomation";
 import { useSessionTimer } from "@/hooks/useSessionTimer";
 import { useStreak } from "@/hooks/useStreak";
 import {
@@ -64,9 +65,14 @@ function CompletionRing({ percentage }: { percentage: number }) {
 
 export default function Index() {
   const navigate = useNavigate();
+  const [activeMode, setActiveMode] = useState<"logger" | "automation">("logger");
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      setAuthChecked(true);
+      return;
+    }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) navigate("/auth", { replace: true });
       setAuthChecked(true);
@@ -79,6 +85,10 @@ export default function Index() {
   }, [navigate]);
 
   const handleSignOut = async () => {
+    if (import.meta.env.DEV) {
+      toast.info("Auth bypass active in DEV mode");
+      return;
+    }
     await supabase.auth.signOut();
     navigate("/auth", { replace: true });
   };
@@ -244,6 +254,31 @@ export default function Index() {
               <h1 className="text-[13px] font-semibold text-foreground tracking-tight">Geologs</h1>
               <p className="text-[9px] text-muted-foreground tracking-widest uppercase mt-0.5">AS 1726:2017</p>
             </div>
+
+            {/* Mode Switcher */}
+            <div className="flex items-center bg-muted/60 p-0.5 rounded-lg border border-border/40 ml-4">
+              <button
+                onClick={() => setActiveMode("logger")}
+                className={`px-3 py-1 text-[11px] font-medium rounded-md transition-all ${
+                  activeMode === "logger"
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Borehole Logger
+              </button>
+              <button
+                onClick={() => setActiveMode("automation")}
+                className={`px-3 py-1 text-[11px] font-medium rounded-md transition-all flex items-center gap-1 ${
+                  activeMode === "automation"
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+                Template Automation
+              </button>
+            </div>
           </div>
 
           {/* Status — Dropbox-style simple indicators */}
@@ -346,7 +381,10 @@ export default function Index() {
 
       {/* ─── Main — Generous whitespace, Squarespace-level breathing room ─── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
+        {activeMode === "automation" ? (
+          <TemplateAutomation />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
 
           {/* ── Left Panel — sidebar-like, Figma chrome ── */}
           <div className="lg:col-span-4 space-y-4 stagger-children">
@@ -506,7 +544,8 @@ export default function Index() {
             )}
           </div>
         </div>
-      </main>
+      )}
+    </main>
 
       {/* Mobile bottom bar — field-ready quick actions */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 glass border-t border-border/60 px-4 py-2 flex items-center justify-between z-50">

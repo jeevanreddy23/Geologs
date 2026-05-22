@@ -1,6 +1,1 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+{\n  "cleanUrls": true,\n  "outputDirectory": "dist",\n  "rewrites": [\n    { "source": "/(.*)", "destination": "/index.html" }\n  ]\n}

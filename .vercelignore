@@ -1,0 +1,20 @@
+# Ignore databases
+*.db
+backend/data.db
+data.db
+
+# Ignore backend entirely
+backend/
+
+# Ignore node_modules
+node_modules/
+frontend/node_modules/
+
+# Ignore local configs
+.env
+frontend/.env
+.git/
+
+# Ignore artifacts
+artifacts/
+

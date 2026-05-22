@@ -23,3 +23,17 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Python pycache
+__pycache__/
+*.pyc
+
+# Database
+*.db
+backend/data.db
+data.db
+
+# Scratch and patch scripts
+patch_*.py
+artifacts/
+test_rag.py

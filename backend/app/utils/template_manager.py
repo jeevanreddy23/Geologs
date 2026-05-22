@@ -8,9 +8,9 @@ from typing import List, Dict, Set
 # Regex to match placeholders like [CLIENT], [CLIENT_NAME], [Site Address], {{client}}, etc.
 PLACEHOLDER_RE = re.compile(r'(?:\[|\{\{)([A-Z0-9_\s\-\/]{2,40})(?:\]|\}\})', re.IGNORECASE)
 
-TEMPLATES_DIR = r"C:\Users\pored\Downloads\Project Geologs\Main STS Templates"
+TEMPLATES_DIR = r"C:\Users\pored\Downloads\Project Geologs\Templates"
 REPORTS_DIRS = [
-    r"C:\Users\pored\Downloads\Project Geologs\Reports 1",
+    r"C:\Users\pored\Downloads\Project Geologs\03 - Reports",
     r"C:\Users\pored\Downloads\Project Geologs\Reports 2",
     r"C:\Users\pored\Downloads\Project Geologs\Reports 3"
 ]
@@ -73,7 +73,7 @@ def extract_placeholders(file_path: str) -> List[str]:
         return []
 
 def list_templates() -> List[Dict]:
-    """List all available templates under Main STS Templates."""
+    """List all available templates under Templates."""
     templates = []
     if not os.path.exists(TEMPLATES_DIR):
         return []
@@ -214,7 +214,7 @@ def list_history() -> List[Dict]:
         if not os.path.exists(base_dir):
             continue
             
-        group_name = os.path.basename(base_dir) # "Reports 1", "Reports 2", etc.
+        group_name = os.path.basename(base_dir) # "03 - Reports", "Reports 2", etc.
         
         for root, dirs, files in os.walk(base_dir):
             for file in files:

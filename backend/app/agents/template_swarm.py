@@ -74,50 +74,189 @@ async def swarm_classifier_agent(state: TemplateSwarmState) -> dict:
 # ----------------------------------------------------
 # 2. Historical Agent Node
 # ----------------------------------------------------
+
+# ----------------------------------------------------
+# ColBERT Value Extraction Helpers
+# ----------------------------------------------------
+
+try:
+    from langchain_anthropic import ChatAnthropic
+except ImportError:
+    ChatAnthropic = None
+
+
+def extract_field_value_from_chunk(placeholder: str, chunk_text: str) -> Optional[str]:
+    """Offline/regex-based extraction of field values from a text chunk."""
+    import re
+    text_lower = chunk_text.lower()
+    
+    if placeholder in ["CLIENT", "CLIENT_NAME"]:
+        matches = re.findall(r'(?:client|commissioned by|prepared for)\\s*[:\\-]\\s*([^\\n|]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+        for line in chunk_text.split("\\n"):
+            if "client" in line.lower() or "prepared for" in line.lower():
+                cleaned = re.sub(r'(?:client|prepared for)\\s*[:\\-]?\\s*', '', line, flags=re.IGNORECASE)
+                return cleaned.strip()
+                
+    elif placeholder in ["ADDRESS", "SITE_ADDRESS"]:
+        matches = re.findall(r'(?:site address|address|location|project site)\\s*[:\\-]\\s*([^\\n|]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+            
+    elif placeholder == "BEARING_CAPACITY":
+        matches = re.findall(r'(?:bearing\\s+pressure|bearing\\s+capacity|allowable\\s+bearing)\\s+of\\s+(\\d+\\s*(?:kpa|mpa|kn))', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+        matches = re.findall(r'(?:bearing\\s+pressure|bearing\\s+capacity|allowable\\s+bearing)\\s*[:\\-]\\s*([^\\n|]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+            
+    elif placeholder == "JOB_NO":
+        matches = re.findall(r'(?:job\\s+no|job\\s+number|project\\s+no|ref)\\s*[:\\-]\\s*([a-z0-9\\-\\/\\s]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+            
+    elif placeholder == "REPORT_NO":
+        matches = re.findall(r'(?:report\\s+no|report\\s+number)\\s*[:\\-]\\s*([a-z0-9\\-\\/\\s]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+
+    elif placeholder == "DATE":
+        matches = re.findall(r'(?:date)\\s*[:\\-]\\s*([^\\n|]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+
+    elif placeholder == "ENGINEER":
+        matches = re.findall(r'(?:engineer|author|prepared by)\\s*[:\\-]\\s*([^\\n|]+)', chunk_text, re.IGNORECASE)
+        if matches:
+            return matches[0].strip()
+
+    # Fallback: return line containing keyword if found
+    kw = placeholder.replace("_", " ").lower()
+    idx = text_lower.find(kw)
+    if idx != -1:
+        lines = chunk_text.split("\\n")
+        for line in lines:
+            if kw in line.lower():
+                cleaned = line.strip()
+                cleaned = re.sub(r'^.*?' + re.escape(kw) + r'\\s*[:\\-]?\\s*', '', cleaned, flags=re.IGNORECASE)
+                if cleaned:
+                    return cleaned
+        start = max(0, idx)
+        end = min(len(chunk_text), idx + 100)
+        return chunk_text[start:end].strip()
+        
+    return None
+
+
+async def extract_value_via_llm(placeholder: str, chunk_text: str) -> Optional[str]:
+    """Extract field values using ChatOpenAI/ChatAnthropic if not in mock mode."""
+    provider = os.getenv("MODEL_PROVIDER", "openai")
+    if provider == "mock":
+        return None
+    try:
+        if provider == "anthropic" and ChatAnthropic is not None:
+            llm = ChatAnthropic(model=os.getenv("MODEL_NAME", "claude-opus-4-6"))
+        else:
+            llm = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+            
+        system_prompt = (
+            "You are a precise data extraction assistant. Given a text chunk from a geotechnical report, "
+            f"extract the specific value for the field '{placeholder}'.\\n"
+            "Return ONLY the extracted value. Do not write any other explanation or intro."
+        )
+        response = await llm.ainvoke([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=f"Text Chunk:\\n{chunk_text}")
+        ])
+        val = response.content.strip()
+        if val and "not found" not in val.lower() and "n/a" not in val.lower():
+            return val
+    except Exception as e:
+        print(f"[Historical Agent] LLM value extraction failed for {placeholder}: {e}")
+    return None
+
+
 async def swarm_historical_agent(state: TemplateSwarmState) -> dict:
-    """Historical Agent: Semantic lookup & extraction from previous reports to achieve smart auto-fill."""
+    """Historical Agent: Semantic lookup & extraction from previous reports to achieve smart auto-fill using ColBERT."""
     replacements = state.get("replacements") or {}
     hist_path = state.get("selected_historical_report_path")
     
-    if not hist_path:
-        print("[Historical Agent] No historical report path provided. Skipping historical auto-fill.")
-        return {
-            "last_agent": "HistoricalAgent"
-        }
-        
-    if not os.path.exists(hist_path):
-        print(f"[Historical Agent] Historical report not found at: {hist_path}")
-        return {
-            "last_agent": "HistoricalAgent",
-            "error": f"Historical report path '{hist_path}' not found."
-        }
-        
-    print(f"[Historical Agent] Correlating template slots with past report: {os.path.basename(hist_path)}")
+    # Step A: Run build_index_from_reports over text extractions of reports 1, 2, 3
+    from app.utils.rag_manager import build_index_from_reports, search_rag_late_interaction
+    print("[Historical Agent] Initializing ColBERT index over reports 1, 2, 3...", flush=True)
+    build_index_from_reports(limit=15)
     
-    # Smart regex text parser fallback
-    extracted_data = extract_variables_from_docx(hist_path)
-    
-    # Update replacements with extracted values if currently blank or missing
     updated_replacements = {**replacements}
     filled_count = 0
+    colbert_hits = 0
     
-    for k, v in extracted_data.items():
-        if k in updated_replacements and not updated_replacements[k] and v:
-            updated_replacements[k] = v
-            filled_count += 1
+    # If a hist_path is provided, we can first extract metadata using regex parser as a base
+    if hist_path and os.path.exists(hist_path):
+        print(f"[Historical Agent] Running base docx regex parser on: {os.path.basename(hist_path)}", flush=True)
+        extracted_data = extract_variables_from_docx(hist_path)
+        for k, v in extracted_data.items():
+            if k in updated_replacements and not updated_replacements[k] and v:
+                updated_replacements[k] = v
+                filled_count += 1
+                
+    # Step B: Send targeted keyword requests straight to the ColBERT index for remaining blank fields
+    QUERY_MAPPINGS = {
+        "CLIENT": "Client Name",
+        "CLIENT_NAME": "Client Name",
+        "ADDRESS": "Project Address",
+        "SITE_ADDRESS": "Project Address",
+        "JOB_NO": "Job Number",
+        "REPORT_NO": "Report Number",
+        "DATE": "Report Date",
+        "ENGINEER": "Author Engineer",
+        "BEARING_CAPACITY": "allowable bearing capacity"
+    }
+    
+    for key, current_val in list(updated_replacements.items()):
+        if not current_val:  # Field is empty, let's find it via ColBERT
+            query_term = QUERY_MAPPINGS.get(key, key.replace("_", " ").title())
+            print(f"[Historical Agent] Querying ColBERT index for key '{key}' with term: '{query_term}'...", flush=True)
             
-    # Also handle some key mappings semantically (e.g. CLIENT -> CLIENT_NAME)
-    if "CLIENT" in updated_replacements and not updated_replacements["CLIENT"] and extracted_data.get("CLIENT_NAME"):
-        updated_replacements["CLIENT"] = extracted_data["CLIENT_NAME"]
-    if "CLIENT_NAME" in updated_replacements and not updated_replacements["CLIENT_NAME"] and extracted_data.get("CLIENT"):
-        updated_replacements["CLIENT_NAME"] = extracted_data["CLIENT"]
-    if "SITE_ADDRESS" in updated_replacements and not updated_replacements["SITE_ADDRESS"] and extracted_data.get("ADDRESS"):
-        updated_replacements["SITE_ADDRESS"] = extracted_data["ADDRESS"]
-    if "ADDRESS" in updated_replacements and not updated_replacements["ADDRESS"] and extracted_data.get("SITE_ADDRESS"):
-        updated_replacements["ADDRESS"] = extracted_data["SITE_ADDRESS"]
+            # Query ColBERT index. Filter by hist_path if specified.
+            results = search_rag_late_interaction(query_term, limit=3, file_path=hist_path)
+            
+            if results:
+                # Get the highest scoring chunk
+                top_chunk = results[0]
+                chunk_text = top_chunk["chunk_text"]
+                score = top_chunk["score"]
+                print(f"[Historical Agent] Match found in {top_chunk['file_name']} (score {score:.4f}): {chunk_text[:120]}...", flush=True)
+                
+                # Step C: Extract and pre-fill field value
+                extracted_val = await extract_value_via_llm(key, chunk_text)
+                if not extracted_val:
+                    extracted_val = extract_field_value_from_chunk(key, chunk_text)
+                    
+                if extracted_val:
+                    updated_replacements[key] = extracted_val
+                    colbert_hits += 1
+                    print(f"[Historical Agent] Extracted value for '{key}': '{extracted_val}'", flush=True)
+                else:
+                    # Fall back to using the first line of the matching chunk as default
+                    fallback_val = chunk_text.split("\\n")[0][:150].strip()
+                    updated_replacements[key] = fallback_val
+                    colbert_hits += 1
+                    print(f"[Historical Agent] Extracted fallback value for '{key}': '{fallback_val}'", flush=True)
 
-    msg = f"Historical Agent auto-populated {filled_count} fields from past work under: {os.path.basename(hist_path)}."
-    print(f"[Historical Agent] Completed match: {msg}")
+    # Cross-fill common equivalents if one is filled and another is not
+    if "CLIENT" in updated_replacements and not updated_replacements["CLIENT"] and updated_replacements.get("CLIENT_NAME"):
+        updated_replacements["CLIENT"] = updated_replacements["CLIENT_NAME"]
+    if "CLIENT_NAME" in updated_replacements and not updated_replacements["CLIENT_NAME"] and updated_replacements.get("CLIENT"):
+        updated_replacements["CLIENT_NAME"] = updated_replacements["CLIENT"]
+    if "SITE_ADDRESS" in updated_replacements and not updated_replacements["SITE_ADDRESS"] and updated_replacements.get("ADDRESS"):
+        updated_replacements["SITE_ADDRESS"] = updated_replacements["ADDRESS"]
+    if "ADDRESS" in updated_replacements and not updated_replacements["ADDRESS"] and updated_replacements.get("SITE_ADDRESS"):
+        updated_replacements["ADDRESS"] = updated_replacements["SITE_ADDRESS"]
+
+    msg = f"Historical Agent auto-populated {filled_count} fields via docx parser and {colbert_hits} fields via ColBERT Late Interaction RAG."
+    print(f"[Historical Agent] Completed match: {msg}", flush=True)
     
     return {
         "replacements": updated_replacements,

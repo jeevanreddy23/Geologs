@@ -25,7 +25,8 @@ import {
   ImageIcon,
   Sparkles,
   CheckSquare,
-  Sliders
+  Sliders,
+  Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -93,6 +94,70 @@ const App: React.FC = () => {
   const [indexingState, setIndexingState] = useState<'idle' | 'indexing' | 'success'>('idle');
   const [currentSwarmAgent, setCurrentSwarmAgent] = useState<string>('');
   const ragTerminalEndRef = useRef<HTMLDivElement>(null);
+
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadProgress, setUploadProgress] = useState<string>('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const filesArray = Array.from(e.target.files);
+    setUploadFiles(filesArray);
+    
+    setUploadState('uploading');
+    setUploadProgress('Uploading and parsing site photos, soil logs, and lab data...');
+    
+    const formData = new FormData();
+    filesArray.forEach(file => {
+      formData.append('files', file);
+    });
+    
+    try {
+      const res = await fetch(`${API_BASE}/project/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setUploadState('success');
+        setUploadProgress('Successfully uploaded and parsed site data!');
+        setSelectedProject(data.project_path);
+        setAnalysisResult(data.analysis);
+        setAnalysisState('success');
+        
+        // Merge OCR extracted data into replacements
+        const mappings: Record<string, string> = {
+          "CLIENT": "client",
+          "CLIENT_NAME": "client",
+          "ADDRESS": "site_address",
+          "SITE_ADDRESS": "site_address",
+          "JOB_NO": "job_no",
+          "BEARING_CAPACITY": "bearing_capacity"
+        };
+        
+        setReplacements(prev => {
+          const updated = { ...prev };
+          Object.entries(mappings).forEach(([placeholder, key]) => {
+            if (data.analysis[key]) {
+              updated[placeholder] = data.analysis[key];
+            }
+          });
+          if (data.analysis.summary) {
+            updated["NOTES"] = data.analysis.summary;
+          }
+          return updated;
+        });
+      } else {
+        setUploadState('error');
+        setUploadProgress('Upload failed.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setUploadState('error');
+      setUploadProgress(`Error: ${err.message}`);
+    }
+  };
 
   const addLog = (msg: string) => {
     setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -582,6 +647,44 @@ const App: React.FC = () => {
                       {analysisState === 'analyzing' ? <Loader2 className="animate-spin" size={16} /> : <Eye size={16} />}
                       Analyze & Run OCR on Site Folder
                     </button>
+
+                    <div className="relative flex py-2 items-center">
+                      <div className="flex-grow border-t border-white/5"></div>
+                      <span className="flex-shrink mx-4 text-slate-500 text-[10px] font-bold tracking-widest uppercase">OR UPLOAD DATA</span>
+                      <div className="flex-grow border-t border-white/5"></div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="border border-dashed border-white/10 hover:border-sky-500/50 rounded-xl p-4 transition-all bg-black/20 text-center relative cursor-pointer">
+                        <input 
+                          type="file" 
+                          multiple 
+                          onChange={handleFileUpload} 
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <Upload className="mx-auto text-slate-400 mb-2" size={24} />
+                        <p className="text-xs text-slate-300 font-medium">Drag & drop files or click to browse</p>
+                        <p className="text-[10px] text-slate-500 mt-1">Supports JPG, PNG, PDF, Excel (lab logs)</p>
+                      </div>
+                      
+                      {uploadState !== 'idle' && (
+                        <div className={`p-3 rounded-xl border text-xs font-semibold ${
+                          uploadState === 'uploading' ? 'bg-sky-500/5 border-sky-500/10 text-sky-400' :
+                          uploadState === 'success' ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400' :
+                          'bg-rose-500/5 border-rose-500/10 text-rose-400'
+                        }`}>
+                          <div className="flex items-center gap-2">
+                            {uploadState === 'uploading' && <Loader2 className="animate-spin" size={14} />}
+                            <span>{uploadProgress}</span>
+                          </div>
+                          {uploadFiles.length > 0 && (
+                            <div className="mt-1.5 text-[10px] text-slate-500 font-mono">
+                              Files: {uploadFiles.map(f => f.name).join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* OCR & Document Extraction details */}

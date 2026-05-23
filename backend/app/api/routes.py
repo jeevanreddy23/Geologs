@@ -522,3 +522,55 @@ async def rag_analyze_project(project_path: str):
         return {"status": "success", "analysis": analysis}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/project/upload")
+async def upload_project_files(files: list[UploadFile] = File(...)):
+    """Upload site files (photos, soil logs, lab data) to a temporary project directory and analyze them."""
+    import shutil
+    import openpyxl
+    try:
+        upload_id = str(uuid.uuid4())
+        upload_dir = os.path.join(
+            "C:\\Users\\pored\\.gemini\\antigravity\\brain\\42a1d8dd-f670-4931-864d-7d1abcb1fedc\\scratch\\uploads",
+            upload_id
+        )
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        saved_files = []
+        for file in files:
+            file_path = os.path.join(upload_dir, file.filename)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            saved_files.append(file_path)
+            
+        # Analyze the newly created project folder using RAG and OCR
+        analysis = analyze_project_folder(upload_dir)
+        
+        # Extract lab details specifically if there are spreadsheets in the uploaded files
+        lab_summary = []
+        for fpath in saved_files:
+            fname = os.path.basename(fpath).lower()
+            if fname.endswith(('.xlsx', '.xls', '.xlsm')):
+                try:
+                    wb = openpyxl.load_workbook(fpath, data_only=True, read_only=True)
+                    snames = [s.lower() for s in wb.sheetnames]
+                    if any("cbr" in s for s in snames):
+                        lab_summary.append(f"CBR test spreadsheet '{os.path.basename(fpath)}'")
+                    elif any("point load" in s or "calc" in s for s in snames):
+                        lab_summary.append(f"Point Load test spreadsheet '{os.path.basename(fpath)}'")
+                    else:
+                        lab_summary.append(f"Excel lab file '{os.path.basename(fpath)}' ({', '.join(wb.sheetnames)})")
+                except Exception:
+                    pass
+        
+        if lab_summary:
+            analysis["summary"] += " [Lab Data Detected]: " + ", ".join(lab_summary) + "."
+            
+        return {
+            "status": "success",
+            "project_path": upload_dir.replace("\\", "/"),
+            "analysis": analysis
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

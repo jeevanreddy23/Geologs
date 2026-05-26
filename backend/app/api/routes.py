@@ -322,7 +322,7 @@ async def suggest_template_fields(request: SuggestFieldsRequest):
                 query_term = QUERY_MAPPINGS.get(ph, ph.replace("_", " ").title())
                 print(f"[UI Engine Builder Agent] Querying ColBERT for keyword '{ph}' -> '{query_term}'...", flush=True)
                 
-                results = search_rag_late_interaction(query_term, limit=3, file_path=hist_path)
+                results = search_rag_late_interaction(query_term, limit=10, file_path=hist_path)
                 if results:
                     top_chunk = results[0]
                     chunk_text = top_chunk["chunk_text"]

@@ -220,7 +220,7 @@ async def swarm_historical_agent(state: TemplateSwarmState) -> dict:
             print(f"[Historical Agent] Querying ColBERT index for key '{key}' with term: '{query_term}'...", flush=True)
             
             # Query ColBERT index. Filter by hist_path if specified.
-            results = search_rag_late_interaction(query_term, limit=3, file_path=hist_path)
+            results = search_rag_late_interaction(query_term, limit=10, file_path=hist_path)
             
             if results:
                 # Get the highest scoring chunk

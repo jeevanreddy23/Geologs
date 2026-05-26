@@ -506,7 +506,7 @@ def init_late_interaction_db():
     conn.close()
 
 
-def chunk_text(text: str, chunk_size: int = 150, overlap: int = 30) -> List[str]:
+def chunk_text(text: str, chunk_size: int = 250, overlap: int = 50) -> List[str]:
     """Split text into overlapping chunks of words."""
     if not text:
         return []

@@ -3,13 +3,96 @@
 import base64
 import uuid
 import os
+import re
+from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional, Dict
-from app.graph import graph
+from app.rock_core_analysis import analyze_rock_core_photo, generate_rock_core_pdf
+
+try:
+    from app.graph import graph
+except ModuleNotFoundError as exc:
+    graph = None
+    GRAPH_IMPORT_ERROR = str(exc)
+else:
+    GRAPH_IMPORT_ERROR = ""
 
 router = APIRouter(prefix="/api/v1")
+DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+UPLOAD_CHUNK_BYTES = 1024 * 1024
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".heic", ".heif"}
+
+
+def upload_root() -> Path:
+    root = Path(os.getenv("AUTOSOIL_UPLOAD_ROOT", "uploads")).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _safe_name(filename: str | None, fallback: str = "upload.bin") -> str:
+    name = Path(filename or fallback).name
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "-", Path(name).stem).strip("-") or "upload"
+    suffix = Path(name).suffix.lower()
+    return f"{stem}_{uuid.uuid4().hex[:10]}{suffix}"
+
+
+def _max_upload_bytes() -> int:
+    configured = os.getenv("AUTOSOIL_MAX_UPLOAD_BYTES", "").strip()
+    if not configured:
+        return DEFAULT_MAX_UPLOAD_BYTES
+    try:
+        value = int(configured)
+    except ValueError:
+        return DEFAULT_MAX_UPLOAD_BYTES
+    return max(1, value)
+
+
+def _validate_upload_type(file: UploadFile, allowed_extensions: set[str] | None = None) -> None:
+    if not allowed_extensions:
+        return
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in allowed_extensions:
+        raise HTTPException(status_code=415, detail=f"Unsupported upload type: {suffix or 'unknown'}")
+
+
+async def _save_upload(file: UploadFile, folder: str = "evidence", allowed_extensions: set[str] | None = None) -> Path:
+    _validate_upload_type(file, allowed_extensions)
+    limit = _max_upload_bytes()
+    target_dir = upload_root() / folder
+    target_dir.mkdir(parents=True, exist_ok=True)
+    path = target_dir / _safe_name(file.filename)
+    total = 0
+    try:
+        with path.open("wb") as output:
+            while True:
+                chunk = await file.read(UPLOAD_CHUNK_BYTES)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > limit:
+                    raise HTTPException(status_code=413, detail=f"Upload exceeds {limit} byte limit.")
+                output.write(chunk)
+    except Exception:
+        if path.exists():
+            path.unlink(missing_ok=True)
+        raise
+    return path
+
+
+def _public_upload_url(path: Path) -> str:
+    relative = path.resolve().relative_to(upload_root())
+    return "/api/v1/uploads/" + "/".join(relative.parts)
+
+
+def _require_graph():
+    if graph is None:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Geotechnical supervisor graph is unavailable: {GRAPH_IMPORT_ERROR}",
+        )
+    return graph
 
 
 class LogIntervalRequest(BaseModel):
@@ -47,11 +130,12 @@ async def log_interval(request: LogIntervalRequest):
     Log a soil interval without a photo.
     The classifier agent will attempt classification from existing state context.
     """
+    active_graph = _require_graph()
     thread_id = f"{request.project_id}-{request.borehole_id}"
     config = {"configurable": {"thread_id": thread_id}}
 
     # Try to get existing state to preserve soil_layers
-    existing_state = await graph.aget_state(config)
+    existing_state = await active_graph.aget_state(config)
     soil_layers = []
     test_results = []
     if existing_state and existing_state.values:
@@ -89,7 +173,7 @@ async def log_interval(request: LogIntervalRequest):
         },
     }
 
-    result = await graph.ainvoke(initial_state, config=config)
+    result = await active_graph.ainvoke(initial_state, config=config)
 
     if result.get("pending_human_review"):
         raise HTTPException(
@@ -121,6 +205,7 @@ async def log_interval_with_photo(
     photo: UploadFile = File(...),
 ):
     """Log a soil interval with a field photo. Triggers photo -> classify -> QA -> log chain."""
+    active_graph = _require_graph()
     contents = await photo.read()
     b64 = base64.b64encode(contents).decode("utf-8")
 
@@ -128,7 +213,7 @@ async def log_interval_with_photo(
     config = {"configurable": {"thread_id": thread_id}}
 
     # Try to get existing state to preserve soil_layers
-    existing_state = await graph.aget_state(config)
+    existing_state = await active_graph.aget_state(config)
     soil_layers = []
     test_results = []
     if existing_state and existing_state.values:
@@ -160,7 +245,7 @@ async def log_interval_with_photo(
         "is_dispatched": False,
     }
 
-    result = await graph.ainvoke(initial_state, config=config)
+    result = await active_graph.ainvoke(initial_state, config=config)
 
     if result.get("pending_human_review"):
         raise HTTPException(
@@ -185,11 +270,12 @@ async def log_interval_with_photo(
 async def generate_report(borehole_id: str, project_id: str, project_name: str):
     """Generate AS 1726:2017 PDF report for a completed borehole."""
     from app.agents.report_agent import report_agent
+    active_graph = _require_graph()
 
     thread_id = f"{project_id}-{borehole_id}"
     config = {"configurable": {"thread_id": thread_id}}
     
-    existing_state = await graph.aget_state(config)
+    existing_state = await active_graph.aget_state(config)
     soil_layers = []
     test_results = []
     if existing_state and existing_state.values:
@@ -439,10 +525,60 @@ async def generate_from_template(request: TemplateGenerateRequest):
 async def get_reports_history():
     """List completed historical reports inside Reports 1, 2, 3 directories."""
     from app.utils.template_manager import list_history
+
     try:
         return list_history()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/rock-core/analyze")
+async def analyze_rock_core_photo_upload(
+    projectNumber: str = Form(""),
+    boreholeId: str = Form(""),
+    clientName: str = Form(""),
+    siteAddress: str = Form(""),
+    inspectionDate: str = Form(""),
+    depthFrom: str = Form(""),
+    depthTo: str = Form(""),
+    photo: UploadFile = File(...),
+):
+    photo_path = await _save_upload(photo, "rock-core", IMAGE_EXTENSIONS)
+    metadata = {
+        "projectNumber": projectNumber,
+        "boreholeId": boreholeId,
+        "client": clientName,
+        "siteAddress": siteAddress,
+        "inspectionDate": inspectionDate,
+        "depthFrom": depthFrom,
+        "depthTo": depthTo,
+    }
+    analysis = analyze_rock_core_photo(photo_path, metadata)
+    pdf_path = generate_rock_core_pdf(analysis, photo_path, upload_root() / "rock-core-reports")
+    return {
+        "status": "rock_core_pdf_ready",
+        "message": "Rock core photo analysed. A review-ready PDF and strict JSON extract have been generated.",
+        "analysis": analysis,
+        "pdf": {
+            "fileName": pdf_path.name,
+            "downloadUrl": _public_upload_url(pdf_path),
+            "reviewRequired": True,
+        },
+        "needsReview": True,
+    }
+
+
+@router.get("/uploads/{relative_path:path}")
+async def get_uploaded_file(relative_path: str):
+    root = upload_root()
+    path = (root / relative_path).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Upload not found")
+    if not path.exists() or not path.is_file():
+        raise HTTPException(status_code=404, detail="Upload not found")
+    return FileResponse(path=path, filename=path.name)
 
 
 @router.post("/reports/history/extract")
@@ -464,26 +600,35 @@ async def extract_report_variables(request: ExtractRequest):
 
 @router.get("/health")
 async def health():
-    return {"status": "ok", "graph_nodes": list(graph.nodes.keys())}
+    graph_nodes = list(graph.nodes.keys()) if graph is not None else []
+    return {"status": "ok", "graph_nodes": graph_nodes, "graph_error": GRAPH_IMPORT_ERROR or None}
 
 
 # ----------------------------------------------------
 # Advanced RAG & OCR Site Data Analysis Endpoints
 # ----------------------------------------------------
 from fastapi import BackgroundTasks
-from app.utils.rag_manager import build_rag_index, search_rag, analyze_project_folder, REPORTS_DIRS
+
+
+def _rag_manager():
+    try:
+        from app.utils import rag_manager
+    except ModuleNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=f"RAG/OCR dependencies are unavailable: {exc}") from exc
+    return rag_manager
 
 @router.post("/rag/index/build")
 async def trigger_rag_build(background_tasks: BackgroundTasks):
     """Trigger background indexing of all reports in reports directories."""
-    background_tasks.add_task(build_rag_index)
+    rag_manager = _rag_manager()
+    background_tasks.add_task(rag_manager.build_rag_index)
     return {"status": "indexing_started", "message": "RAG index build has been scheduled in the background."}
 
 @router.get("/rag/search")
 async def rag_search(q: str, limit: int = 5):
     """Query the RAG index database for matched historical report details."""
     try:
-        results = search_rag(q, limit)
+        results = _rag_manager().search_rag(q, limit)
         return {"status": "success", "results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -491,8 +636,9 @@ async def rag_search(q: str, limit: int = 5):
 @router.get("/rag/projects")
 async def list_rag_projects():
     """List all available project folders in 03 - Reports, Reports 2, Reports 3 directories."""
+    rag_manager = _rag_manager()
     projects = []
-    for base_dir in REPORTS_DIRS:
+    for base_dir in rag_manager.REPORTS_DIRS:
         if not os.path.exists(base_dir):
             continue
         group_name = os.path.basename(base_dir)
@@ -518,7 +664,7 @@ async def rag_analyze_project(project_path: str):
     try:
         if not os.path.exists(project_path):
             raise HTTPException(status_code=404, detail="Project folder not found")
-        analysis = analyze_project_folder(project_path)
+        analysis = _rag_manager().analyze_project_folder(project_path)
         return {"status": "success", "analysis": analysis}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -545,7 +691,7 @@ async def upload_project_files(files: list[UploadFile] = File(...)):
             saved_files.append(file_path)
             
         # Analyze the newly created project folder using RAG and OCR
-        analysis = analyze_project_folder(upload_dir)
+        analysis = _rag_manager().analyze_project_folder(upload_dir)
         
         # Extract lab details specifically if there are spreadsheets in the uploaded files
         lab_summary = []

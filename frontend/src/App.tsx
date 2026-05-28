@@ -1336,7 +1336,7 @@ const App: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-350">
-                              {rockResult.runs.map((run: any, idx: number) => (
+                              {rockResult?.runs?.map((run: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-white/5 transition-colors">
                                   <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{run.depth_from.toFixed(2)} - {run.depth_to.toFixed(2)}</td>
                                   <td className="py-2.5 px-2 text-white">{run.tcr}%</td>

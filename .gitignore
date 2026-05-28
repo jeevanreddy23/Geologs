@@ -1,39 +1,56 @@
+﻿# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment & secrets
+.env
+*.local
+frontend/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+backend/venv/
+
+# Database
+*.db
+
+# Uploads & generated files
+backend/uploads/
+uploads/
+
 # Logs
-logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# Editor & IDE
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.vercel
+.DS_Store
 
-# Python pycache
-__pycache__/
-*.pyc
+# Vercel
+.vercel/
 
-# Database
-*.db
-backend/data.db
-data.db
+# Debug screenshots
+*.png
 
-# Scratch and patch scripts
+# Scratch & test scripts
 patch_*.py
+test_upload_node.cjs
 artifacts/
-test_rag.py
+
+# Lockfiles (project uses npm via frontend/)
+bun.lockb
+bun.lock

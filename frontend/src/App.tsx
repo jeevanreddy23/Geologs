@@ -55,7 +55,14 @@ const SWARM_AGENTS = [
 ];
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'logs' | 'rag'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'rock' | 'rag' | 'logs'>('dashboard');
+
+  // Rock Core States
+  const [rockPhoto, setRockPhoto] = useState<File | null>(null);
+  const [rockPhotoPreview, setRockPhotoPreview] = useState<string | null>(null);
+  const [rockParsingState, setRockParsingState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [rockProgress, setRockProgress] = useState<string>('');
+  const [rockResult, setRockResult] = useState<any | null>(null);
   const [pipelineState, setPipelineState] = useState<'idle' | 'running' | 'success'>('idle');
   const [currentAgentIndex, setCurrentAgentIndex] = useState(-1);
   const [logs, setLogs] = useState<string[]>([]);
@@ -69,6 +76,181 @@ const App: React.FC = () => {
     depthTo: '1.5',
     notes: 'Cohesive clay, medium plasticity.'
   });
+
+  // Human in the Loop States
+  const [soilParams, setSoilParams] = useState({
+    primarySoil: 'CLAY',
+    secondaryComponent: 'Silty',
+    uscsCode: 'CH',
+    colour: 'brown',
+    moisture: 'moist',
+    consistency: 'stiff',
+    origin: 'RESIDUAL SOIL',
+    inclusions: 'trace fine sand'
+  });
+  const [soilPhoto, setSoilPhoto] = useState<string | null>(null);
+  const [loggedLayers, setLoggedLayers] = useState<any[]>([]);
+  const [isClassifying, setIsClassifying] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [confidence, setConfidence] = useState<number>(0.85);
+  const [reasoning, setReasoning] = useState<string>('Visual attributes match high-plasticity clay profiles.');
+  const [hoveredLayer, setHoveredLayer] = useState<any | null>(null);
+
+  const buildDescription = (params: typeof soilParams) => {
+    const soil = params.primarySoil;
+    const secondary = params.secondaryComponent ? `${params.secondaryComponent} ` : '';
+    const colour = params.colour ? `${params.colour}` : '';
+    const moisture = params.moisture ? `${params.moisture}` : '';
+    const consistency = params.consistency ? `${params.consistency}` : '';
+    const inclusions = params.inclusions ? `, ${params.inclusions}` : '';
+    
+    let desc = `${secondary}${soil}`;
+    if (colour || moisture || consistency || inclusions) {
+      desc += `, ${[colour, moisture, consistency].filter(Boolean).join(', ')}${inclusions}`;
+    }
+    desc += `.`;
+    if (params.origin) {
+      desc += ` [${params.origin}]`;
+    }
+    return desc;
+  };
+
+  const fetchLoggedLayers = async (projId: string, bhId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/boreholes/${projId}/${bhId}/layers`);
+      if (res.ok) {
+        const data = await res.json();
+        setLoggedLayers(data.layers || []);
+      }
+    } catch (err) {
+      console.error("Error fetching logged layers:", err);
+    }
+  };
+
+  const deleteLoggedLayers = async (projId: string, bhId: string) => {
+    if (!window.confirm("Are you sure you want to clear all logged layers for this borehole?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/boreholes/${projId}/${bhId}/layers`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchLoggedLayers(projId, bhId);
+      }
+    } catch (err) {
+      console.error("Error deleting logged layers:", err);
+    }
+  };
+
+  const runInstantClassifier = async (customNotes?: string, customPhoto?: string) => {
+    setIsClassifying(true);
+    try {
+      const payload = {
+        notes: customNotes || formData.notes,
+        photo_base64: customPhoto || soilPhoto
+      };
+      const res = await fetch(`${API_BASE}/classify-interval`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSoilParams({
+          primarySoil: data.primary_soil || 'CLAY',
+          secondaryComponent: data.secondary_component || '',
+          uscsCode: data.uscs_code || 'CL',
+          colour: data.colour || 'brown',
+          moisture: data.moisture || 'moist',
+          consistency: data.consistency || 'stiff',
+          origin: data.origin || 'RESIDUAL SOIL',
+          inclusions: data.inclusions || ''
+        });
+        setConfidence(data.confidence || 0.8);
+        setReasoning(data.reasoning || '');
+      }
+    } catch (err) {
+      console.error("Error classifying interval:", err);
+    } finally {
+      setIsClassifying(false);
+    }
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setSoilPhoto(base64String);
+      runInstantClassifier(formData.notes, base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveSoilLayer = async () => {
+    setSaveStatus('saving');
+    try {
+      const description = buildDescription(soilParams);
+      const payload = {
+        project_id: formData.projectId,
+        project_name: "AutoSoil Project",
+        borehole_id: formData.boreholeId,
+        depth_from: parseFloat(formData.depthFrom),
+        depth_to: parseFloat(formData.depthTo),
+        colour: soilParams.colour,
+        moisture: soilParams.moisture,
+        consistency: soilParams.consistency,
+        notes: description
+      };
+
+      const res = await fetch(`${API_BASE}/log-interval`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        setSaveStatus('success');
+        fetchLoggedLayers(formData.projectId, formData.boreholeId);
+        
+        // Auto-increment
+        setFormData(prev => ({
+          ...prev,
+          depthFrom: prev.depthTo,
+          depthTo: (parseFloat(prev.depthTo) + 1.5).toFixed(1)
+        }));
+        
+        setTimeout(() => {
+          setSaveStatus('idle');
+          setSoilPhoto(null);
+        }, 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (err) {
+      console.error("Error saving layer:", err);
+      setSaveStatus('error');
+    }
+  };
+
+  const getSoilColorClass = (colour: string) => {
+    const col = (colour || '').toLowerCase();
+    if (col.includes('black')) return 'from-stone-900 to-stone-850 border-stone-800';
+    if (col.includes('dark grey') || col.includes('dark gray')) return 'from-slate-800 to-slate-750 border-slate-700';
+    if (col.includes('grey') || col.includes('gray')) return 'from-slate-600 to-slate-550 border-slate-500';
+    if (col.includes('brown') && col.includes('orange')) return 'from-amber-800 to-orange-850 border-amber-700';
+    if (col.includes('brown') && col.includes('red')) return 'from-rose-900 to-amber-900 border-rose-800';
+    if (col.includes('brown')) return 'from-amber-900 to-amber-950 border-amber-800';
+    if (col.includes('red')) return 'from-red-950 to-red-900 border-red-800';
+    if (col.includes('orange')) return 'from-orange-900 to-orange-800 border-orange-700';
+    if (col.includes('yellow')) return 'from-yellow-950 to-yellow-900 border-yellow-800';
+    if (col.includes('green')) return 'from-emerald-950 to-emerald-900 border-emerald-900';
+    return 'from-slate-700 to-slate-800 border-slate-600';
+  };
+
+  useEffect(() => {
+    fetchLoggedLayers(formData.projectId, formData.boreholeId);
+  }, [formData.projectId, formData.boreholeId]);
 
   // RAG Reports State
   const [projects, setProjects] = useState<any[]>([]);
@@ -468,10 +650,16 @@ const App: React.FC = () => {
             Interval Logger
           </button>
           <button 
+            onClick={() => setActiveTab('rock')}
+            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'rock' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            Rock Core Logger
+          </button>
+          <button 
             onClick={() => setActiveTab('rag')}
             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'rag' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
           >
-            RAG Reports Workspace
+            RAG Workspace
           </button>
           <button 
             onClick={() => setActiveTab('logs')}
@@ -488,119 +676,691 @@ const App: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+              className="space-y-6 text-left animate-in fade-in duration-300"
             >
-              {/* Left Panel: Configuration */}
-              <div className="lg:col-span-4 space-y-6">
-                <section className="glass rounded-3xl p-8 space-y-6">
-                  <div className="flex items-center gap-2 text-sky-400 mb-2">
-                    <MapPin size={18} />
-                    <h2 className="font-bold uppercase tracking-wider text-sm">Interval Config</h2>
+              {/* Active Borehole Header */}
+              <div className="flex flex-col sm:flex-row items-center justify-between bg-black/40 border border-white/5 p-6 rounded-3xl gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-sky-500/10 rounded-xl">
+                    <MapPin className="text-sky-400" size={20} />
                   </div>
-                  
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">Project ID</label>
-                      <input className="input-field" value={formData.projectId} onChange={e => setFormData({...formData, projectId: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">Borehole</label>
-                      <input className="input-field" value={formData.boreholeId} onChange={e => setFormData({...formData, boreholeId: e.target.value})} />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">From (m)</label>
-                      <input className="input-field" type="number" value={formData.depthFrom} onChange={e => setFormData({...formData, depthFrom: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">To (m)</label>
-                      <input className="input-field" type="number" value={formData.depthTo} onChange={e => setFormData({...formData, depthTo: e.target.value})} />
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Active Borehole Workspace</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <input 
+                        type="text" 
+                        value={formData.projectId}
+                        onChange={e => setFormData({...formData, projectId: e.target.value})}
+                        className="bg-transparent text-white border-b border-white/10 focus:border-sky-500/50 outline-none text-xs font-mono font-bold w-24"
+                        placeholder="Project ID"
+                      />
+                      <span className="text-slate-650">/</span>
+                      <input 
+                        type="text" 
+                        value={formData.boreholeId}
+                        onChange={e => setFormData({...formData, boreholeId: e.target.value})}
+                        className="bg-transparent text-white border-b border-white/10 focus:border-sky-500/50 outline-none text-xs font-mono font-bold w-20"
+                        placeholder="Borehole ID"
+                      />
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">Field Notes</label>
-                    <textarea 
-                      className="input-field min-h-[100px] resize-none" 
-                      value={formData.notes} 
-                      onChange={e => setFormData({...formData, notes: e.target.value})}
-                    />
-                  </div>
-                </section>
-
-                <div className="glass rounded-3xl p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-amber-500/10 rounded-2xl">
-                      <Cpu className="text-amber-500" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">System Load</p>
-                      <p className="text-xl font-bold">12% <span className="text-xs font-normal text-slate-500">Normal</span></p>
-                    </div>
-                  </div>
-                  <Activity size={32} className="text-slate-800" />
+                </div>
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => deleteLoggedLayers(formData.projectId, formData.boreholeId)}
+                    className="px-4 py-2 border border-rose-500/20 hover:bg-rose-500/10 text-rose-400 text-xs font-semibold rounded-xl transition-all"
+                  >
+                    Clear Borehole Logs
+                  </button>
+                  <button
+                    onClick={runPipeline}
+                    disabled={pipelineState === 'running'}
+                    className="px-4 py-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md"
+                  >
+                    {pipelineState === 'running' ? <Loader2 className="animate-spin" size={14} /> : <Activity size={14} />}
+                    Run QA Swarm pipeline
+                  </button>
                 </div>
               </div>
 
-              {/* Right Panel: Swarm Node Grid */}
-              <div className="lg:col-span-8 space-y-8">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-bold">Logger Pipeline Node Monitor</h3>
-                  <button 
-                    onClick={runPipeline}
-                    disabled={pipelineState === 'running'}
-                    className="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg"
-                  >
-                    {pipelineState === 'running' ? <Loader2 className="animate-spin" size={20} /> : <Activity size={20} />}
-                    Launch Pipeline
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {AGENTS.map((agent, index) => {
-                    const isActive = currentAgentIndex === index;
-                    const isDone = currentAgentIndex > index || pipelineState === 'success';
+              {/* Main Geotech Workstation Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Left Column: Dimensions & Notes & Photo Upload */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Dimensions & Notes */}
+                  <div className="glass rounded-3xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-sky-400 mb-2">
+                      <Sliders size={16} />
+                      <h4 className="font-bold uppercase tracking-wider text-xs">Interval Dimensions</h4>
+                    </div>
                     
-                    return (
-                      <div 
-                        key={agent.id} 
-                        className={`agent-node ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}
-                      >
-                        <div className="agent-icon-container">
-                          <agent.icon size={24} />
-                        </div>
-                        <span className={`text-xs font-bold text-center uppercase tracking-wider ${isActive ? 'text-sky-400' : isDone ? 'text-emerald-400' : 'text-slate-600'}`}>
-                          {agent.name}
-                        </span>
-                        {isActive && <div className="pulse"></div>}
-                        {isDone && <CheckCircle2 className="text-emerald-500" size={14} />}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">From (m)</label>
+                        <input 
+                          type="number" 
+                          step="0.1" 
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 outline-none text-sm text-white focus:border-sky-500/50 font-mono" 
+                          value={formData.depthFrom} 
+                          onChange={e => setFormData({...formData, depthFrom: e.target.value})} 
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-
-                {pipelineState === 'success' && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="bg-emerald-500 p-4 rounded-2xl">
-                        <ShieldCheck className="text-white" size={32} />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-emerald-400">Analysis Finalized</h3>
-                        <p className="text-slate-400">USCS Code: <span className="text-white font-bold">CH</span> | Quality Score: <span className="text-white font-bold">98/100</span></p>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">To (m)</label>
+                        <input 
+                          type="number" 
+                          step="0.1" 
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 outline-none text-sm text-white focus:border-sky-500/50 font-mono" 
+                          value={formData.depthTo} 
+                          onChange={e => setFormData({...formData, depthTo: e.target.value})} 
+                        />
                       </div>
                     </div>
-                    <button className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-slate-200 transition-all">
-                      Download Report
+
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Field Soil Notes</label>
+                        <button 
+                          onClick={() => runInstantClassifier(formData.notes, soilPhoto || undefined)}
+                          disabled={isClassifying || !formData.notes}
+                          className="text-[10px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-all"
+                        >
+                          {isClassifying ? <Loader2 className="animate-spin" size={10} /> : <Sparkles size={10} />}
+                          AI Suggest
+                        </button>
+                      </div>
+                      <textarea 
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 outline-none text-sm text-white focus:border-sky-500/50 min-h-[90px] resize-none leading-relaxed" 
+                        value={formData.notes} 
+                        onChange={e => setFormData({...formData, notes: e.target.value})}
+                        placeholder="E.g., Cohesive clay, medium plasticity, brown with orange mottling, stiff."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Photo Upload Zone */}
+                  <div className="glass rounded-3xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-sky-400">
+                      <Camera size={16} />
+                      <h4 className="font-bold uppercase tracking-wider text-xs">Soil Sample Photo</h4>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {soilPhoto ? (
+                        <div className="relative border border-white/10 rounded-2xl overflow-hidden bg-black/40 aspect-video group">
+                          <img src={soilPhoto} alt="Soil Sample" className="w-full h-full object-cover" />
+                          {isClassifying && (
+                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
+                              <Loader2 className="animate-spin text-sky-400" size={28} />
+                              <span className="text-xs text-sky-300 font-mono animate-pulse">Running AI Classification...</span>
+                            </div>
+                          )}
+                          {!isClassifying && (
+                            <div className="absolute inset-0 pointer-events-none border-t border-sky-400/50 bg-gradient-to-b from-sky-500/10 to-transparent h-1/3 animate-pulse" />
+                          )}
+                          <button 
+                            onClick={() => setSoilPhoto(null)}
+                            className="absolute top-3 right-3 p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white/70 hover:text-white transition-all text-xs"
+                          >
+                            Clear Photo
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="border border-dashed border-white/10 hover:border-sky-500/40 rounded-2xl p-6 transition-all bg-black/20 text-center relative cursor-pointer">
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handlePhotoUpload} 
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <Camera className="mx-auto text-slate-400 mb-2" size={24} />
+                          <p className="text-xs text-slate-300 font-semibold">Upload soil sample photo</p>
+                          <p className="text-[10px] text-slate-500 mt-1">Triggers instant AI classification & USCS prediction</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Classification Telemetry */}
+                    <div className="p-3.5 bg-sky-500/5 rounded-2xl border border-sky-500/10 space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-sky-400">AI CONFIDENCE LEVEL</span>
+                        <span className="font-mono text-sky-300 font-bold">{(confidence * 100).toFixed(0)}%</span>
+                      </div>
+                      <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-gradient-to-r from-sky-500 to-indigo-500 h-full rounded-full transition-all duration-500" style={{ width: `${confidence * 100}%` }}></div>
+                      </div>
+                      <p className="text-slate-400 font-mono text-[10px] leading-relaxed">
+                        <span className="text-sky-300 font-bold">Analysis:</span> {reasoning}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Column: Human-in-the-Loop AI Tweaker */}
+                <div className="lg:col-span-4 space-y-6">
+                  <div className="glass rounded-3xl p-6 space-y-5">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <div className="flex items-center gap-2 text-sky-400">
+                        <ShieldCheck size={16} />
+                        <h4 className="font-bold uppercase tracking-wider text-xs">Human Verification</h4>
+                      </div>
+                      <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+                        Interactive
+                      </span>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      {/* Primary Soil */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Primary Soil Name</label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {['CLAY', 'SAND', 'GRAVEL', 'SILT', 'ASPHALT', 'PEAT'].map((soil) => (
+                            <button
+                              key={soil}
+                              type="button"
+                              onClick={() => setSoilParams({...soilParams, primarySoil: soil})}
+                              className={`py-1.5 px-1 rounded-lg text-[10px] font-bold border transition-all ${soilParams.primarySoil === soil ? 'bg-sky-500/20 text-sky-400 border-sky-500/40' : 'bg-black/20 text-slate-400 border-white/5 hover:bg-white/5'}`}
+                            >
+                              {soil}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Secondary Component */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Secondary Component</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={soilParams.secondaryComponent}
+                          onChange={e => setSoilParams({...soilParams, secondaryComponent: e.target.value})}
+                          placeholder="e.g. Silty, Sandy, Gravelly"
+                        />
+                      </div>
+
+                      {/* USCS Code */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">USCS Group Symbol</label>
+                        <select
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={soilParams.uscsCode}
+                          onChange={e => setSoilParams({...soilParams, uscsCode: e.target.value})}
+                        >
+                          {['CH', 'CL', 'SC', 'SM', 'SP', 'GP', 'GW', 'ML', 'MH', 'OH', 'OL', 'PT', 'GM', 'GC'].map((code) => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Colour swatches */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Soil Colour</label>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          {[
+                            { name: 'brown', class: 'bg-amber-900 border-amber-800' },
+                            { name: 'dark grey', class: 'bg-slate-800 border-slate-700' },
+                            { name: 'grey', class: 'bg-slate-600 border-slate-500' },
+                            { name: 'red - brown', class: 'bg-rose-900 border-rose-800' },
+                            { name: 'orange - brown', class: 'bg-orange-950 border-orange-900' },
+                            { name: 'black', class: 'bg-stone-900 border-stone-850' },
+                            { name: 'pale grey', class: 'bg-slate-400 border-slate-300' },
+                          ].map((c) => (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => setSoilParams({...soilParams, colour: c.name})}
+                              className={`w-6 h-6 rounded-full border-2 transition-all ${c.class} ${soilParams.colour === c.name ? 'ring-2 ring-sky-400 scale-110 shadow-sm' : 'hover:scale-105'}`}
+                              title={c.name}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[9px] font-mono text-slate-500 block uppercase">Selected: {soilParams.colour}</span>
+                      </div>
+
+                      {/* Moisture & Consistency */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Moisture</label>
+                          <select
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                            value={soilParams.moisture}
+                            onChange={e => setSoilParams({...soilParams, moisture: e.target.value})}
+                          >
+                            {['dry', 'moist', 'wet', 'saturated'].map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Consistency</label>
+                          <select
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                            value={soilParams.consistency}
+                            onChange={e => setSoilParams({...soilParams, consistency: e.target.value})}
+                          >
+                            {['very soft', 'soft', 'firm', 'stiff', 'very stiff', 'hard', 'loose', 'medium dense', 'dense'].map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Inclusions & Origin */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Inclusions</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                            value={soilParams.inclusions}
+                            onChange={e => setSoilParams({...soilParams, inclusions: e.target.value})}
+                            placeholder="trace sand"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Origin</label>
+                          <select
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs outline-none text-white focus:border-sky-500/50"
+                            value={soilParams.origin}
+                            onChange={e => setSoilParams({...soilParams, origin: e.target.value})}
+                          >
+                            {['RESIDUAL SOIL', 'FILL', 'COLLUVIAL', 'ALLUVIAL', 'TOPSOIL'].map((o) => (
+                              <option key={o} value={o}>{o}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live Description */}
+                    <div className="bg-black/60 p-3 rounded-2xl border border-white/5 space-y-1">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Live AS 1726 Description</span>
+                      <p className="text-xs text-emerald-400 font-mono leading-relaxed">
+                        {buildDescription(soilParams)}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={saveSoilLayer}
+                      disabled={saveStatus === 'saving'}
+                      className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white disabled:opacity-40 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-lg active:scale-[0.98]"
+                    >
+                      {saveStatus === 'saving' ? <Loader2 className="animate-spin" size={14} /> : <CheckCircle2 size={14} />}
+                      {saveStatus === 'saving' ? 'Saving Layer...' : saveStatus === 'success' ? 'Saved & Synced!' : 'Commit Layer to OpenGround'}
                     </button>
-                  </motion.div>
-                )}
+                  </div>
+                </div>
+
+                {/* Right Column: Visual Stratigraphy column */}
+                <div className="lg:col-span-3 space-y-6">
+                  <div className="glass rounded-3xl p-6 flex flex-col h-[670px]">
+                    <div className="flex items-center gap-2 text-sky-400 mb-4 border-b border-white/5 pb-2 shrink-0">
+                      <Layers size={16} />
+                      <h4 className="font-bold uppercase tracking-wider text-xs">Visual Stratigraphy</h4>
+                    </div>
+                    
+                    {/* Borehole Log Column */}
+                    <div className="flex-1 flex flex-col justify-start relative select-none overflow-y-auto pr-1">
+                      <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-slate-800" />
+                      
+                      <div className="flex-1 flex flex-col gap-1 pl-6">
+                        {loggedLayers.length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center text-center text-slate-600 italic border border-dashed border-white/5 rounded-2xl p-4">
+                            <Layers size={32} className="opacity-20 mb-2" />
+                            <p className="text-xs">No layers logged yet.</p>
+                            <p className="text-[9px] mt-1 text-slate-500">Specify depths and click Commit to draw soil column.</p>
+                          </div>
+                        ) : (
+                          loggedLayers.map((layer, index) => {
+                            const thickness = layer.depth_to - layer.depth_from;
+                            const heightVal = Math.max(50, thickness * 90);
+                            const colorClasses = getSoilColorClass(layer.colour);
+                            
+                            return (
+                              <div
+                                key={index}
+                                style={{ height: `${heightVal}px` }}
+                                className={`relative rounded-xl border bg-gradient-to-br ${colorClasses} p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer`}
+                                onMouseEnter={() => setHoveredLayer(layer)}
+                                onMouseLeave={() => setHoveredLayer(null)}
+                              >
+                                {/* Depth Markers */}
+                                <div className="absolute -left-6 top-0 text-[9px] font-mono text-slate-500 font-bold">
+                                  {layer.depth_from.toFixed(1)}m
+                                </div>
+                                {index === loggedLayers.length - 1 && (
+                                  <div className="absolute -left-6 bottom-0 text-[9px] font-mono text-slate-500 font-bold">
+                                    {layer.depth_to.toFixed(1)}m
+                                  </div>
+                                )}
+                                
+                                <div className="flex justify-between items-start">
+                                  <span className="text-[9px] font-mono bg-black/40 border border-white/10 px-1 py-0.5 rounded text-white font-bold uppercase">
+                                    {layer.uscs_code}
+                                  </span>
+                                  <span className="text-[8px] font-bold opacity-60 uppercase text-white/95 truncate max-w-[50px]">
+                                    {layer.consistency}
+                                  </span>
+                                </div>
+                                
+                                <div className="text-left">
+                                  <span className="text-[9px] font-bold uppercase tracking-wider block truncate">
+                                    {layer.description?.split(',')[0] || 'SOIL LAYER'}
+                                  </span>
+                                  <span className="text-[8px] font-mono opacity-80 block truncate">
+                                    {layer.moisture} | {layer.colour}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Hover tooltip details box */}
+                    <div className="mt-4 p-3 bg-black/40 rounded-2xl border border-white/5 h-[105px] shrink-0 text-xs">
+                      {hoveredLayer ? (
+                        <div className="space-y-1 text-left">
+                          <div className="flex justify-between items-center text-[10px] text-sky-400 font-bold">
+                            <span>STRATA DETAIL ({hoveredLayer.depth_from.toFixed(1)}m - {hoveredLayer.depth_to.toFixed(1)}m)</span>
+                            <span className="font-mono bg-sky-500/20 text-sky-300 px-1 rounded">{hoveredLayer.uscs_code}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-350 line-clamp-3 leading-relaxed font-mono mt-1">
+                            {hoveredLayer.description}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-center text-slate-500 italic text-[10px]">
+                          Hover over stratigraphy layer to view details.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Row: OpenGround Sync Grid */}
+              <div className="glass rounded-3xl p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <div className="flex items-center gap-2 text-sky-400">
+                    <Database size={16} />
+                    <h4 className="font-bold uppercase tracking-wider text-xs font-semibold">OpenGround Synced Datagrid</h4>
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    <CheckCircle2 size={10} />
+                    Synced to Bentley Cloud
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto w-full max-h-[250px] scrollbar-thin">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-slate-500 uppercase tracking-widest text-[9px] font-bold">
+                        <th className="py-2 px-3">Location ID</th>
+                        <th className="py-2 px-3">Depth Top (m)</th>
+                        <th className="py-2 px-3">Depth Base (m)</th>
+                        <th className="py-2 px-3">Primary Soil</th>
+                        <th className="py-2 px-3">Secondary Component</th>
+                        <th className="py-2 px-3">USCS Group</th>
+                        <th className="py-2 px-3">Color</th>
+                        <th className="py-2 px-3">Moisture</th>
+                        <th className="py-2 px-3">Consistency</th>
+                        <th className="py-2 px-3">Origin</th>
+                        <th className="py-2 px-3">Field Geological Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-300">
+                      {loggedLayers.length === 0 ? (
+                        <tr>
+                          <td colSpan={11} className="py-8 text-center text-slate-600 italic">No intervals committed to OpenGround yet.</td>
+                        </tr>
+                      ) : (
+                        loggedLayers.map((layer, idx) => (
+                          <tr key={idx} className="hover:bg-white/5 transition-colors">
+                            <td className="py-2 px-3 text-white font-bold">{formData.boreholeId}</td>
+                            <td className="py-2 px-3 text-sky-400">{layer.depth_from.toFixed(2)}</td>
+                            <td className="py-2 px-3 text-sky-400">{layer.depth_to.toFixed(2)}</td>
+                            <td className="py-2 px-3 text-white">{layer.description?.split(',')[0]?.split(' ').pop() || 'CLAY'}</td>
+                            <td className="py-2 px-3">{layer.description?.split(',')[0]?.split(' ')[0] !== layer.description?.split(',')[0]?.split(' ').pop() ? layer.description?.split(',')[0]?.split(' ')[0] : ''}</td>
+                            <td className="py-2 px-3"><span className="bg-sky-500/10 text-sky-400 px-1.5 py-0.5 rounded font-bold">{layer.uscs_code}</span></td>
+                            <td className="py-2 px-3">{layer.colour}</td>
+                            <td className="py-2 px-3">{layer.moisture}</td>
+                            <td className="py-2 px-3">{layer.consistency}</td>
+                            <td className="py-2 px-3 text-emerald-400 font-bold">{layer.origin || 'RESIDUAL SOIL'}</td>
+                            <td className="py-2 px-3 text-slate-400 truncate max-w-[220px]" title={layer.description}>{layer.description}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'rock' && (
+            <motion.div
+              key="rock-tab"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              className="space-y-6 text-left"
+            >
+              {/* Rock Core Box Upload UI */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left side: Upload and progress */}
+                <div className="lg:col-span-5 space-y-6">
+                  <section className="glass rounded-3xl p-8 space-y-6">
+                    <div className="flex items-center gap-2 text-sky-400">
+                      <Camera size={18} />
+                      <h2 className="font-bold uppercase tracking-wider text-sm">Rock Core Box Photo</h2>
+                    </div>
+                    
+                    <p className="text-xs text-slate-400 text-left">
+                      Upload a high-resolution photo of a rock core box (NMLC) to automatically extract project details, depth runs, core recovery, RQD index, weathering, and strength boundaries.
+                    </p>
+
+                    <div className="relative group border-2 border-dashed border-white/10 rounded-2xl p-6 text-center hover:border-sky-400/50 transition-all bg-black/20">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        id="rock-file-input" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setRockPhoto(file);
+                            setRockPhotoPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                      />
+                      <label htmlFor="rock-file-input" className="cursor-pointer space-y-3 block">
+                        {rockPhotoPreview ? (
+                          <div className="relative w-full h-48 rounded-lg overflow-hidden border border-white/10">
+                            <img src={rockPhotoPreview} className="w-full h-full object-cover" alt="Rock Core Preview" />
+                          </div>
+                        ) : (
+                          <div className="py-8 space-y-3">
+                            <ImageIcon className="mx-auto text-slate-500 group-hover:text-sky-400 transition-colors" size={36} />
+                            <div className="text-xs font-semibold text-slate-350">
+                              Drag & Drop or <span className="text-sky-400 font-bold underline">Browse</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500">Supports PNG, JPG, JPEG up to 10MB</p>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+
+                    {rockPhoto && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            if (!rockPhoto) return;
+                            setRockParsingState('uploading');
+                            setRockProgress('Analyzing core box photo with Vision OCR...');
+                            
+                            const fd = new FormData();
+                            fd.append('photo', rockPhoto);
+                            
+                            try {
+                              const res = await fetch(`${API_BASE}/rock-core/analyze`, {
+                                method: 'POST',
+                                body: fd
+                              });
+                              if (res.ok) {
+                                const data = await res.json();
+                                setRockResult(data);
+                                setRockParsingState('success');
+                                setRockProgress('Rock core box analyzed successfully! Generated OpenGround PDF.');
+                              } else {
+                                setRockParsingState('error');
+                                setRockProgress('Analysis failed.');
+                              }
+                            } catch (e: any) {
+                              setRockParsingState('error');
+                              setRockProgress(`Error: ${e.message}`);
+                            }
+                          }}
+                          disabled={rockParsingState === 'uploading'}
+                          className="flex-1 py-3 px-4 bg-sky-500 hover:bg-sky-400 disabled:bg-sky-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-sky-500/20"
+                        >
+                          {rockParsingState === 'uploading' ? (
+                            <>
+                              <Loader2 className="animate-spin" size={14} />
+                              <span>Parsing Box...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={14} />
+                              <span>Extract & Generate Log</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setRockPhoto(null);
+                            setRockPhotoPreview(null);
+                            setRockResult(null);
+                            setRockParsingState('idle');
+                            setRockProgress('');
+                          }}
+                          className="px-3 py-3 border border-white/10 hover:bg-white/5 rounded-xl text-xs font-semibold text-slate-400 transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+
+                    {rockParsingState !== 'idle' && (
+                      <div className={`p-4 rounded-xl border text-[11px] font-mono leading-relaxed text-left ${
+                        rockParsingState === 'uploading' ? 'bg-sky-500/5 border-sky-500/10 text-sky-400' :
+                        rockParsingState === 'success' ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400' :
+                        'bg-rose-500/5 border-rose-500/10 text-rose-400'
+                      }`}>
+                        <div className="flex items-center gap-2 font-bold mb-1">
+                          {rockParsingState === 'uploading' && <Loader2 className="animate-spin" size={10} />}
+                          {rockParsingState === 'success' && <CheckCircle2 size={10} />}
+                          {rockParsingState === 'error' && <AlertCircle size={10} />}
+                          <span>STATUS LOGGER</span>
+                        </div>
+                        <p>{rockProgress}</p>
+                      </div>
+                    )}
+                  </section>
+                </div>
+
+                {/* Right side: Results & PDF download */}
+                <div className="lg:col-span-7 space-y-6">
+                  {rockParsingState === 'success' && rockResult ? (
+                    <>
+                      {/* Project Meta Info */}
+                      <section className="glass rounded-3xl p-6 space-y-4">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
+                            <Activity size={16} />
+                            <span>Metadata Extracted</span>
+                          </div>
+                          <span className="font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                            {rockResult.borehole_id}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left text-[11px]">
+                          <div>
+                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project Name</span>
+                            <span className="font-semibold text-slate-200">{rockResult.project_name}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project ID</span>
+                            <span className="font-semibold text-slate-200">{rockResult.project_id}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Borehole</span>
+                            <span className="font-semibold text-slate-200">{rockResult.borehole_id}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Logged Interval</span>
+                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockResult.start_depth}m - {rockResult.end_depth}m</span>
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Rock Runs Table */}
+                      <section className="glass rounded-3xl p-6 space-y-4">
+                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                          <h3 className="font-bold text-xs uppercase tracking-wider text-sky-400">Core Run Details (NMLC)</h3>
+                          <a
+                            href={`${API_BASE}/rock-core/download`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-1 px-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-lg text-[10px] flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"
+                          >
+                            <Download size={10} />
+                            <span>Download OpenGround PDF</span>
+                          </a>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="border-b border-white/10 text-slate-500 uppercase tracking-widest text-[9px] font-bold">
+                                <th className="py-2 px-1">Depth (m)</th>
+                                <th className="py-2 px-2">TCR %</th>
+                                <th className="py-2 px-2">RQD %</th>
+                                <th className="py-2 px-2">Weathering</th>
+                                <th className="py-2 px-2">Strength</th>
+                                <th className="py-2 px-3">Description</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-350">
+                              {rockResult.runs.map((run: any, idx: number) => (
+                                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{run.depth_from.toFixed(2)} - {run.depth_to.toFixed(2)}</td>
+                                  <td className="py-2.5 px-2 text-white">{run.tcr}%</td>
+                                  <td className="py-2.5 px-2 text-white font-bold">{run.rqd}%</td>
+                                  <td className="py-2.5 px-2"><span className="bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.weathering}</span></td>
+                                  <td className="py-2.5 px-2"><span className="bg-red-500/10 text-red-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.strength}</span></td>
+                                  <td className="py-2.5 px-3 text-slate-400 text-left">{run.description}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    </>
+                  ) : (
+                    <div className="h-full min-h-[300px] flex flex-col items-center justify-center glass rounded-3xl p-8 border border-dashed border-white/10 text-center text-slate-500">
+                      <Camera size={36} className="text-slate-600 mb-3" />
+                      <h4 className="font-bold text-slate-400 mb-1">Awaiting Core Photo Upload</h4>
+                      <p className="text-xs max-w-sm mx-auto">
+                        Please upload a rock core box photo on the left panel to begin analysis and generate the OpenGround report.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

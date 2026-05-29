@@ -52,6 +52,21 @@ class LlmProviderTests(unittest.TestCase):
 
         self.assertEqual(config.api_key, "vite-ds-test-key")
 
+    def test_deepseek_config_accepts_common_token_alias(self):
+        from app.llm_provider import resolve_llm_config
+
+        with patch.dict(
+            os.environ,
+            {
+                "MODEL_PROVIDER": "deepseek",
+                "DEEPSEEK_TOKEN": "token-ds-test-key",
+            },
+            clear=True,
+        ):
+            config = resolve_llm_config()
+
+        self.assertEqual(config.api_key, "token-ds-test-key")
+
 
 if __name__ == "__main__":
     unittest.main()

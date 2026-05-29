@@ -14,8 +14,12 @@ export default async function handler(request, response) {
 
   const deepseekApiKey =
     process.env.DEEPSEEK_API_KEY ||
+    process.env.DEEPSEEK_API ||
+    process.env.DEEPSEEK_TOKEN ||
     process.env.DEEPSEEK_KEY ||
     process.env.VITE_DEEPSEEK_API_KEY ||
+    process.env.VITE_DEEPSEEK_API ||
+    process.env.VITE_DEEPSEEK_TOKEN ||
     process.env.VITE_DEEPSEEK_KEY;
   if (!deepseekApiKey) {
     return response.status(500).json({ error: 'DEEPSEEK_API_KEY is not configured in Vercel' });

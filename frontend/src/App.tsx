@@ -29,8 +29,7 @@ import {
   Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import { apiFetch, apiUrl, downloadApiFile } from './lib/api';
 
 const AGENTS = [
   { id: 'validation', name: 'Validation', icon: ShieldCheck },
@@ -53,6 +52,37 @@ const SWARM_AGENTS = [
   { id: 'ReportCompilationAgent', name: 'Compiler', icon: Layers },
   { id: 'DispatchAgent', name: 'Dispatcher', icon: Send }
 ];
+
+const rockMeta = (result: any) => {
+  const analysis = result?.analysis || {};
+  const project = analysis?.project || {};
+  const interval = analysis?.depthInterval || {};
+
+  return {
+    boreholeId: result?.borehole_id || project?.boreholeId || 'REVIEW',
+    projectName: result?.project_name || project?.client || 'Human review required',
+    projectId: result?.project_id || project?.projectNumber || 'Not extracted',
+    startDepth: result?.start_depth ?? interval?.fromM ?? 0,
+    endDepth: result?.end_depth ?? interval?.toM ?? 0,
+    pdfUrl: result?.pdf?.downloadUrl || '/rock-core/download',
+    pdfName: result?.pdf?.fileName || 'rock-core-analysis.pdf',
+  };
+};
+
+const rockRuns = (result: any) => {
+  if (Array.isArray(result?.runs)) return result.runs;
+  return (result?.analysis?.coreRuns || []).map((run: any) => ({
+    depth_from: run.depthFromM,
+    depth_to: run.depthToM,
+    tcr: run.tcrPercent ?? run.coreRecoveryPercent ?? 'REV',
+    rqd: run.rqdPercent ?? run.rqdEstimatePercent ?? 'REV',
+    weathering: run.weathering || 'Review',
+    strength: run.strength || 'Review',
+    description:
+      run.materialDescription ||
+      `${result?.analysis?.rockType?.value || 'ROCK'}: ${run.jointType || 'visible joints'}, spacing ${run.dominantJointSpacingMm || 'review'} mm`,
+  }));
+};
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rock' | 'rag' | 'logs'>('dashboard');
@@ -117,7 +147,7 @@ const App: React.FC = () => {
 
   const fetchLoggedLayers = async (projId: string, bhId: string) => {
     try {
-      const res = await fetch(`${API_BASE}/boreholes/${projId}/${bhId}/layers`);
+      const res = await apiFetch(apiUrl(`/boreholes/${projId}/${bhId}/layers`));
       if (res.ok) {
         const data = await res.json();
         setLoggedLayers(data.layers || []);
@@ -130,7 +160,7 @@ const App: React.FC = () => {
   const deleteLoggedLayers = async (projId: string, bhId: string) => {
     if (!window.confirm("Are you sure you want to clear all logged layers for this borehole?")) return;
     try {
-      const res = await fetch(`${API_BASE}/boreholes/${projId}/${bhId}/layers`, {
+      const res = await apiFetch(apiUrl(`/boreholes/${projId}/${bhId}/layers`), {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -148,7 +178,7 @@ const App: React.FC = () => {
         notes: customNotes || formData.notes,
         photo_base64: customPhoto || soilPhoto
       };
-      const res = await fetch(`${API_BASE}/classify-interval`, {
+      const res = await apiFetch(apiUrl('/classify-interval'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -203,7 +233,7 @@ const App: React.FC = () => {
         notes: description
       };
 
-      const res = await fetch(`${API_BASE}/log-interval`, {
+      const res = await apiFetch(apiUrl('/log-interval'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -295,7 +325,7 @@ const App: React.FC = () => {
     });
     
     try {
-      const res = await fetch(`${API_BASE}/project/upload`, {
+      const res = await apiFetch(apiUrl('/project/upload'), {
         method: 'POST',
         body: formData
       });
@@ -364,19 +394,19 @@ const App: React.FC = () => {
 
   const fetchRAGData = async () => {
     try {
-      const resProj = await fetch(`${API_BASE}/rag/projects`);
+      const resProj = await apiFetch(apiUrl('/rag/projects'));
       if (resProj.ok) {
         const data = await resProj.json();
         setProjects(data);
       }
       
-      const resTemp = await fetch(`${API_BASE}/templates`);
+      const resTemp = await apiFetch(apiUrl('/templates'));
       if (resTemp.ok) {
         const data = await resTemp.json();
         setTemplates(data);
       }
 
-      const resHist = await fetch(`${API_BASE}/reports/history`);
+      const resHist = await apiFetch(apiUrl('/reports/history'));
       if (resHist.ok) {
         const data = await resHist.json();
         setHistory(data);
@@ -397,7 +427,7 @@ const App: React.FC = () => {
         project_path: selectedProject || null
       };
 
-      const res = await fetch(`${API_BASE}/templates/suggest-fields`, {
+      const res = await apiFetch(apiUrl('/templates/suggest-fields'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -458,7 +488,7 @@ const App: React.FC = () => {
   const rebuildIndex = async () => {
     setIndexingState('indexing');
     try {
-      const res = await fetch(`${API_BASE}/rag/index/build`, { method: 'POST' });
+      const res = await apiFetch(apiUrl('/rag/index/build'), { method: 'POST' });
       if (res.ok) {
         setIndexingState('success');
         setTimeout(() => setIndexingState('idle'), 3000);
@@ -476,8 +506,7 @@ const App: React.FC = () => {
     setAnalysisState('analyzing');
     setAnalysisResult(null);
     try {
-      const url = `${API_BASE}/rag/analyze?project_path=${encodeURIComponent(selectedProject)}`;
-      const res = await fetch(url);
+      const res = await apiFetch(apiUrl(`/rag/analyze?project_path=${encodeURIComponent(selectedProject)}`));
       if (res.ok) {
         const data = await res.json();
         setAnalysisResult(data.analysis);
@@ -571,7 +600,7 @@ const App: React.FC = () => {
         project_path: selectedProject || null
       };
 
-      const res = await fetch(`${API_BASE}/templates/generate`, {
+      const res = await apiFetch(apiUrl('/templates/generate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1205,9 +1234,13 @@ const App: React.FC = () => {
                             
                             const fd = new FormData();
                             fd.append('photo', rockPhoto);
+                            fd.append('projectNumber', formData.projectId);
+                            fd.append('boreholeId', formData.boreholeId);
+                            fd.append('depthFrom', formData.depthFrom);
+                            fd.append('depthTo', formData.depthTo);
                             
                             try {
-                              const res = await fetch(`${API_BASE}/rock-core/analyze`, {
+                              const res = await apiFetch(apiUrl('/rock-core/analyze'), {
                                 method: 'POST',
                                 body: fd
                               });
@@ -1217,8 +1250,9 @@ const App: React.FC = () => {
                                 setRockParsingState('success');
                                 setRockProgress('Rock core box analyzed successfully! Generated OpenGround PDF.');
                               } else {
+                                const errorBody = await res.json().catch(() => null);
                                 setRockParsingState('error');
-                                setRockProgress('Analysis failed.');
+                                setRockProgress(errorBody?.detail || `Analysis failed (${res.status}).`);
                               }
                             } catch (e: any) {
                               setRockParsingState('error');
@@ -1286,25 +1320,25 @@ const App: React.FC = () => {
                             <span>Metadata Extracted</span>
                           </div>
                           <span className="font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">
-                            {rockResult.borehole_id}
+                            {rockMeta(rockResult).boreholeId}
                           </span>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left text-[11px]">
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project Name</span>
-                            <span className="font-semibold text-slate-200">{rockResult.project_name}</span>
+                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).projectName}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project ID</span>
-                            <span className="font-semibold text-slate-200">{rockResult.project_id}</span>
+                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).projectId}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Borehole</span>
-                            <span className="font-semibold text-slate-200">{rockResult.borehole_id}</span>
+                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).boreholeId}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Logged Interval</span>
-                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockResult.start_depth}m - {rockResult.end_depth}m</span>
+                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockMeta(rockResult).startDepth}m - {rockMeta(rockResult).endDepth}m</span>
                           </div>
                         </div>
                       </section>
@@ -1313,15 +1347,22 @@ const App: React.FC = () => {
                       <section className="glass rounded-3xl p-6 space-y-4">
                         <div className="flex justify-between items-center border-b border-white/5 pb-2">
                           <h3 className="font-bold text-xs uppercase tracking-wider text-sky-400">Core Run Details (NMLC)</h3>
-                          <a
-                            href={`${API_BASE}/rock-core/download`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const meta = rockMeta(rockResult);
+                                await downloadApiFile(meta.pdfUrl, meta.pdfName);
+                              } catch (error: any) {
+                                setRockParsingState('error');
+                                setRockProgress(error?.message || 'PDF download failed.');
+                              }
+                            }}
                             className="py-1 px-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-lg text-[10px] flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"
                           >
                             <Download size={10} />
                             <span>Download OpenGround PDF</span>
-                          </a>
+                          </button>
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs border-collapse">
@@ -1336,9 +1377,9 @@ const App: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-350">
-                              {rockResult?.runs?.map((run: any, idx: number) => (
+                              {rockRuns(rockResult).map((run: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-white/5 transition-colors">
-                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{run.depth_from.toFixed(2)} - {run.depth_to.toFixed(2)}</td>
+                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{Number(run.depth_from).toFixed(2)} - {Number(run.depth_to).toFixed(2)}</td>
                                   <td className="py-2.5 px-2 text-white">{run.tcr}%</td>
                                   <td className="py-2.5 px-2 text-white font-bold">{run.rqd}%</td>
                                   <td className="py-2.5 px-2"><span className="bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.weathering}</span></td>

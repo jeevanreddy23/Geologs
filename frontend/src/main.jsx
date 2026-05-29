@@ -3,11 +3,11 @@ import { createRoot } from 'react-dom/client'
 import axios from 'axios'
 import './index.css'
 import App from './App.tsx'
+import { API_KEY } from './lib/api'
 
-const apiKey = import.meta.env.VITE_AUTOSOIL_API_KEY || import.meta.env.VITE_API_KEY || 'UTYkyv08ThI0NnjOIx5rH36wKyxtIoEZ';
-if (apiKey) {
+if (API_KEY) {
   axios.interceptors.request.use((config) => {
-    config.headers['X-Autosoil-Api-Key'] = apiKey;
+    config.headers['X-Autosoil-Api-Key'] = API_KEY;
     return config;
   }, (error) => {
     return Promise.reject(error);

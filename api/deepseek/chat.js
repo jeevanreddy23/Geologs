@@ -12,7 +12,11 @@ export default async function handler(request, response) {
     return response.status(401).json({ error: 'Invalid AutoSoil API key' });
   }
 
-  const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+  const deepseekApiKey =
+    process.env.DEEPSEEK_API_KEY ||
+    process.env.DEEPSEEK_KEY ||
+    process.env.VITE_DEEPSEEK_API_KEY ||
+    process.env.VITE_DEEPSEEK_KEY;
   if (!deepseekApiKey) {
     return response.status(500).json({ error: 'DEEPSEEK_API_KEY is not configured in Vercel' });
   }

@@ -25,7 +25,12 @@ def resolve_llm_config() -> LlmConfig:
         return LlmConfig(
             provider="deepseek",
             model=model_override or "deepseek-chat",
-            api_key=os.getenv("DEEPSEEK_API_KEY"),
+            api_key=(
+                os.getenv("DEEPSEEK_API_KEY")
+                or os.getenv("DEEPSEEK_KEY")
+                or os.getenv("VITE_DEEPSEEK_API_KEY")
+                or os.getenv("VITE_DEEPSEEK_KEY")
+            ),
             base_url=os.getenv("DEEPSEEK_BASE_URL", DEEPSEEK_BASE_URL),
         )
 

@@ -37,6 +37,21 @@ class LlmProviderTests(unittest.TestCase):
         self.assertEqual(config.api_key, "sk-test")
         self.assertIsNone(config.base_url)
 
+    def test_deepseek_config_accepts_vite_prefixed_key_when_already_set_in_vercel(self):
+        from app.llm_provider import resolve_llm_config
+
+        with patch.dict(
+            os.environ,
+            {
+                "MODEL_PROVIDER": "deepseek",
+                "VITE_DEEPSEEK_API_KEY": "vite-ds-test-key",
+            },
+            clear=True,
+        ):
+            config = resolve_llm_config()
+
+        self.assertEqual(config.api_key, "vite-ds-test-key")
+
 
 if __name__ == "__main__":
     unittest.main()

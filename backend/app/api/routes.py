@@ -763,8 +763,7 @@ async def classify_interval(request: ClassifyIntervalRequest):
     if provider != "mock":
         try:
             from langchain_core.messages import SystemMessage, HumanMessage
-            from langchain_openai import ChatOpenAI
-            from langchain_anthropic import ChatAnthropic
+            from app.llm_provider import create_chat_model
             import json
 
             system_prompt = """
@@ -788,10 +787,7 @@ async def classify_interval(request: ClassifyIntervalRequest):
             if request.photo_base64:
                 user_msg += "\n[Photo provided in Base64]"
                 
-            if provider == "anthropic":
-                llm = ChatAnthropic(model=os.getenv("MODEL_NAME", "claude-opus-4-6"))
-            else:
-                llm = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+            llm = create_chat_model()
                 
             response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_msg)])
             data = json.loads(response.content.strip())

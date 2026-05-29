@@ -7,8 +7,8 @@ from typing import TypedDict, List, Dict, Optional, Annotated
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.message import add_messages
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
+from app.llm_provider import create_chat_model
 
 from app.utils.template_manager import extract_placeholders, extract_variables_from_docx, fill_template
 
@@ -78,12 +78,6 @@ async def swarm_classifier_agent(state: TemplateSwarmState) -> dict:
 # ----------------------------------------------------
 # ColBERT Value Extraction Helpers
 # ----------------------------------------------------
-
-try:
-    from langchain_anthropic import ChatAnthropic
-except ImportError:
-    ChatAnthropic = None
-
 
 def extract_field_value_from_chunk(placeholder: str, chunk_text: str) -> Optional[str]:
     """Offline/regex-based extraction of field values from a text chunk."""
@@ -156,10 +150,7 @@ async def extract_value_via_llm(placeholder: str, chunk_text: str) -> Optional[s
     if provider == "mock":
         return None
     try:
-        if provider == "anthropic" and ChatAnthropic is not None:
-            llm = ChatAnthropic(model=os.getenv("MODEL_NAME", "claude-opus-4-6"))
-        else:
-            llm = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+        llm = create_chat_model()
             
         system_prompt = (
             "You are a precise data extraction assistant. Given a text chunk from a geotechnical report, "

@@ -1,8 +1,7 @@
 import os
 import json
-from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage
+from app.llm_provider import create_chat_model
 from app.state.borehole import BoreholeState
 from app.tools.as1726 import validate_uscs_code, get_consistency_options, build_soil_description
 
@@ -26,10 +25,7 @@ async def classifier_agent(state: BoreholeState) -> dict:
         }
     else:
         try:
-            if provider == "anthropic":
-                llm = ChatAnthropic(model=os.getenv("MODEL_NAME", "claude-opus-4-6"))
-            else:
-                llm = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+            llm = create_chat_model()
             response = llm.invoke([SystemMessage(content=CLASSIFIER_SYSTEM), HumanMessage(content=user_prompt)])
             result = json.loads(response.content.strip())
         except Exception as e:

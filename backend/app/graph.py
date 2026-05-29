@@ -4,9 +4,9 @@ import os
 from typing import Literal, TypedDict, List
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import InMemorySaver
-from langchain_openai import ChatOpenAI
 from langgraph_supervisor import create_supervisor
 
+from app.llm_provider import create_chat_model, resolve_llm_config
 from app.state.borehole import BoreholeState
 from app.agents.validation_agent import validation_agent
 from app.agents.photo_agent import photo_agent
@@ -20,9 +20,9 @@ from app.agents.report_agent import report_agent
 from app.agents.dispatch_agent import dispatch_agent
 
 def build_graph():
-    provider = os.getenv("MODEL_PROVIDER", "openai")
+    config = resolve_llm_config()
     
-    if provider == "mock" or not os.getenv("OPENAI_API_KEY") or "your-key" in os.getenv("OPENAI_API_KEY", ""):
+    if config.provider == "mock" or not config.api_key or "your-key" in config.api_key:
         print("Using Mock LLM for supervisor (API key missing or provider=mock)")
         from langchain_community.chat_models.fake import FakeMessagesListChatModel
         from langchain_core.messages import AIMessage
@@ -34,7 +34,7 @@ def build_graph():
         
         model = MockSupervisorLLM(responses=[AIMessage(content="I will delegate to validation_agent")])
     else:
-        model = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+        model = create_chat_model()
     
     # Ensure all agents have a name attribute for the supervisor
     agents = [

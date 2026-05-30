@@ -47,23 +47,30 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: 'messages must be a non-empty array' });
   }
 
-  const upstream = await fetch(upstreamUrl, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: body.temperature ?? 0.1,
-      response_format: body.response_format,
-      stream: false,
-    }),
-  });
+  try {
+    const upstream = await fetch(upstreamUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: body.temperature ?? 0.1,
+        response_format: body.response_format,
+        stream: false,
+      }),
+    });
 
-  const text = await upstream.text();
-  response.status(upstream.status);
-  response.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
-  return response.send(text);
+    const text = await upstream.text();
+    response.status(upstream.status);
+    response.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
+    return response.send(text || JSON.stringify({ error: `DeepSeek upstream returned ${upstream.status}` }));
+  } catch (error) {
+    return response.status(502).json({
+      error: 'DeepSeek upstream request failed',
+      message: error?.message || String(error),
+    });
+  }
 }

@@ -67,6 +67,24 @@ class LlmProviderTests(unittest.TestCase):
 
         self.assertEqual(config.api_key, "token-ds-test-key")
 
+    def test_deepseek_config_uses_vercel_ai_gateway_when_available(self):
+        from app.llm_provider import resolve_llm_config
+
+        with patch.dict(
+            os.environ,
+            {
+                "MODEL_PROVIDER": "deepseek",
+                "AI_GATEWAY_API_KEY": "gateway-test-key",
+            },
+            clear=True,
+        ):
+            config = resolve_llm_config()
+
+        self.assertEqual(config.provider, "deepseek")
+        self.assertEqual(config.model, "deepseek/deepseek-chat")
+        self.assertEqual(config.api_key, "gateway-test-key")
+        self.assertEqual(config.base_url, "https://ai-gateway.vercel.sh/v1")
+
 
 if __name__ == "__main__":
     unittest.main()

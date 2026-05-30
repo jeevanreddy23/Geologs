@@ -1,4 +1,5 @@
-const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+const DIRECT_DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+const AI_GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
@@ -21,22 +22,35 @@ export default async function handler(request, response) {
     process.env.VITE_DEEPSEEK_API ||
     process.env.VITE_DEEPSEEK_TOKEN ||
     process.env.VITE_DEEPSEEK_KEY;
-  if (!deepseekApiKey) {
-    return response.status(500).json({ error: 'DEEPSEEK_API_KEY is not configured in Vercel' });
-  }
+  const gatewayApiKey =
+    process.env.AI_GATEWAY_API_KEY ||
+    process.env.VERCEL_AI_GATEWAY_API_KEY ||
+    process.env.VERCEL_OIDC_TOKEN;
+  const apiKey = deepseekApiKey || gatewayApiKey;
+  const upstreamUrl = gatewayApiKey ? AI_GATEWAY_URL : DIRECT_DEEPSEEK_URL;
 
   const body = request.body || {};
-  const model = body.model || process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+  const model =
+    body.model ||
+    process.env.DEEPSEEK_MODEL ||
+    process.env.AI_GATEWAY_MODEL ||
+    (gatewayApiKey ? 'deepseek/deepseek-chat' : 'deepseek-chat');
   const messages = Array.isArray(body.messages) ? body.messages : [];
+
+  if (!apiKey) {
+    return response.status(500).json({
+      error: 'DeepSeek is not configured. Set DEEPSEEK_API_KEY for direct DeepSeek or AI_GATEWAY_API_KEY for Vercel AI Gateway.',
+    });
+  }
 
   if (messages.length === 0) {
     return response.status(400).json({ error: 'messages must be a non-empty array' });
   }
 
-  const upstream = await fetch(DEEPSEEK_URL, {
+  const upstream = await fetch(upstreamUrl, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${deepseekApiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({

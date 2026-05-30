@@ -4,6 +4,7 @@ from typing import Optional
 
 
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+VERCEL_AI_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v1"
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,19 @@ def resolve_llm_config() -> LlmConfig:
         return LlmConfig(provider="mock", model="mock", api_key=None)
 
     if provider == "deepseek":
+        gateway_api_key = (
+            os.getenv("AI_GATEWAY_API_KEY")
+            or os.getenv("VERCEL_AI_GATEWAY_API_KEY")
+            or os.getenv("VERCEL_OIDC_TOKEN")
+        )
+        if gateway_api_key:
+            return LlmConfig(
+                provider="deepseek",
+                model=model_override or os.getenv("DEEPSEEK_MODEL") or "deepseek/deepseek-chat",
+                api_key=gateway_api_key,
+                base_url=os.getenv("AI_GATEWAY_BASE_URL", VERCEL_AI_GATEWAY_BASE_URL),
+            )
+
         return LlmConfig(
             provider="deepseek",
             model=model_override or "deepseek-chat",

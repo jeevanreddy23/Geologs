@@ -1,16 +1,14 @@
-const PRODUCTION_API_BASE = 'https://autosoil-api-production.up.railway.app/api/v1';
-const LOCAL_API_BASE = 'http://localhost:8000/api/v1';
+import { resolveApiBase } from './apiBase';
 
 const isBrowser = typeof window !== 'undefined';
 const isLocalHost =
   isBrowser &&
   ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
-export const API_BASE = (
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_API_BASE ||
-  (isLocalHost ? LOCAL_API_BASE : PRODUCTION_API_BASE)
-).replace(/\/+$/, '');
+export const API_BASE = resolveApiBase({
+  envBase: import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE,
+  isLocalHost,
+});
 
 export const API_KEY =
   import.meta.env.VITE_AUTOSOIL_API_KEY ||

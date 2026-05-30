@@ -15,10 +15,19 @@ function isFrontendVercelUrl(value: string): boolean {
   }
 }
 
+function isAbsoluteHttpUrl(value: string): boolean {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === 'http:' || protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export function resolveApiBase({ envBase, isLocalHost }: ResolveApiBaseOptions): string {
   const configuredBase = (envBase || '').trim();
   const selectedBase =
-    configuredBase && !isFrontendVercelUrl(configuredBase)
+    configuredBase && isAbsoluteHttpUrl(configuredBase) && !isFrontendVercelUrl(configuredBase)
       ? configuredBase
       : isLocalHost
         ? LOCAL_API_BASE

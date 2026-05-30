@@ -21,6 +21,14 @@ assert.equal(
 
 assert.equal(
   resolveApiBase({
+    envBase: '/api/v1',
+    isLocalHost: false,
+  }),
+  railwayBase,
+);
+
+assert.equal(
+  resolveApiBase({
     envBase: 'https://example-api.internal/api/v1',
     isLocalHost: false,
   }),

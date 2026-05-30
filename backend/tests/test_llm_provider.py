@@ -100,6 +100,21 @@ class LlmProviderTests(unittest.TestCase):
 
         self.assertEqual(config.api_key, "plain-ds-test-key")
 
+    def test_deepseek_config_accepts_api_env_name_as_last_resort(self):
+        from app.llm_provider import resolve_llm_config
+
+        with patch.dict(
+            os.environ,
+            {
+                "MODEL_PROVIDER": "deepseek",
+                "api": "lowercase-api-test-key",
+            },
+            clear=True,
+        ):
+            config = resolve_llm_config()
+
+        self.assertEqual(config.api_key, "lowercase-api-test-key")
+
 
 if __name__ == "__main__":
     unittest.main()

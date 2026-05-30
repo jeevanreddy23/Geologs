@@ -52,6 +52,9 @@ def resolve_llm_config() -> LlmConfig:
                 or os.getenv("VITE_DEEPSEEK_TOKEN")
                 or os.getenv("VITE_DEEPSEEK")
                 or os.getenv("VITE_DEEPSEEK_KEY")
+                or os.getenv("DEEPSEEK_API_KEY_API")
+                or os.getenv("API")
+                or os.getenv("api")
             ),
             base_url=os.getenv("DEEPSEEK_BASE_URL", DEEPSEEK_BASE_URL),
         )

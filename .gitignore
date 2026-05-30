@@ -53,3 +53,4 @@ artifacts/
 # Lockfiles (project uses npm via frontend/)
 bun.lockb
 bun.lock
+.vercel

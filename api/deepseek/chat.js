@@ -19,6 +19,7 @@ export default async function handler(request, response) {
       process.env.DEEPSEEK_API ||
       process.env.DEEPSEEK_TOKEN ||
       process.env.DEEPSEEK ||
+      process.env.DeepSeek ||
       process.env.DEEPSEEK_KEY ||
       process.env.VITE_DEEPSEEK_API_KEY ||
       process.env.VITE_DEEPSEEK_API ||

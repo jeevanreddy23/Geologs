@@ -46,6 +46,7 @@ def resolve_llm_config() -> LlmConfig:
                 or os.getenv("DEEPSEEK_API")
                 or os.getenv("DEEPSEEK_TOKEN")
                 or os.getenv("DEEPSEEK")
+                or os.getenv("DeepSeek")
                 or os.getenv("DEEPSEEK_KEY")
                 or os.getenv("VITE_DEEPSEEK_API_KEY")
                 or os.getenv("VITE_DEEPSEEK_API")

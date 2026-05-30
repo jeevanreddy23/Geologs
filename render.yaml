@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: auto-soil-logger-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: AUTOSOIL_API_KEY
+        sync: false
+      - key: MODEL_PROVIDER
+        value: deepseek
+      - key: DeepSeek
+        sync: false
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: UPLOAD_ROOT
+        value: /tmp/autosoil-uploads

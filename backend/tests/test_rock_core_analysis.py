@@ -66,6 +66,12 @@ class RockCoreAnalysisTest(unittest.TestCase):
         self.assertLess(analysis["entropyAudit"]["normalisedEntropy"], 0.65)
         self.assertEqual(analysis["entropyAudit"]["descriptiveStability"], "stable_with_review")
         self.assertFalse(analysis["antiSlop"]["exactDimensionsCertified"])
+        self.assertEqual(analysis["visionSystem"]["systemId"], "autosoil-openground-10x-vision-v1")
+        self.assertEqual(len(analysis["reasoningLayers"]), 12)
+        self.assertEqual(analysis["humanReview"]["status"], "Draft")
+        self.assertFalse(analysis["humanReview"]["pdfExportAllowed"])
+        self.assertIn("Core Runs", analysis["outputDatabase"]["targetTables"])
+        self.assertIn("Vector graphics, no screenshots", analysis["pdfEngine"]["requirements"])
 
     def test_generate_core_photo_pdf_embeds_json_and_image(self):
         with tempfile.TemporaryDirectory() as tmp:

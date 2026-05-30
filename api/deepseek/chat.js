@@ -34,7 +34,7 @@ export default async function handler(request, response) {
     body.model ||
     process.env.DEEPSEEK_MODEL ||
     process.env.AI_GATEWAY_MODEL ||
-    (gatewayApiKey ? 'deepseek/deepseek-chat' : 'deepseek-chat');
+    (gatewayApiKey ? 'deepseek/deepseek-v4-flash' : 'deepseek-chat');
   const messages = Array.isArray(body.messages) ? body.messages : [];
 
   if (!apiKey) {

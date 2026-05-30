@@ -81,7 +81,7 @@ class LlmProviderTests(unittest.TestCase):
             config = resolve_llm_config()
 
         self.assertEqual(config.provider, "deepseek")
-        self.assertEqual(config.model, "deepseek/deepseek-chat")
+        self.assertEqual(config.model, "deepseek/deepseek-v4-flash")
         self.assertEqual(config.api_key, "gateway-test-key")
         self.assertEqual(config.base_url, "https://ai-gateway.vercel.sh/v1")
 

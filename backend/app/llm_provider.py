@@ -31,7 +31,7 @@ def resolve_llm_config() -> LlmConfig:
         if gateway_api_key:
             return LlmConfig(
                 provider="deepseek",
-                model=model_override or os.getenv("DEEPSEEK_MODEL") or "deepseek/deepseek-chat",
+                model=model_override or os.getenv("DEEPSEEK_MODEL") or "deepseek/deepseek-v4-flash",
                 api_key=gateway_api_key,
                 base_url=os.getenv("AI_GATEWAY_BASE_URL", VERCEL_AI_GATEWAY_BASE_URL),
             )

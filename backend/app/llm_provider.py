@@ -26,6 +26,8 @@ def resolve_llm_config() -> LlmConfig:
         gateway_api_key = (
             os.getenv("AI_GATEWAY_API_KEY")
             or os.getenv("VERCEL_AI_GATEWAY_API_KEY")
+            or os.getenv("VITE_AI_GATEWAY_API_KEY")
+            or os.getenv("VITE_VERCEL_AI_GATEWAY_API_KEY")
             or os.getenv("VERCEL_OIDC_TOKEN")
         )
         if gateway_api_key:
@@ -43,10 +45,12 @@ def resolve_llm_config() -> LlmConfig:
                 os.getenv("DEEPSEEK_API_KEY")
                 or os.getenv("DEEPSEEK_API")
                 or os.getenv("DEEPSEEK_TOKEN")
+                or os.getenv("DEEPSEEK")
                 or os.getenv("DEEPSEEK_KEY")
                 or os.getenv("VITE_DEEPSEEK_API_KEY")
                 or os.getenv("VITE_DEEPSEEK_API")
                 or os.getenv("VITE_DEEPSEEK_TOKEN")
+                or os.getenv("VITE_DEEPSEEK")
                 or os.getenv("VITE_DEEPSEEK_KEY")
             ),
             base_url=os.getenv("DEEPSEEK_BASE_URL", DEEPSEEK_BASE_URL),

@@ -826,6 +826,26 @@ async def health():
     return {"status": "ok", "graph_nodes": graph_nodes, "graph_error": GRAPH_IMPORT_ERROR or None}
 
 
+@router.get("/debug-rag")
+async def debug_rag():
+    import traceback
+    try:
+        from app.utils import rag_manager
+        return {
+            "status": "success",
+            "db_path": getattr(rag_manager, "DB_PATH", None),
+            "reports_dirs": getattr(rag_manager, "REPORTS_DIRS", None),
+            "ocr_reader_available": getattr(rag_manager, "OCR_READER", None) is not None
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error_type": type(e).__name__,
+            "error_message": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 # ----------------------------------------------------
 # Advanced RAG & OCR Site Data Analysis Endpoints
 # ----------------------------------------------------

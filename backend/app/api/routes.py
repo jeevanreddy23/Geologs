@@ -83,7 +83,7 @@ async def _save_upload(file: UploadFile, folder: str = "evidence", allowed_exten
 
 def _public_upload_url(path: Path) -> str:
     relative = path.resolve().relative_to(upload_root())
-    return "/api/v1/uploads/" + "/".join(relative.parts)
+    return "/uploads/" + "/".join(relative.parts)
 
 
 def _require_graph():

@@ -32,18 +32,14 @@ app.add_middleware(
 
 app.include_router(router)
 
-# Mount the redesigned Intelligent Workflow UI at the root
-ui_path = os.path.join(os.path.dirname(__file__), "..", "..", "workflow_ui")
+# Mount the frontend built React files at the root
+ui_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
 if os.path.exists(ui_path):
-    app.mount("/workflow", StaticFiles(directory=ui_path, html=True), name="workflow")
-    
-    @app.get("/")
-    async def root():
-        return RedirectResponse(url="/workflow")
+    app.mount("/", StaticFiles(directory=ui_path, html=True), name="frontend")
 else:
     @app.get("/")
     async def root():
-        return {"message": "AutoSoil API is running. Redesigned UI not found in workflow_ui folder."}
+        return {"message": "AutoSoil API is running. Frontend build not found at " + ui_path}
 
 if __name__ == "__main__":
     import uvicorn

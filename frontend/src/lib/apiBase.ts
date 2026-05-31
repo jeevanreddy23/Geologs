@@ -1,4 +1,4 @@
-export const PRODUCTION_API_BASE = 'https://autosoil-api-production.up.railway.app/api/v1';
+export const PRODUCTION_API_BASE = 'https://autosoil-api-production-9bbb.up.railway.app/api/v1';
 export const LOCAL_API_BASE = 'http://localhost:8000/api/v1';
 
 type ResolveApiBaseOptions = {
@@ -26,12 +26,16 @@ function isAbsoluteHttpUrl(value: string): boolean {
 
 export function resolveApiBase({ envBase, isLocalHost }: ResolveApiBaseOptions): string {
   const configuredBase = (envBase || '').trim();
-  const selectedBase =
+  let selectedBase =
     configuredBase && isAbsoluteHttpUrl(configuredBase) && !isFrontendVercelUrl(configuredBase)
       ? configuredBase
       : isLocalHost
         ? LOCAL_API_BASE
         : PRODUCTION_API_BASE;
 
-  return selectedBase.replace(/\/+$/, '');
+  selectedBase = selectedBase.replace(/\/+$/, '');
+  if (selectedBase && !selectedBase.includes('/api/v1')) {
+    selectedBase += '/api/v1';
+  }
+  return selectedBase;
 }

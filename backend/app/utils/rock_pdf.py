@@ -11,6 +11,14 @@ from reportlab.lib import colors
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
 
+def safe_float(v, default=0.0):
+    if v is None or v == "":
+        return default
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return default
+
 def generate_openground_style_pdf(data: dict, output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     borehole = data.get("borehole", {})
@@ -21,8 +29,8 @@ def generate_openground_style_pdf(data: dict, output_dir: Path) -> Path:
     pdf_path = output_dir / f"openground_log_{safe_bh}_{uuid.uuid4().hex[:8]}.pdf"
     
     # Calculate depth range
-    depth_from = float(borehole.get("depth_from") if borehole.get("depth_from") is not None else 0.0)
-    depth_to = float(borehole.get("depth_to") if borehole.get("depth_to") is not None else 5.0)
+    depth_from = safe_float(borehole.get("depth_from"), 0.0)
+    depth_to = safe_float(borehole.get("depth_to"), 5.0)
     depth_span = depth_to - depth_from
     if depth_span <= 0:
         depth_span = 5.0
@@ -226,8 +234,8 @@ def _draw_lithologies(doc: canvas.Canvas, units: list[dict], page_start: float, 
     doc.setLineWidth(0.75)
     
     for u in units:
-        u_from = float(u.get("from") if u.get("from") is not None else u.get("depth_from", 0.0))
-        u_to = float(u.get("to") if u.get("to") is not None else u.get("depth_to", 5.0))
+        u_from = safe_float(u.get("from") if u.get("from") is not None else u.get("depth_from"), 0.0)
+        u_to = safe_float(u.get("to") if u.get("to") is not None else u.get("depth_to"), 5.0)
         
         # Check overlaps
         if u_to <= page_start or u_from >= page_end:
@@ -332,8 +340,8 @@ def _draw_core_runs(doc: canvas.Canvas, runs: list[dict], page_start: float, pag
     doc.setFillColor(colors.HexColor("#0f172a"))
     
     for r in runs:
-        r_from = float(r.get("from") if r.get("from") is not None else r.get("depth_from") or r.get("depthFromM") or 0.0)
-        r_to = float(r.get("to") if r.get("to") is not None else r.get("depth_to") or r.get("depthToM") or 5.0)
+        r_from = safe_float(r.get("from") if r.get("from") is not None else r.get("depth_from") or r.get("depthFromM"), 0.0)
+        r_to = safe_float(r.get("to") if r.get("to") is not None else r.get("depth_to") or r.get("depthToM"), 5.0)
         
         # Check overlaps
         if r_to <= page_start or r_from >= page_end:
@@ -361,9 +369,9 @@ def _draw_core_runs(doc: canvas.Canvas, runs: list[dict], page_start: float, pag
         frac = str(r.get("fracture_spacing_mm") or r.get("dominantJointSpacingMm") or "")
         
         if tcr and "%" not in tcr:
-            tcr = f"{float(tcr):.0f}%"
+            tcr = f"{safe_float(tcr):.0f}%"
         if rqd and "%" not in rqd:
-            rqd = f"{float(rqd):.0f}%"
+            rqd = f"{safe_float(rqd):.0f}%"
             
         doc.drawCentredString(78.5, y_mid, tcr)
         doc.drawCentredString(103.5, y_mid, rqd)
@@ -380,13 +388,13 @@ def _draw_discontinuities(doc: canvas.Canvas, disconts: list[dict], page_start: 
     
     # Sort by depth to handle overlapping text
     disconts_sorted = sorted(
-        [d for d in disconts if page_start <= float(d.get("depth", 0.0) or 0.0) <= page_end],
-        key=lambda x: float(x.get("depth", 0.0) or 0.0)
+        [d for d in disconts if page_start <= safe_float(d.get("depth"), 0.0) <= page_end],
+        key=lambda x: safe_float(x.get("depth"), 0.0)
     )
     
     last_y = 999.0
     for d in disconts_sorted:
-        d_depth = float(d.get("depth", 0.0) or 0.0)
+        d_depth = safe_float(d.get("depth"), 0.0)
         y_d = depth_to_y(d_depth)
         
         # Draw red defect tick (diagonal line in x=436 to 442)

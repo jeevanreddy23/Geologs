@@ -843,6 +843,14 @@ async def debug_rag():
         except Exception as e:
             curr_dir_list = str(e)
             
+        # Read main.py content
+        main_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "main.py"))
+        try:
+            with open(main_path, "r") as mf:
+                main_content = mf.read()
+        except Exception as e:
+            main_content = str(e)
+            
         return {
             "status": "success",
             "db_path": getattr(rag_manager, "DB_PATH", None),
@@ -852,7 +860,8 @@ async def debug_rag():
             "cwd": os.path.abspath("."),
             "parent_dir": parent_dir,
             "parent_list": parent_list,
-            "curr_dir_list": curr_dir_list
+            "curr_dir_list": curr_dir_list,
+            "main_content": main_content
         }
     except Exception as e:
         return {

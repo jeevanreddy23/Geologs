@@ -33,7 +33,7 @@ app.add_middleware(
 app.include_router(router)
 
 # Mount the frontend built React files at the root
-ui_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+ui_path = os.path.join(os.path.dirname(__file__), "..", "frontend_dist")
 if os.path.exists(ui_path):
     app.mount("/", StaticFiles(directory=ui_path, html=True), name="frontend")
 else:

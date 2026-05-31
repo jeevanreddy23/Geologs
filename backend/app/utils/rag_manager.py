@@ -139,8 +139,7 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
                     t = page.extract_text()
                     if t:
                         pages_text.append(t)
-                text = "
-".join(pages_text).strip()
+                text = "\n".join(pages_text).strip()
         except Exception as e:
             print(f"[RAG Manager] PDFPlumber error on {file_path}: {e}")
 
@@ -153,12 +152,11 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
                 reader = PdfReader(file_path)
                 pages_text = []
                 pages_to_read = reader.pages[:5] if is_large else reader.pages
-                for page in pages_to_read:
+                for page in reader.pages:
                     t = page.extract_text()
                     if t:
                         pages_text.append(t)
-                text = "
-".join(pages_text).strip()
+                text = "\n".join(pages_text).strip()
             except Exception as e:
                 print(f"[RAG Manager] PyPDF error on {file_path}: {e}")
 

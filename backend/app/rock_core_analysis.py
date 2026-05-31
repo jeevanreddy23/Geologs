@@ -129,20 +129,28 @@ def generate_rock_core_pdf(analysis: dict[str, Any], image_path: Path, output_di
     document = canvas.Canvas(str(pdf_path), pagesize=A4, pageCompression=0)
     width, height = A4
 
+    depth_from = analysis.get("depthInterval", {}).get("fromM") or 0.0
+    depth_to = analysis.get("depthInterval", {}).get("toM") or 10.0
+    
+    # Simple pagination: 10m per page. (Usually it's 10m on logs like this)
+    total_pages = max(1, math.ceil((depth_to - depth_from) / 10.0))
+    # We will just draw a single log page for the whole interval if it's a short core. 
+    # For now, just one page for the log data. 
     _draw_header(document, width, height, analysis)
-    _draw_photo_panel(document, image_path, 36, height - 350, width - 72, 250)
-    _draw_summary_table(document, 36, height - 390, width - 72, analysis)
-    _draw_core_run_table(document, 36, 86, width - 72, 260, analysis)
+    _draw_log_table_header(document, width, height)
+    _draw_log_body(document, width, height, analysis)
     _draw_footer(document, width, 1, 2)
     document.showPage()
 
-    _draw_header(document, width, height, analysis, title="ROCK CORE PHOTO ANALYSIS - QA")
-    _draw_qa_panel(document, 36, height - 260, width - 72, analysis)
-    _draw_json_panel(document, 36, 72, width - 72, height - 350, analysis)
+    # Second page: Appendix (Core photo & JSON payload)
+    document.setFillColor(colors.HexColor("#0f172a"))
+    document.setFont("Helvetica-Bold", 15)
+    document.drawString(36, height - 30, "APPENDIX: ROCK CORE PHOTO & STRUCTURED DATA")
+    _draw_photo_panel(document, image_path, 36, height - 350, width - 72, 300)
+    _draw_json_panel(document, 36, 72, width - 72, height - 440, analysis)
     _draw_footer(document, width, 2, 2)
     document.save()
     return pdf_path
-
 
 def _detect_core_rows(gray: Image.Image) -> list[dict[str, int]]:
     width, height = gray.size
@@ -493,23 +501,250 @@ def _summary(analysis: dict[str, Any]) -> str:
     )
 
 
-def _draw_header(document: canvas.Canvas, width: float, height: float, analysis: dict[str, Any], title: str = "ROCK CORE PHOTO ANALYSIS") -> None:
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.rect(0, height - 74, width, 74, fill=1, stroke=0)
-    document.setFillColor(colors.white)
-    document.setFont("Helvetica-Bold", 15)
-    document.drawString(36, height - 30, title)
-    document.setFont("Helvetica", 8)
-    document.drawString(36, height - 48, "AS 1726:2017 review-ready visual extraction | OpenGround-style structured audit")
-    project = analysis.get("project", {})
-    document.setFont("Helvetica-Bold", 8)
-    document.drawRightString(width - 36, height - 28, f"BH ID: {project.get('boreholeId') or 'Requires Review'}")
-    document.drawRightString(width - 36, height - 44, f"Job No: {project.get('projectNumber') or 'Requires Review'}")
-    document.drawRightString(width - 36, height - 60, "Human review required")
+def _draw_sts_logo(document: canvas.Canvas, x: float, y: float, w: float, h: float) -> None:
+    document.setFillColor(colors.HexColor("#1b5e20"))
+    document.setFont("Helvetica-Bold", 30)
+    document.drawString(x, y - 25, "STS")
+    document.setFont("Helvetica-Bold", 10)
+    document.drawString(x, y - 36, "GEOTECHNICS PTY LTD")
+    document.setFillColor(colors.HexColor("#7f8c8d"))
+    document.setFont("Helvetica", 6)
+    document.drawString(x, y - 44, "CONSULTING GEOTECHNICAL ENGINEERS")
+
+
+def _draw_header(document: canvas.Canvas, width: float, height: float, analysis: dict[str, Any]) -> None:
+    margin = 30
+    w = width - 2 * margin
+    document.setStrokeColor(colors.black)
+    document.setLineWidth(0.5)
+
+    y_top = height - margin
+    header_h = 90
+    y_bottom = y_top - header_h
+    document.rect(margin, y_bottom, w, header_h)
+
+    _draw_sts_logo(document, margin + 5, y_top - 5, 120, 50)
+
+    document.setFillColor(colors.black)
+    document.setFont("Helvetica", 20)
+    document.drawCentredString(width / 2, y_top - 35, "BOREHOLE LOG")
+
+    bh_id = analysis.get("project", {}).get("boreholeId") or "BH01"
+    document.line(width - margin - 150, y_top, width - margin - 150, y_bottom)
+    document.setFont("Helvetica", 16)
+    document.drawString(width - margin - 145, y_top - 20, "BH ID: ")
+    document.setFont("Helvetica-Bold", 20)
+    document.drawRightString(width - margin - 5, y_top - 45, bh_id)
+
+    meta_y_top = y_bottom
+    meta_h = 30
+    document.rect(margin, meta_y_top - meta_h, w, meta_h)
+    
+    col1 = margin + 2
+    col2 = margin + 60
+    col3 = margin + 350
+    col4 = margin + 400
+    
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col1, meta_y_top - 8, "Client")
+    document.setFont("Helvetica", 7)
+    document.drawString(col2, meta_y_top - 8, analysis.get("project", {}).get("client") or "By Group Pty Ltd")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3, meta_y_top - 8, "Date")
+    document.setFont("Helvetica", 7)
+    document.drawString(col4, meta_y_top - 8, analysis.get("project", {}).get("inspectionDate") or "22 May 2026")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col1, meta_y_top - 18, "Job No.")
+    document.setFont("Helvetica", 7)
+    document.drawString(col2, meta_y_top - 18, analysis.get("project", {}).get("projectNumber") or "32904/2304E-G")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3, meta_y_top - 18, "Logged By")
+    document.setFont("Helvetica", 7)
+    document.drawString(col4, meta_y_top - 18, "AI")
+    
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3 + 100, meta_y_top - 18, "Review By")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col1, meta_y_top - 28, "Address")
+    document.setFont("Helvetica", 7)
+    document.drawString(col2, meta_y_top - 28, analysis.get("project", {}).get("address") or "-")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3, meta_y_top - 28, "Location #")
+    document.setFont("Helvetica", 7)
+    document.drawString(col4, meta_y_top - 28, "-")
+
+    meta2_y_top = meta_y_top - meta_h
+    meta2_h = 20
+    document.rect(margin, meta2_y_top - meta2_h, w, meta2_h)
+    
+    col3_2 = margin + 250
+    col4_2 = margin + 300
+    col5_2 = margin + 400
+    col6_2 = margin + 450
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col1, meta2_y_top - 8, "Drilling Contractor")
+    document.setFont("Helvetica", 7)
+    document.drawString(col1 + 80, meta2_y_top - 8, "AutoSoil Logger")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3_2, meta2_y_top - 8, "Surface RL")
+    document.setFont("Helvetica", 7)
+    document.drawString(col4_2, meta2_y_top - 8, "-")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col5_2, meta2_y_top - 8, "Drill Bit")
+    document.setFont("Helvetica", 7)
+    document.drawString(col6_2, meta2_y_top - 8, "Core")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col1, meta2_y_top - 18, "Plant")
+    document.setFont("Helvetica", 7)
+    document.drawString(col1 + 80, meta2_y_top - 18, "-")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col3_2, meta2_y_top - 18, "Inclination")
+    document.setFont("Helvetica", 7)
+    document.drawString(col4_2, meta2_y_top - 18, "90°")
+
+    document.setFont("Helvetica-Bold", 7)
+    document.drawString(col5_2, meta2_y_top - 18, "Hole Ø (mm)")
+    document.setFont("Helvetica", 7)
+    document.drawString(col6_2, meta2_y_top - 18, "-")
+
+
+def _draw_vertical_string(document, x, y, text, font="Helvetica", size=6):
+    document.saveState()
+    document.translate(x, y)
+    document.rotate(90)
+    document.setFont(font, size)
+    document.drawString(0, 0, text)
+    document.restoreState()
+
+
+def _draw_log_table_header(document: canvas.Canvas, width: float, height: float):
+    margin = 30
+    w = width - 2 * margin
+    y_top = height - margin - 90 - 30 - 20
+    header_h = 70
+    y_bottom = y_top - header_h
+    document.rect(margin, y_bottom, w, header_h)
+
+    cols = [
+        ("METHOD", 20),
+        ("Flush Return", 15),
+        ("TCR %", 15),
+        ("RQD %", 15),
+        ("DEPTH (m)", 30),
+        ("GRAPHIC\nLOG", 20),
+        ("RL (m AHD)", 20),
+        ("MATERIAL DESCRIPTION", 140),
+        ("WEATHERING", 20),
+        ("ESTIMATED\nSTRENGTH\nIs(50)\n▼ - Axial\n▽ - Diametral", 50),
+        ("DISCONTINUITIES\n& ADDITIONAL DATA", 120),
+        ("FRACTURE\nSPACING", 70)
+    ]
+    
+    x = margin
+    for label, cw in cols:
+        document.line(x, y_top, x, y_bottom)
+        cx = x + cw/2
+        
+        if label in ["METHOD", "Flush Return", "TCR %", "RQD %", "DEPTH (m)", "RL (m AHD)", "WEATHERING"]:
+            _draw_vertical_string(document, cx - 2, y_bottom + 5, label, size=6)
+        elif "STRENGTH" in label:
+            document.setFont("Helvetica", 5)
+            lines = label.split('\n')
+            for i, line in enumerate(lines):
+                document.drawCentredString(cx, y_top - 8 - i*6, line)
+            
+            sub_w = cw / 6
+            sx = x
+            for subl in ["VL 0.1", "L 0.3", "M 1", "H 3", "VH 10", "EH"]:
+                document.line(sx, y_bottom, sx, y_bottom + 15)
+                _draw_vertical_string(document, sx + sub_w/2 - 2, y_bottom + 2, subl, size=4)
+                sx += sub_w
+            document.line(x, y_bottom + 15, x + cw, y_bottom + 15)
+        elif "FRACTURE" in label:
+            document.setFont("Helvetica", 5)
+            for i, line in enumerate(label.split('\n')):
+                document.drawCentredString(cx, y_top - 8 - i*6, line)
+            
+            sub_w = cw / 5
+            sx = x
+            for subl in ["30", "100", "300", "1000", "3000"]:
+                document.line(sx, y_bottom, sx, y_bottom + 15)
+                _draw_vertical_string(document, sx + sub_w/2 - 2, y_bottom + 2, subl, size=5)
+                sx += sub_w
+            document.line(x, y_bottom + 15, x + cw, y_bottom + 15)
+        else:
+            document.setFont("Helvetica", 6)
+            lines = label.split('\n')
+            for i, line in enumerate(lines):
+                document.drawCentredString(cx, y_top - 10 - i*8, line)
+        
+        x += cw
+    document.line(x, y_top, x, y_bottom)
+
+
+def _draw_log_body(document: canvas.Canvas, width: float, height: float, analysis: dict[str, Any]):
+    margin = 30
+    w = width - 2 * margin
+    y_top = height - margin - 90 - 30 - 20 - 70
+    y_bottom = margin + 20
+    
+    cols = [20, 15, 15, 15, 30, 20, 20, 140, 20, 50, 120, 70]
+    x = margin
+    for cw in cols:
+        document.line(x, y_top, x, y_bottom)
+        x += cw
+    document.line(x, y_top, x, y_bottom)
+    document.line(margin, y_bottom, margin + sum(cols), y_bottom)
+
+    runs = analysis.get("coreRuns", [])
+    rock_type = analysis.get("rockType", {}).get("value", "")
+    rqd = analysis.get("rqdEstimate", {}).get("valuePercent", "")
+    
+    document.setFont("Helvetica", 7)
+    
+    desc_x = margin + 20 + 15 + 15 + 15 + 30 + 20 + 20 + 5
+    document.drawString(desc_x, y_top - 15, f"{rock_type}: Assessed from photo.")
+    
+    current_y = y_top - 30
+    for run in runs:
+        if current_y < y_bottom + 30:
+            break
+        
+        d_from = run.get("depthFromM", "-")
+        pieces = run.get("visibleCorePieces", "-")
+        spacing = run.get("dominantJointSpacingMm", "-")
+        j_type = run.get("jointType", "")
+        
+        depth_x = margin + 20 + 15 + 15 + 15 + 15
+        document.drawCentredString(depth_x, current_y, f"{d_from}")
+        
+        meth_x = margin + 10
+        document.drawCentredString(meth_x, current_y, "CORE")
+        tcr_x = margin + 20 + 15 + 7.5
+        document.drawCentredString(tcr_x, current_y, "100")
+        rqd_x = tcr_x + 15
+        document.drawCentredString(rqd_x, current_y, str(rqd))
+        
+        disc_x = margin + sum(cols[:10]) + 5
+        document.drawString(disc_x, current_y, f"{d_from}m: {j_type}")
+        if spacing != "-":
+            document.drawString(disc_x, current_y - 10, f"Spacing: {spacing} mm")
+        
+        current_y -= 30
 
 
 def _draw_photo_panel(document: canvas.Canvas, image_path: Path, x: float, y: float, w: float, h: float) -> None:
-    document.setStrokeColor(colors.HexColor("#94a3b8"))
+    document.setStrokeColor(colors.black)
     document.rect(x, y, w, h, fill=0, stroke=1)
     reader = ImageReader(str(image_path))
     iw, ih = reader.getSize()
@@ -519,87 +754,14 @@ def _draw_photo_panel(document: canvas.Canvas, image_path: Path, x: float, y: fl
     document.drawImage(reader, x + (w - draw_w) / 2, y + (h - draw_h) / 2, draw_w, draw_h, preserveAspectRatio=True, mask="auto")
 
 
-def _draw_summary_table(document: canvas.Canvas, x: float, y: float, w: float, analysis: dict[str, Any]) -> None:
-    document.setFillColor(colors.HexColor("#e2e8f0"))
-    document.rect(x, y - 92, w, 92, fill=1, stroke=0)
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.setFont("Helvetica-Bold", 9)
-    document.drawString(x + 8, y - 16, "STRUCTURED SUMMARY")
-    rows = [
-        ("Depth", f"{analysis['depthInterval']['fromM']} m to {analysis['depthInterval']['toM']} m"),
-        ("Rock type", f"{analysis['rockType']['value']} ({round(analysis['rockType']['confidence'] * 100)}%)"),
-        ("Calibration", analysis["calibration"]["status"]),
-        ("RQD screening", f"{analysis['rqdEstimate']['valuePercent']}% - review required"),
-    ]
-    document.setFont("Helvetica", 8)
-    for index, (label, value) in enumerate(rows):
-        yy = y - 34 - index * 14
-        document.setFont("Helvetica-Bold", 8)
-        document.drawString(x + 8, yy, label)
-        document.setFont("Helvetica", 8)
-        document.drawString(x + 108, yy, str(value))
-
-
-def _draw_core_run_table(document: canvas.Canvas, x: float, y: float, w: float, h: float, analysis: dict[str, Any]) -> None:
-    document.setFont("Helvetica-Bold", 9)
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.drawString(x, y + h + 12, "CORE RUNS / JOINT SPACING")
-    headers = ["Run", "Depth", "Pieces", "Spacing", "Joint type", "Conf."]
-    col_widths = [38, 96, 54, 78, 130, 42]
-    document.setFillColor(colors.HexColor("#f1f5f9"))
-    document.rect(x, y + h - 20, w, 20, fill=1, stroke=0)
-    xx = x + 4
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.setFont("Helvetica-Bold", 7)
-    for header, col_w in zip(headers, col_widths):
-        document.drawString(xx, y + h - 14, header)
-        xx += col_w
-    document.setFont("Helvetica", 7)
-    for index, run in enumerate(analysis.get("coreRuns", [])[:10]):
-        yy = y + h - 36 - index * 19
-        if yy < y:
-            break
-        depth = f"{run.get('depthFromM')} - {run.get('depthToM')} m" if run.get("depthFromM") is not None else "Requires review"
-        values = [
-            str(run["runIndex"]),
-            depth,
-            str(run["visibleCorePieces"]),
-            f"{run['dominantJointSpacingMm']} mm" if run.get("dominantJointSpacingMm") else "Review",
-            run["jointType"],
-            f"{round(run['confidence'] * 100)}%",
-        ]
-        xx = x + 4
-        for value, col_w in zip(values, col_widths):
-            document.drawString(xx, yy, value[:28])
-            xx += col_w
-
-
-def _draw_qa_panel(document: canvas.Canvas, x: float, y: float, w: float, analysis: dict[str, Any]) -> None:
-    document.setFont("Helvetica-Bold", 10)
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.drawString(x, y, "ANTI-SLOP QA")
-    document.setFont("Helvetica", 8)
-    yy = y - 18
-    for flag in analysis.get("qaFlags", []):
-        document.setFillColor(colors.HexColor("#92400e") if flag["severity"] == "warning" else colors.HexColor("#991b1b"))
-        document.drawString(x, yy, f"{flag['severity'].upper()} - {flag['code']}: {flag['message']}"[:118])
-        yy -= 14
-    document.setFillColor(colors.HexColor("#0f172a"))
-    document.setFont("Helvetica-Bold", 9)
-    document.drawString(x, yy - 6, "Entropy audit")
-    document.setFont("Helvetica", 8)
-    entropy = analysis.get("entropyAudit", {})
-    document.drawString(x, yy - 22, f"Normalised entropy: {entropy.get('normalisedEntropy')} | Instability: {entropy.get('instabilityScore')} | Stability: {entropy.get('descriptiveStability')}")
-
-
 def _draw_json_panel(document: canvas.Canvas, x: float, y: float, w: float, h: float, analysis: dict[str, Any]) -> None:
     document.setFont("Helvetica-Bold", 9)
-    document.setFillColor(colors.HexColor("#0f172a"))
+    document.setFillColor(colors.black)
     document.drawString(x, y + h + 10, "STRUCTURED JSON EXTRACT")
     document.setFillColor(colors.HexColor("#f8fafc"))
     document.rect(x, y, w, h, fill=1, stroke=0)
     payload = json.dumps(_compact_json(analysis), indent=2, ensure_ascii=True)
-    document.setFillColor(colors.HexColor("#0f172a"))
+    document.setFillColor(colors.black)
     document.setFont("Courier", 6.2)
     yy = y + h - 12
     for line in payload.splitlines()[:56]:
@@ -611,25 +773,20 @@ def _draw_json_panel(document: canvas.Canvas, x: float, y: float, w: float, h: f
 
 def _compact_json(analysis: dict[str, Any]) -> dict[str, Any]:
     return {
-        "schemaVersion": analysis["schemaVersion"],
-        "visionSystem": analysis.get("visionSystem"),
-        "humanReview": analysis.get("humanReview"),
-        "project": analysis["project"],
-        "depthInterval": analysis["depthInterval"],
-        "rockType": analysis["rockType"],
-        "jointSets": analysis["jointSets"],
-        "rqdEstimate": analysis["rqdEstimate"],
-        "qaFlags": analysis["qaFlags"],
-        "entropyAudit": analysis["entropyAudit"],
+        "schemaVersion": analysis.get("schemaVersion", ""),
+        "project": analysis.get("project", {}),
+        "depthInterval": analysis.get("depthInterval", {}),
+        "rockType": analysis.get("rockType", {}),
+        "rqdEstimate": analysis.get("rqdEstimate", {}),
     }
 
 
 def _draw_footer(document: canvas.Canvas, width: float, page: int, pages: int) -> None:
     document.setFont("Helvetica", 7)
     document.setFillColor(colors.HexColor("#475569"))
-    document.drawString(36, 36, "Generated by AutoSoil Logger. Visual extraction is draft evidence only; final responsibility remains with the reviewing geotechnical professional.")
-    document.drawRightString(width - 36, 36, f"Sheet {page} of {pages}")
-
+    margin = 30
+    document.drawString(margin, margin - 10, "Notes: See explanation sheets for meaning of all descriptive terms and symbols")
+    document.drawRightString(width - margin, margin - 10, f"Sheet {page} of {pages}")
 
 def _clusters(values: list[int], gap: int) -> list[list[int]]:
     if not values:

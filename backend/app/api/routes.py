@@ -831,11 +831,28 @@ async def debug_rag():
     import traceback
     try:
         from app.utils import rag_manager
+        # List directories for debugging deployment topology
+        parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+        try:
+            parent_list = os.listdir(parent_dir)
+        except Exception as e:
+            parent_list = str(e)
+            
+        try:
+            curr_dir_list = os.listdir(".")
+        except Exception as e:
+            curr_dir_list = str(e)
+            
         return {
             "status": "success",
             "db_path": getattr(rag_manager, "DB_PATH", None),
             "reports_dirs": getattr(rag_manager, "REPORTS_DIRS", None),
-            "ocr_reader_available": getattr(rag_manager, "OCR_READER", None) is not None
+            "ocr_reader_available": getattr(rag_manager, "OCR_READER", None) is not None,
+            "__file__": __file__,
+            "cwd": os.path.abspath("."),
+            "parent_dir": parent_dir,
+            "parent_list": parent_list,
+            "curr_dir_list": curr_dir_list
         }
     except Exception as e:
         return {

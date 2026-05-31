@@ -20,3 +20,4 @@ pdfplumber
 python-docx
 openpyxl
 langchain-community
+numpy

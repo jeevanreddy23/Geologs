@@ -26,6 +26,8 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 
 DB_PATH = os.getenv("AUTOSOIL_SQLITE_PATH", "data.db")
+if os.name != 'nt' and (':' in DB_PATH or '\\' in DB_PATH):
+    DB_PATH = "data.db"
 GEOLOGS_DIR = r"C:\Users\pored\Downloads\Project Geologs"
 
 REPORTS_DIRS = [

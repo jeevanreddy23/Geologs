@@ -133,15 +133,16 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
         try:
             # First try fast text extraction
             with pdfplumber.open(file_path) as pdf:
-            pages_text = []
-            pages_to_read = pdf.pages[:5] if is_large else pdf.pages
-            for page in pages_to_read:
-                t = page.extract_text()
-                if t:
-                    pages_text.append(t)
-            text = "\n".join(pages_text).strip()
-    except Exception as e:
-        print(f"[RAG Manager] PDFPlumber error on {file_path}: {e}")
+                pages_text = []
+                pages_to_read = pdf.pages[:5] if is_large else pdf.pages
+                for page in pages_to_read:
+                    t = page.extract_text()
+                    if t:
+                        pages_text.append(t)
+                text = "
+".join(pages_text).strip()
+        except Exception as e:
+            print(f"[RAG Manager] PDFPlumber error on {file_path}: {e}")
 
     # Fallback to pypdf if pdfplumber fails
     if not text:
@@ -150,15 +151,16 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
         else:
             try:
                 reader = PdfReader(file_path)
-            pages_text = []
-            pages_to_read = reader.pages[:5] if is_large else reader.pages
-            for page in reader.pages:
-                t = page.extract_text()
-                if t:
-                    pages_text.append(t)
-            text = "\n".join(pages_text).strip()
-        except Exception as e:
-            print(f"[RAG Manager] PyPDF error on {file_path}: {e}")
+                pages_text = []
+                pages_to_read = reader.pages[:5] if is_large else reader.pages
+                for page in pages_to_read:
+                    t = page.extract_text()
+                    if t:
+                        pages_text.append(t)
+                text = "
+".join(pages_text).strip()
+            except Exception as e:
+                print(f"[RAG Manager] PyPDF error on {file_path}: {e}")
 
     # If it is a scanned document (no text found) and OCR reader is available, we try OCR
     if not text and allow_ocr and OCR_READER:
@@ -170,32 +172,35 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
             else:
                 with pdfplumber.open(file_path) as pdf:
                     ocr_pages = []
-                for i, page in enumerate(pdf.pages[:5]): # Limit to first 5 pages for speed
-                    try:
-                        img = page.to_image(resolution=150)
-                        # Save temp image
-                        temp_img_path = f"temp_page_{i}.png"
-                        img.save(temp_img_path)
-                        # Run OCR
-                        result = OCR_READER.readtext(temp_img_path, detail=0)
-                        if result:
-                            ocr_pages.append("\n".join(result))
-                        # Cleanup temp file
-                        if os.path.exists(temp_img_path):
-                            os.remove(temp_img_path)
-                    except Exception as img_err:
-                        print(f"[RAG Manager] PDF page image conversion/OCR failed: {img_err}")
-                text = "\n".join(ocr_pages).strip()
+                    for i, page in enumerate(pdf.pages[:5]): # Limit to first 5 pages for speed
+                        try:
+                            img = page.to_image(resolution=150)
+                            # Save temp image
+                            temp_img_path = f"temp_page_{i}.png"
+                            img.save(temp_img_path)
+                            # Run OCR
+                            result = OCR_READER.readtext(temp_img_path, detail=0)
+                            if result:
+                                ocr_pages.append("\n".join(result))
+                            # Cleanup temp file
+                            if os.path.exists(temp_img_path):
+                                os.remove(temp_img_path)
+                        except Exception as img_err:
+                            print(f"[RAG Manager] PDF page image conversion/OCR failed: {img_err}")
+                    text = "\n".join(ocr_pages).strip()
         except Exception as ocr_err:
             print(f"[RAG Manager] Scanned PDF OCR failed for {file_path}: {ocr_err}")
 
     # Cache it
     if text:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO ocr_cache (file_path, extracted_text) VALUES (?, ?)", (file_path, text))
-        conn.commit()
-        conn.close()
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("INSERT OR REPLACE INTO ocr_cache (file_path, extracted_text) VALUES (?, ?)", (file_path, text))
+            conn.commit()
+            conn.close()
+        except Exception as cache_err:
+            print(f"[RAG Manager] Failed to cache OCR text: {cache_err}")
 
     return text
 

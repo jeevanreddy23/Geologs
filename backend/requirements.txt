@@ -14,3 +14,8 @@ pydantic>=2.0.0,<3.0.0
 httpx
 aiofiles
 anthropic
+
+pypdf
+pdfplumber
+python-docx
+openpyxl

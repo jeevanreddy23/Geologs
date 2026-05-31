@@ -3,7 +3,7 @@ import sqlite3
 from typing import Optional
 import httpx
 
-SQLITE_PATH = os.getenv("AUTOSOIL_SQLITE_PATH", "/var/data/data.db")
+SQLITE_PATH = os.getenv("AUTOSOIL_SQLITE_PATH", "data.db")
 SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY") or os.getenv("VITE_SUPABASE_PUBLISHABLE_KEY")
 

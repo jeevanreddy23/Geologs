@@ -30,7 +30,10 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+let API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:8000/api/v1';
+if (API_BASE && !API_BASE.includes('/api/v1')) {
+  API_BASE = API_BASE.replace(/\/$/, '') + '/api/v1';
+}
 
 const AGENTS = [
   { id: 'validation', name: 'Validation', icon: ShieldCheck },
@@ -1286,25 +1289,25 @@ const App: React.FC = () => {
                             <span>Metadata Extracted</span>
                           </div>
                           <span className="font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">
-                            {rockResult.borehole_id}
+                            {rockResult.boreholeId}
                           </span>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left text-[11px]">
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project Name</span>
-                            <span className="font-semibold text-slate-200">{rockResult.project_name}</span>
+                            <span className="font-semibold text-slate-200">{rockResult.analysis?.project?.projectNumber || rockResult.projectNumber}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project ID</span>
-                            <span className="font-semibold text-slate-200">{rockResult.project_id}</span>
+                            <span className="font-semibold text-slate-200">{rockResult.projectNumber}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Borehole</span>
-                            <span className="font-semibold text-slate-200">{rockResult.borehole_id}</span>
+                            <span className="font-semibold text-slate-200">{rockResult.boreholeId}</span>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Logged Interval</span>
-                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockResult.start_depth}m - {rockResult.end_depth}m</span>
+                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockResult.analysis?.depthInterval?.fromM}m - {rockResult.analysis?.depthInterval?.toM}m</span>
                           </div>
                         </div>
                       </section>
@@ -1336,14 +1339,14 @@ const App: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-350">
-                              {rockResult?.runs?.map((run: any, idx: number) => (
+                              {rockResult?.analysis?.coreRuns?.map((run: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-white/5 transition-colors">
-                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{run.depth_from.toFixed(2)} - {run.depth_to.toFixed(2)}</td>
-                                  <td className="py-2.5 px-2 text-white">{run.tcr}%</td>
-                                  <td className="py-2.5 px-2 text-white font-bold">{run.rqd}%</td>
-                                  <td className="py-2.5 px-2"><span className="bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.weathering}</span></td>
-                                  <td className="py-2.5 px-2"><span className="bg-red-500/10 text-red-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.strength}</span></td>
-                                  <td className="py-2.5 px-3 text-slate-400 text-left">{run.description}</td>
+                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{run.depthFromM.toFixed(2)} - {run.depthToM.toFixed(2)}</td>
+                                  <td className="py-2.5 px-2 text-white">{run.visibleCorePieces}%</td>
+                                  <td className="py-2.5 px-2 text-white font-bold">{rockResult.analysis?.rqdEstimate?.valuePercent}%</td>
+                                  <td className="py-2.5 px-2"><span className="bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded text-[10px] font-bold">{rockResult.analysis?.rockType?.value}</span></td>
+                                  <td className="py-2.5 px-2"><span className="bg-red-500/10 text-red-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.jointType}</span></td>
+                                  <td className="py-2.5 px-3 text-slate-400 text-left">{rockResult.analysis?.rockType?.value}</td>
                                 </tr>
                               ))}
                             </tbody>

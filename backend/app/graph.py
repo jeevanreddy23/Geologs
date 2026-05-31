@@ -24,6 +24,9 @@ def build_graph():
     
     if provider == "mock" or not os.getenv("OPENAI_API_KEY") or "your-key" in os.getenv("OPENAI_API_KEY", ""):
         print("Using Mock LLM for supervisor (API key missing or provider=mock)")
+        import langchain
+        if not hasattr(langchain, "verbose"):
+            langchain.verbose = False
         from langchain_community.chat_models.fake import FakeMessagesListChatModel
         from langchain_core.messages import AIMessage
         

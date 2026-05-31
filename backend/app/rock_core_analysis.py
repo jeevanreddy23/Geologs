@@ -15,6 +15,16 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
+from app.prompts.autosoil_vision_system import (
+    AUTOSOIL_VISION_SYSTEM_ID,
+    DEEPSEEK_ROLE_RULES,
+    HUMAN_REVIEW_STATUSES,
+    OUTPUT_DATABASE_TABLES,
+    PDF_ENGINE_REQUIREMENTS,
+    VISION_PREPROCESSING_STEPS,
+    VISION_REASONING_LAYERS,
+)
+
 
 SCHEMA_VERSION = "rock-core-analysis-v1"
 ROCK_TYPE_LEXICON = ["SILTSTONE", "SANDSTONE", "SHALE", "SEDIMENTARY ROCK", "REQUIRES REVIEW"]
@@ -86,6 +96,11 @@ def analyze_rock_core_photo(image_path: Path, metadata: dict[str, Any] | None = 
         "coreRuns": core_runs,
         "jointSets": _joint_sets(core_runs),
         "rqdEstimate": _rqd_estimate(core_runs),
+        "visionSystem": _vision_system_contract(),
+        "reasoningLayers": _reasoning_layers(depth_from, depth_to, rows, core_runs, rock_type),
+        "humanReview": _human_review_state(qa_flags, rock_type, core_runs),
+        "outputDatabase": _output_database_contract(),
+        "pdfEngine": _pdf_engine_contract(),
         "qaFlags": qa_flags,
         "geologicTestEvaluation": _test_case_results(qa_flags, rock_type, core_runs),
         "geologicTestCases": _test_case_results(qa_flags, rock_type, core_runs),
@@ -342,6 +357,99 @@ def _test_case_results(qa_flags: list[dict[str, str]], rock_type: dict[str, Any]
     ]
 
 
+def _vision_system_contract() -> dict[str, Any]:
+    return {
+        "systemId": AUTOSOIL_VISION_SYSTEM_ID,
+        "architecture": "DeepSeek + OpenCV + Human-in-the-Loop + Bentley/OpenGround-style PDF engine",
+        "deepSeekRole": DEEPSEEK_ROLE_RULES,
+        "preprocessingRequired": VISION_PREPROCESSING_STEPS,
+        "measurementAuthority": "opencv_or_human_review_only",
+        "descriptionAuthority": "deepseek_or_human_review",
+    }
+
+
+def _reasoning_layers(
+    depth_from: float | None,
+    depth_to: float | None,
+    rows: list[dict[str, int]],
+    core_runs: list[dict[str, Any]],
+    rock_type: dict[str, Any],
+) -> list[dict[str, Any]]:
+    complete = {
+        "Visual Interpretation": bool(rows),
+        "Depth Calibration": depth_from is not None and depth_to is not None,
+        "Core Recovery Assessment": bool(core_runs),
+        "Lithology Segmentation": bool(rock_type.get("value")),
+        "Weathering Assessment": False,
+        "Rock Strength Assessment": False,
+        "Discontinuity Detection": bool(core_runs),
+        "RQD Estimation": bool(core_runs),
+        "Geotechnical Validation": True,
+        "Human Review Flags": True,
+        "PDF Layout Optimisation": True,
+        "OpenGround Style Formatting": True,
+    }
+    review_notes = {
+        "Weathering Assessment": "Requires DeepSeek wording support and human geological review.",
+        "Rock Strength Assessment": "Requires field/lab evidence; photo-only strength is not certified.",
+    }
+    return [
+        {
+            "layer": index + 1,
+            "name": name,
+            "status": "complete" if complete.get(name) else "review_required",
+            "reviewRequired": not complete.get(name),
+            "note": review_notes.get(name, ""),
+        }
+        for index, name in enumerate(VISION_REASONING_LAYERS)
+    ]
+
+
+def _human_review_state(
+    qa_flags: list[dict[str, str]],
+    rock_type: dict[str, Any],
+    core_runs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    critical_fields = [
+        "depthInterval",
+        "calibration",
+        "rockType",
+        "coreRuns",
+        "jointSets",
+        "rqdEstimate",
+        "weathering",
+        "strength",
+    ]
+    return {
+        "status": "Draft",
+        "allowedStatuses": HUMAN_REVIEW_STATUSES,
+        "pdfExportAllowed": False,
+        "approvalRequiredFor": critical_fields,
+        "highlightStyle": "yellow",
+        "aiGeneratedFieldsHighlighted": True,
+        "criticalFieldsApproved": False,
+        "reviewRequired": True,
+        "reviewFlagsCount": len(qa_flags) + int(bool(rock_type.get("reviewRequired"))) + sum(1 for run in core_runs if run.get("reviewRequired")),
+    }
+
+
+def _output_database_contract() -> dict[str, Any]:
+    return {
+        "targetTables": OUTPUT_DATABASE_TABLES,
+        "auditTrailRequired": True,
+        "userEditsStored": True,
+        "reviewHistoryStored": True,
+    }
+
+
+def _pdf_engine_contract() -> dict[str, Any]:
+    return {
+        "styleTarget": "OpenGround-grade borehole log PDF",
+        "exportAllowedWhen": "all critical fields approved",
+        "requirements": PDF_ENGINE_REQUIREMENTS,
+    }
+
+
 def _image_quality(width: int, height: int, row_count: int) -> dict[str, Any]:
     megapixels = width * height / 1_000_000
     return {
@@ -504,6 +612,8 @@ def _draw_json_panel(document: canvas.Canvas, x: float, y: float, w: float, h: f
 def _compact_json(analysis: dict[str, Any]) -> dict[str, Any]:
     return {
         "schemaVersion": analysis["schemaVersion"],
+        "visionSystem": analysis.get("visionSystem"),
+        "humanReview": analysis.get("humanReview"),
         "project": analysis["project"],
         "depthInterval": analysis["depthInterval"],
         "rockType": analysis["rockType"],

@@ -2,6 +2,9 @@
   "name": "autosoil-logger",
   "private": true,
   "version": "2.0.0",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "prebuild": "npm install --prefix frontend",
     "build": "npm run build --prefix frontend",

@@ -1,8 +1,7 @@
 import os
 import json
-from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage
+from app.llm_provider import create_chat_model
 from app.state.borehole import BoreholeState
 
 QA_SYSTEM = """Review classification. Respond ONLY with JSON."""
@@ -17,10 +16,7 @@ async def qa_agent(state: BoreholeState) -> dict:
         result = {"score": 0.95, "passed": True, "issues": [], "feedback": "Mock pass"}
     else:
         try:
-            if provider == "anthropic":
-                llm = ChatAnthropic(model=os.getenv("MODEL_NAME", "claude-opus-4-6"))
-            else:
-                llm = ChatOpenAI(model=os.getenv("MODEL_NAME", "gpt-4o"))
+            llm = create_chat_model()
             response = llm.invoke([SystemMessage(content=QA_SYSTEM), HumanMessage(content="Review this.")])
             result = json.loads(response.content.strip())
         except Exception as e:

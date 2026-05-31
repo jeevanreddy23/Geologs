@@ -1,6 +1,5 @@
 ﻿# Dependencies
 node_modules/
-package-lock.json
 
 # Build output
 dist/
@@ -55,3 +54,4 @@ artifacts/
 bun.lockb
 bun.lock
 .env*
+.vercel

@@ -622,6 +622,246 @@ async def analyze_rock_core_photo_upload(
     }
 
 
+# ==========================================
+# NEW ROCK CORE WORKSPACE ENDPOINTS
+# ==========================================
+
+@router.get("/core/boreholes")
+async def get_core_boreholes():
+    from app.utils.db import list_rock_boreholes
+    try:
+        return list_rock_boreholes()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/core/borehole/{borehole_id}")
+async def get_core_borehole(borehole_id: str):
+    from app.utils.db import get_rock_borehole_data
+    try:
+        data = get_rock_borehole_data(borehole_id)
+        if not data:
+            raise HTTPException(status_code=404, detail="Borehole not found")
+        return data
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/core/upload")
+async def upload_core_photo(photo: UploadFile = File(...)):
+    try:
+        photo_path = await _save_upload(photo, "rock-core", IMAGE_EXTENSIONS)
+        from PIL import Image
+        from app.rock_core_analysis import _detect_core_rows
+        
+        with Image.open(photo_path) as raw:
+            img = raw.convert("RGB")
+            gray = img.convert("L")
+            rows = _detect_core_rows(gray)
+            
+        return {
+            "status": "success",
+            "photo_path": str(photo_path.relative_to(upload_root())),
+            "photo_url": _public_upload_url(photo_path),
+            "width": img.width,
+            "height": img.height,
+            "rows": rows
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CoreProcessRequest(BaseModel):
+    photo_path: str
+    depth_from: float
+    depth_to: float
+    rows: list[dict]
+
+@router.post("/core/process")
+async def process_core_photo(req: CoreProcessRequest):
+    try:
+        full_path = upload_root() / req.photo_path
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Photo not found")
+            
+        from PIL import Image
+        from app.rock_core_analysis import _core_runs, _classify_rock_type, _rqd_estimate
+        
+        with Image.open(full_path) as raw:
+            img = raw.convert("RGB")
+            gray = img.convert("L")
+            runs = _core_runs(gray, req.rows, req.depth_from, req.depth_to)
+            rock_type = _classify_rock_type(img, runs)
+            rqd_est = _rqd_estimate(runs)
+            
+        return {
+            "status": "success",
+            "runs": runs,
+            "rock_type": rock_type,
+            "rqd_estimate": rqd_est
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CoreDraftRequest(BaseModel):
+    borehole_id: str
+    project_no: str
+    depth_from: float
+    depth_to: float
+    runs: list[dict]
+    rock_type: dict
+
+@router.post("/core/generate-draft")
+async def generate_core_draft(req: CoreDraftRequest):
+    import json
+    from app.llm_provider import create_chat_model
+    obs = {
+        "borehole_id": req.borehole_id,
+        "project_no": req.project_no,
+        "depth_from": req.depth_from,
+        "depth_to": req.depth_to,
+        "runs_detected": req.runs,
+        "rock_type": req.rock_type
+    }
+    
+    try:
+        chat = create_chat_model()
+        system_prompt = (
+            "You are a senior Australian engineering geologist and geotechnical logger. "
+            "Convert structured visual observations from rock core photographs into compact AS1726-style borehole log entries. "
+            "Use professional OpenGround/gINT-style wording. Do not invent depths, RQD, TCR, weathering, or strength if not supported by extracted evidence. "
+            "If uncertain, write REVIEW REQUIRED. Output only valid JSON. Do not include markdown code blocks, just raw JSON."
+        )
+        user_prompt = f"Visual observations: {json.dumps(obs, indent=2)}\n\nPlease return a JSON conforming to the requested schema."
+        
+        from langchain_core.messages import SystemMessage, HumanMessage
+        messages = [SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]
+        res = chat.invoke(messages)
+        text = res.content.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        draft = json.loads(text)
+    except Exception as e:
+        print(f"DeepSeek call failed or not configured: {e}")
+        # Rule-based fallback
+        lithology_units = []
+        material = req.rock_type.get("value", "SEDIMENTARY ROCK")
+        lithology_units.append({
+            "from": req.depth_from,
+            "to": req.depth_to,
+            "material": material,
+            "description": f"{material}: medium-grained, grey, joints spacing estimated, AS1726 compliant. REVIEW REQUIRED.",
+            "weathering": "SW",
+            "strength": "M",
+            "structure": "bedded",
+            "confidence": 0.6,
+            "uscs_symbol": "ROCK",
+            "status": "draft"
+        })
+        
+        discontinuities = []
+        for r in req.runs:
+            depth_mid = round(((r.get("depthFromM") or 0.0) + (r.get("depthToM") or 0.0)) / 2, 2)
+            discontinuities.append({
+                "depth": depth_mid,
+                "type": "JN",
+                "angle": 45,
+                "shape": "PR",
+                "roughness": "RO",
+                "infilling": "CN",
+                "aperture": 0.5,
+                "condition": "Clean",
+                "notes": "Drilling break or Joint",
+                "status": "draft"
+            })
+            
+        draft = {
+            "borehole_id": req.borehole_id,
+            "depth_from": req.depth_from,
+            "depth_to": req.depth_to,
+            "lithology_units": lithology_units,
+            "discontinuities": discontinuities,
+            "core_recovery": [
+                {
+                    "from": r.get("depthFromM"),
+                    "to": r.get("depthToM"),
+                    "tcr": r.get("tcrPercent") if r.get("tcrPercent") is not None else 95,
+                    "rqd": r.get("rqdPercent") if r.get("rqdPercent") is not None else r.get("visibleCorePieces", 5) * 8,
+                    "review_required": True
+                } for r in req.runs
+            ],
+            "warnings": ["AI Model not connected or failed. Rule-based suggestions generated. Please review."]
+        }
+        
+    return draft
+
+class CoreSaveRequest(BaseModel):
+    project: dict
+    borehole: dict
+    lithology_units: list[dict]
+    discontinuities: list[dict]
+    core_runs: list[dict]
+
+@router.post("/core/save")
+async def save_core_log(req: CoreSaveRequest):
+    from app.utils.db import save_rock_borehole_data
+    try:
+        save_rock_borehole_data(
+            req.project,
+            req.borehole,
+            req.lithology_units,
+            req.discontinuities,
+            req.core_runs
+        )
+        return {"status": "success", "message": "Borehole log saved successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CoreApproveRequest(BaseModel):
+    borehole_id: str
+
+@router.post("/core/approve-log")
+async def approve_core_log(req: CoreApproveRequest):
+    from app.utils.db import get_sqlite_conn
+    conn = get_sqlite_conn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE rock_lithology_units SET status = 'approved' WHERE borehole_id = ?", (req.borehole_id,))
+        cursor.execute("UPDATE rock_discontinuities SET status = 'approved' WHERE borehole_id = ?", (req.borehole_id,))
+        cursor.execute("UPDATE rock_core_runs SET status = 'approved' WHERE borehole_id = ?", (req.borehole_id,))
+        conn.commit()
+        return {"status": "success", "message": "All fields approved."}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+@router.post("/pdf/export")
+async def export_borehole_pdf(req: CoreSaveRequest):
+    try:
+        from app.utils.rock_pdf import generate_openground_style_pdf
+        data = {
+            "project": req.project,
+            "borehole": req.borehole,
+            "lithology_units": req.lithology_units,
+            "discontinuities": req.discontinuities,
+            "core_runs": req.core_runs
+        }
+        
+        pdf_path = generate_openground_style_pdf(data, upload_root() / "rock-core-reports")
+        
+        return {
+            "status": "success",
+            "pdf_url": _public_upload_url(pdf_path),
+            "pdf_name": pdf_path.name
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/uploads/{relative_path:path}")
 async def get_uploaded_file(relative_path: str):
     root = upload_root()

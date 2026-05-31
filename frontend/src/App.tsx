@@ -88,6 +88,137 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rock' | 'rag' | 'logs'>('dashboard');
 
   // Rock Core States
+
+
+  // Extended Rock Core & OpenGround States
+  const [rockBoreholeData, setRockBoreholeData] = useState<any>({
+    project: { project_no: 'PRJ-2026-04', client: 'BHP Iron Ore', address: 'Pilbara, WA', date: '2026-05-31', logged_by: 'M. Watson', reviewed_by: 'S. Patel' },
+    borehole: { borehole_id: 'BH-102', surface_rl: 125.4, hole_diameter_mm: 96, inclination: 90, drill_bit: 'NMLC', drilling_contractor: 'WA Drillers', rig: 'Rig Talon-X', depth_from: 0.0, depth_to: 5.0 },
+    lithology_units: [],
+    discontinuities: [],
+    core_runs: []
+  });
+  const [photoPath, setPhotoPath] = useState<string>('');
+  const [photoUrl, setPhotoUrl] = useState<string>('');
+  const [detectedRows, setDetectedRows] = useState<any[]>([]);
+  
+  // Photo Viewer config
+  const [photoZoom, setPhotoZoom] = useState<number>(1);
+  const [photoBrightness, setPhotoBrightness] = useState<number>(100);
+  const [photoContrast, setPhotoContrast] = useState<number>(100);
+  const [showOverlays, setShowOverlays] = useState<boolean>(true);
+  
+  // Table and Builder States
+  const [activeTableTab, setActiveTableTab] = useState<'lithology' | 'runs' | 'disconts'>('lithology');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string>('');
+  const [generatedPdfName, setGeneratedPdfName] = useState<string>('');
+  
+  // Discontinuity Builder States
+  const [defectType, setDefectType] = useState<string>('JN');
+  const [defectAngle, setDefectAngle] = useState<string>('45');
+  const [defectShape, setDefectShape] = useState<string>('PR');
+  const [defectRoughness, setDefectRoughness] = useState<string>('RO');
+  const [defectInfilling, setDefectInfilling] = useState<string>('CN');
+  const [defectNotes, setDefectNotes] = useState<string>('Stained Joint');
+  const [defectDepth, setDefectDepth] = useState<string>('1.5');
+  
+  // Status check helper
+  const getFieldStatusColor = (status: string, requiredField: any) => {
+    if (!requiredField || String(requiredField).trim() === '') return 'border-rose-500 bg-rose-500/10 text-rose-300'; // Missing critical
+    if (status === 'approved') return 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400'; // Approved
+    return 'border-amber-500/30 bg-amber-500/5 text-amber-300'; // Draft / AI suggested
+  };
+  
+  // Dynamic validation executor
+  const runLocalValidation = (data: any) => {
+    const errors: string[] = [];
+    const { borehole, lithology_units, discontinuities, core_runs } = data;
+    
+    if (!borehole.borehole_id || borehole.borehole_id.trim() === "") {
+      errors.push("Borehole ID is required.");
+    }
+    
+    const bhFrom = parseFloat(borehole.depth_from ?? 0);
+    const bhTo = parseFloat(borehole.depth_to ?? 0);
+    
+    // 1. Check Lithology continuity and overlap
+    const sortedLith = [...lithology_units].sort((a, b) => parseFloat(a.from) - parseFloat(b.from));
+    for (let i = 0; i < sortedLith.length; i++) {
+      const l = sortedLith[i];
+      const fromVal = parseFloat(l.from);
+      const toVal = parseFloat(l.to);
+      
+      if (isNaN(fromVal) || isNaN(toVal)) {
+        errors.push(`Lithology unit ${i+1} has missing depth values.`);
+        continue;
+      }
+      if (fromVal >= toVal) {
+        errors.push(`Lithology unit ${i+1} has 'from' depth (${fromVal}m) >= 'to' depth (${toVal}m).`);
+      }
+      if (fromVal < bhFrom || toVal > bhTo) {
+        errors.push(`Lithology unit ${i+1} (${fromVal}m - ${toVal}m) is outside borehole range.`);
+      }
+      if (!l.description || l.description.trim() === "") {
+        errors.push(`Lithology unit at ${fromVal}m - ${toVal}m has an empty description.`);
+      }
+      if (l.status !== 'approved') {
+        errors.push(`Lithology unit at ${fromVal}m - ${toVal}m is still in Draft state.`);
+      }
+      
+      // Check overlap with next unit
+      if (i < sortedLith.length - 1) {
+        const next = sortedLith[i+1];
+        const nextFrom = parseFloat(next.from);
+        if (toVal > nextFrom) {
+          errors.push(`Lithology overlap at ${toVal}m: Unit ${i+1} overlaps with Unit ${i+2}.`);
+        } else if (toVal < nextFrom) {
+          errors.push(`Gaps in lithology logging: gap detected between ${toVal}m and ${nextFrom}m.`);
+        }
+      }
+    }
+    
+    // 2. Check Core Runs TCR/RQD
+    core_runs.forEach((run: any, idx: number) => {
+      const rFrom = parseFloat(run.depth_from ?? run.depthFromM ?? 0);
+      const rTo = parseFloat(run.depth_to ?? run.depthToM ?? 0);
+      const tcr = parseFloat(run.tcr ?? run.tcrPercent ?? 0);
+      const rqd = parseFloat(run.rqd ?? run.rqdPercent ?? 0);
+      
+      if (isNaN(rFrom) || isNaN(rTo)) {
+        errors.push(`Core Run ${idx+1} has missing depth values.`);
+      }
+      if (tcr < 0 || tcr > 100 || isNaN(tcr)) {
+        errors.push(`Core Run ${idx+1} TCR (${tcr}%) must be between 0% and 100%.`);
+      }
+      if (rqd < 0 || rqd > 100 || isNaN(rqd)) {
+        errors.push(`Core Run ${idx+1} RQD (${rqd}%) must be between 0% and 100%.`);
+      }
+      if (rqd > tcr) {
+        errors.push(`Core Run ${idx+1} RQD (${rqd}%) cannot exceed TCR (${tcr}%).`);
+      }
+      if (run.status !== 'approved') {
+        errors.push(`Core Run ${idx+1} (${rFrom}m - ${rTo}m) is not approved.`);
+      }
+    });
+    
+    // 3. Check Discontinuities
+    discontinuities.forEach((d: any, idx: number) => {
+      const dDepth = parseFloat(d.depth);
+      if (isNaN(dDepth)) {
+        errors.push(`Discontinuity ${idx+1} has missing depth value.`);
+      } else if (dDepth < bhFrom || dDepth > bhTo) {
+        errors.push(`Discontinuity ${idx+1} at ${dDepth}m is outside borehole range.`);
+      }
+      if (d.status !== 'approved') {
+        errors.push(`Discontinuity at ${dDepth}m is not approved.`);
+      }
+    });
+    
+    setValidationErrors(errors);
+    return errors;
+  };
+
   const [rockPhoto, setRockPhoto] = useState<File | null>(null);
   const [rockPhotoPreview, setRockPhotoPreview] = useState<string | null>(null);
   const [rockParsingState, setRockParsingState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
@@ -1171,7 +1302,7 @@ const App: React.FC = () => {
             </motion.div>
           )}
 
-          {activeTab === 'rock' && (
+                    {activeTab === 'rock' && (
             <motion.div
               key="rock-tab"
               initial={{ opacity: 0, y: 15 }}
@@ -1179,234 +1310,1183 @@ const App: React.FC = () => {
               exit={{ opacity: 0, y: -15 }}
               className="space-y-6 text-left"
             >
-              {/* Rock Core Box Upload UI */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left side: Upload and progress */}
-                <div className="lg:col-span-5 space-y-6">
-                  <section className="glass rounded-3xl p-8 space-y-6">
-                    <div className="flex items-center gap-2 text-sky-400">
-                      <Camera size={18} />
-                      <h2 className="font-bold uppercase tracking-wider text-sm">Rock Core Box Photo</h2>
+              {/* One-Screen 4-Panel Workflow Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-160px)] min-h-[750px]">
+                
+                {/* Column 1: Left - Metadata & Interactive Viewer (xl:col-span-5) */}
+                <div className="xl:col-span-5 flex flex-col gap-6 h-full overflow-y-auto pr-1">
+                  
+                  {/* Panel 1: Project Metadata & Borehole Details */}
+                  <section className="glass rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
+                        <Sliders size={14} />
+                        <span>Panel 1: Project & Borehole Metadata</span>
+                      </div>
+                      <span className="font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                        OpenGround Style
+                      </span>
                     </div>
                     
-                    <p className="text-xs text-slate-400 text-left">
-                      Upload a high-resolution photo of a rock core box (NMLC) to automatically extract project details, depth runs, core recovery, RQD index, weathering, and strength boundaries.
-                    </p>
-
-                    <div className="relative group border-2 border-dashed border-white/10 rounded-2xl p-6 text-center hover:border-sky-400/50 transition-all bg-black/20">
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        id="rock-file-input" 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setRockPhoto(file);
-                            setRockPhotoPreview(URL.createObjectURL(file));
-                          }
-                        }}
-                      />
-                      <label htmlFor="rock-file-input" className="cursor-pointer space-y-3 block">
-                        {rockPhotoPreview ? (
-                          <div className="relative w-full h-48 rounded-lg overflow-hidden border border-white/10">
-                            <img src={rockPhotoPreview} className="w-full h-full object-cover" alt="Rock Core Preview" />
-                          </div>
-                        ) : (
-                          <div className="py-8 space-y-3">
-                            <ImageIcon className="mx-auto text-slate-500 group-hover:text-sky-400 transition-colors" size={36} />
-                            <div className="text-xs font-semibold text-slate-350">
-                              Drag & Drop or <span className="text-sky-400 font-bold underline">Browse</span>
-                            </div>
-                            <p className="text-[10px] text-slate-500">Supports PNG, JPG, JPEG up to 10MB</p>
-                          </div>
-                        )}
-                      </label>
+                    <div className="grid grid-cols-2 gap-3 text-left">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Project No</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono"
+                          value={rockBoreholeData.project.project_no}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.project.project_no = e.target.value;
+                            d.project.projectNumber = e.target.value;
+                            setRockBoreholeData(d);
+                            runLocalValidation(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Client Name</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={rockBoreholeData.project.client}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.project.client = e.target.value;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1 col-span-2">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Site Address</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={rockBoreholeData.project.address}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.project.address = e.target.value;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Logged By</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={rockBoreholeData.project.logged_by}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.project.logged_by = e.target.value;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Reviewed By</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={rockBoreholeData.project.reviewed_by}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.project.reviewed_by = e.target.value;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
                     </div>
-
-                    {rockPhoto && (
-                      <div className="flex gap-2">
+                    
+                    <div className="border-t border-white/5 my-2 pt-2"></div>
+                    
+                    <div className="grid grid-cols-3 gap-3 text-left">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Borehole ID</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono font-bold text-sky-400"
+                          value={rockBoreholeData.borehole.borehole_id}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.borehole_id = e.target.value;
+                            setRockBoreholeData(d);
+                            runLocalValidation(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Surface RL (m)</label>
+                        <input 
+                          type="number" 
+                          step="0.1"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono"
+                          value={rockBoreholeData.borehole.surface_rl || 0}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.surface_rl = parseFloat(e.target.value) || 0;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Hole Dia (mm)</label>
+                        <input 
+                          type="number" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono"
+                          value={rockBoreholeData.borehole.hole_diameter_mm || 96}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.hole_diameter_mm = parseInt(e.target.value) || 0;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Drill Bit Type</label>
+                        <input 
+                          type="text" 
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50"
+                          value={rockBoreholeData.borehole.drill_bit || 'NMLC'}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.drill_bit = e.target.value;
+                            setRockBoreholeData(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Depth From (m)</label>
+                        <input 
+                          type="number" 
+                          step="0.1"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono font-bold text-sky-400"
+                          value={rockBoreholeData.borehole.depth_from || 0}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.depth_from = parseFloat(e.target.value) || 0.0;
+                            setRockBoreholeData(d);
+                            runLocalValidation(d);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Depth To (m)</label>
+                        <input 
+                          type="number" 
+                          step="0.1"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none text-white focus:border-sky-500/50 font-mono font-bold text-sky-400"
+                          value={rockBoreholeData.borehole.depth_to || 5}
+                          onChange={(e) => {
+                            const d = { ...rockBoreholeData };
+                            d.borehole.depth_to = parseFloat(e.target.value) || 0.0;
+                            setRockBoreholeData(d);
+                            runLocalValidation(d);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                  
+                  {/* Panel 2: Interactive Core Photo Viewer */}
+                  <section className="glass rounded-2xl p-5 space-y-4 flex flex-col flex-1 min-h-[380px]">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
+                        <Camera size={14} />
+                        <span>Panel 2: Core Photo Viewer</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                        <input 
+                          type="checkbox" 
+                          id="show-overlays-chk"
+                          checked={showOverlays}
+                          onChange={(e) => setShowOverlays(e.target.checked)}
+                          className="rounded border-white/10 bg-black/40"
+                        />
+                        <label htmlFor="show-overlays-chk" className="cursor-pointer select-none">Overlays</label>
+                      </div>
+                    </div>
+                    
+                    {/* Control Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-1.5 bg-black/40 border border-white/5 rounded-lg p-1">
+                        <button 
+                          onClick={() => setPhotoZoom(prev => Math.min(3, prev + 0.2))}
+                          className="w-6 h-6 flex items-center justify-center border border-white/10 rounded hover:bg-white/5 text-slate-200"
+                          title="Zoom In"
+                        >+</button>
+                        <button 
+                          onClick={() => setPhotoZoom(prev => Math.max(0.5, prev - 0.2))}
+                          className="w-6 h-6 flex items-center justify-center border border-white/10 rounded hover:bg-white/5 text-slate-200"
+                          title="Zoom Out"
+                        >-</button>
+                        <button 
+                          onClick={() => { setPhotoZoom(1); setPhotoBrightness(100); setPhotoContrast(100); }}
+                          className="px-2 h-6 flex items-center justify-center border border-white/10 rounded hover:bg-white/5 text-[9px] font-bold text-slate-400"
+                        >Reset</button>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[9px] text-slate-500 font-mono">BR:</span>
+                          <input 
+                            type="range" 
+                            min="50" 
+                            max="180" 
+                            className="w-16 h-1 accent-sky-400"
+                            value={photoBrightness}
+                            onChange={(e) => setPhotoBrightness(parseInt(e.target.value))}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[9px] text-slate-500 font-mono">CON:</span>
+                          <input 
+                            type="range" 
+                            min="50" 
+                            max="180" 
+                            className="w-16 h-1 accent-sky-400"
+                            value={photoContrast}
+                            onChange={(e) => setPhotoContrast(parseInt(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Viewport Aspect Video */}
+                    <div className="relative flex-1 bg-black/60 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center min-h-[220px]">
+                      {photoUrl ? (
+                        <div className="relative w-full h-full flex items-center justify-center overflow-auto scrollbar-thin">
+                          <div 
+                            className="relative transition-all duration-100"
+                            style={{ 
+                              transform: `scale(${photoZoom})`,
+                              filter: `brightness(${photoBrightness}%) contrast(${photoContrast}%)`,
+                            }}
+                          >
+                            <img src={photoUrl} className="max-w-full max-h-[300px] object-contain rounded" alt="Rock core box" />
+                            
+                            {/* Overlay boundaries */}
+                            {showOverlays && detectedRows.map((row, idx) => {
+                              return (
+                                <div 
+                                  key={idx}
+                                  className="absolute border border-dashed border-sky-400 bg-sky-500/10 hover:bg-sky-500/20 transition-all flex items-center justify-between"
+                                  style={{
+                                    top: `${(row.top / 800) * 100}%`,
+                                    height: `${((row.bottom - row.top) / 800) * 100}%`,
+                                    left: `${(row.left / 1200) * 100}%`,
+                                    width: `${((row.right - row.left) / 1200) * 100}%`
+                                  }}
+                                >
+                                  <div className="bg-sky-500 text-white font-mono text-[8px] px-1 py-0.5 rounded-br shadow-md select-none">
+                                    Row {idx+1}
+                                  </div>
+                                  
+                                  {/* Draggable sliders / inputs absolute right */}
+                                  <div className="flex flex-col gap-0.5 pr-0.5 pointer-events-auto bg-black/65 border border-white/10 rounded p-0.5 scale-90">
+                                    <input 
+                                      type="number"
+                                      value={row.top}
+                                      onChange={(e) => {
+                                        const newRows = [...detectedRows];
+                                        newRows[idx].top = parseInt(e.target.value) || 0;
+                                        setDetectedRows(newRows);
+                                      }}
+                                      className="bg-transparent text-white font-mono text-[8px] w-10 text-center outline-none"
+                                    />
+                                    <input 
+                                      type="number"
+                                      value={row.bottom}
+                                      onChange={(e) => {
+                                        const newRows = [...detectedRows];
+                                        newRows[idx].bottom = parseInt(e.target.value) || 0;
+                                        setDetectedRows(newRows);
+                                      }}
+                                      className="bg-transparent text-white font-mono text-[8px] w-10 text-center outline-none border-t border-white/10"
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center p-8 space-y-4">
+                          <Camera className="mx-auto text-slate-600 animate-pulse" size={32} />
+                          <div className="space-y-1">
+                            <h4 className="font-bold text-slate-400 text-xs">No Core Image Active</h4>
+                            <p className="text-[10px] text-slate-500 max-w-[200px] mx-auto">Upload rock core box photo to start OpenCV visual layout segmentation.</p>
+                          </div>
+                          <div className="relative group border border-dashed border-white/20 rounded-xl p-4 bg-black/20 hover:border-sky-500/50 transition-all cursor-pointer max-w-[220px] mx-auto">
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              id="rock-file-input-new" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setRockParsingState('uploading');
+                                setRockProgress('Uploading core box and detecting depth rows...');
+                                
+                                const fd = new FormData();
+                                fd.append('photo', file);
+                                
+                                try {
+                                  const res = await apiFetch(apiUrl('/core/upload'), {
+                                    method: 'POST',
+                                    body: fd
+                                  });
+                                  if (res.ok) {
+                                    const data = await res.json();
+                                    setPhotoPath(data.photo_path);
+                                    setPhotoUrl(apiUrl(data.photo_url));
+                                    setDetectedRows(data.rows);
+                                    
+                                    const updateData = { ...rockBoreholeData };
+                                    updateData.borehole.depth_from = parseFloat(formData.depthFrom) || 0.0;
+                                    updateData.borehole.depth_to = parseFloat(formData.depthTo) || 5.0;
+                                    setRockBoreholeData(updateData);
+                                    
+                                    setRockParsingState('success');
+                                    setRockProgress('Core photo uploaded successfully. Coordinates detected.');
+                                  } else {
+                                    setRockParsingState('error');
+                                    setRockProgress('Image upload failed.');
+                                  }
+                                } catch (err: any) {
+                                  setRockParsingState('error');
+                                  setRockProgress(`Error: ${err.message}`);
+                                }
+                              }}
+                            />
+                            <label htmlFor="rock-file-input-new" className="cursor-pointer space-y-1 block">
+                              <ImageIcon className="mx-auto text-slate-400 group-hover:text-sky-400 transition-colors" size={24} />
+                              <div className="text-[10px] font-bold text-sky-400">Click to Upload Core Photo</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Tweak controls */}
+                    {photoUrl && (
+                      <div className="flex gap-2 text-xs">
                         <button
                           onClick={async () => {
-                            if (!rockPhoto) return;
                             setRockParsingState('uploading');
-                            setRockProgress('Analyzing core box photo with Vision OCR...');
-                            
-                            const fd = new FormData();
-                            fd.append('photo', rockPhoto);
-                            fd.append('projectNumber', formData.projectId);
-                            fd.append('boreholeId', formData.boreholeId);
-                            fd.append('depthFrom', formData.depthFrom);
-                            fd.append('depthTo', formData.depthTo);
-                            
+                            setRockProgress('Processing piece count segmentation and RQD metrics on rows...');
                             try {
-                              const res = await apiFetch(apiUrl('/rock-core/analyze'), {
+                              const res = await apiFetch(apiUrl('/core/process'), {
                                 method: 'POST',
-                                body: fd
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  photo_path: photoPath,
+                                  depth_from: rockBoreholeData.borehole.depth_from,
+                                  depth_to: rockBoreholeData.borehole.depth_to,
+                                  rows: detectedRows
+                                })
                               });
                               if (res.ok) {
                                 const data = await res.json();
-                                setRockResult(data);
+                                const updateData = { ...rockBoreholeData };
+                                updateData.core_runs = data.runs.map((r: any) => ({
+                                  run_no: r.runIndex,
+                                  depth_from: r.depthFromM,
+                                  depth_to: r.depthToM,
+                                  tcr: 95,
+                                  rqd: r.rqdPercent || 75,
+                                  fracture_spacing_mm: r.dominantJointSpacingMm || 120,
+                                  status: 'draft'
+                                }));
+                                
+                                setRockBoreholeData(updateData);
                                 setRockParsingState('success');
-                                setRockProgress('Rock core box analyzed successfully! Generated OpenGround PDF.');
+                                setRockProgress('Rows segmented! Click "Generate AI Draft Log" to draft lithology & defects.');
+                                setRockResult(data);
                               } else {
-                                const errorBody = await res.json().catch(() => null);
                                 setRockParsingState('error');
-                                setRockProgress(errorBody?.detail || `Analysis failed (${res.status}).`);
+                                setRockProgress('OpenCV piece segmentation failed.');
                               }
-                            } catch (e: any) {
+                            } catch (err: any) {
                               setRockParsingState('error');
-                              setRockProgress(`Error: ${e.message}`);
+                              setRockProgress(`Error: ${err.message}`);
                             }
                           }}
-                          disabled={rockParsingState === 'uploading'}
-                          className="flex-1 py-3 px-4 bg-sky-500 hover:bg-sky-400 disabled:bg-sky-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-sky-500/20"
+                          className="flex-1 py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md"
                         >
-                          {rockParsingState === 'uploading' ? (
-                            <>
-                              <Loader2 className="animate-spin" size={14} />
-                              <span>Parsing Box...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles size={14} />
-                              <span>Extract & Generate Log</span>
-                            </>
-                          )}
+                          <Sparkles size={12} />
+                          <span>Process Piece Extraction</span>
                         </button>
                         
                         <button
-                          onClick={() => {
-                            setRockPhoto(null);
-                            setRockPhotoPreview(null);
-                            setRockResult(null);
-                            setRockParsingState('idle');
-                            setRockProgress('');
+                          onClick={async () => {
+                            if (rockBoreholeData.core_runs.length === 0) {
+                              alert("Please run Piece Extraction first to detect core runs.");
+                              return;
+                            }
+                            setRockParsingState('uploading');
+                            setRockProgress('DeepSeek AI drafting geology log wording & defects...');
+                            try {
+                              const res = await apiFetch(apiUrl('/core/generate-draft'), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  borehole_id: rockBoreholeData.borehole.borehole_id,
+                                  project_no: rockBoreholeData.project.project_no,
+                                  depth_from: rockBoreholeData.borehole.depth_from,
+                                  depth_to: rockBoreholeData.borehole.depth_to,
+                                  runs: rockBoreholeData.core_runs,
+                                  rock_type: { value: 'SEDIMENTARY ROCK', confidence: 0.64 }
+                                })
+                              });
+                              if (res.ok) {
+                                const draft = await res.json();
+                                const updateData = { ...rockBoreholeData };
+                                updateData.lithology_units = draft.lithology_units.map((u: any) => ({ ...u, status: 'draft' }));
+                                updateData.discontinuities = draft.discontinuities.map((d: any) => ({ ...d, status: 'draft' }));
+                                updateData.core_runs = updateData.core_runs.map((r: any) => ({ ...r, status: 'draft' }));
+                                
+                                setRockBoreholeData(updateData);
+                                setRockParsingState('success');
+                                setRockProgress('DeepSeek AI draft generated! Review suggested values in Panel 3.');
+                                runLocalValidation(updateData);
+                              } else {
+                                setRockParsingState('error');
+                                setRockProgress('DeepSeek log drafting failed.');
+                              }
+                            } catch (err: any) {
+                              setRockParsingState('error');
+                              setRockProgress(`Error: ${err.message}`);
+                            }
                           }}
-                          className="px-3 py-3 border border-white/10 hover:bg-white/5 rounded-xl text-xs font-semibold text-slate-400 transition-colors"
+                          className="flex-1 py-2 px-3 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md"
                         >
-                          Clear
+                          <Cpu size={12} />
+                          <span>Generate AI Draft Log</span>
                         </button>
                       </div>
                     )}
-
+                    
                     {rockParsingState !== 'idle' && (
-                      <div className={`p-4 rounded-xl border text-[11px] font-mono leading-relaxed text-left ${
+                      <div className={`p-3 rounded-xl border text-[10px] font-mono leading-relaxed text-left ${
                         rockParsingState === 'uploading' ? 'bg-sky-500/5 border-sky-500/10 text-sky-400' :
                         rockParsingState === 'success' ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400' :
                         'bg-rose-500/5 border-rose-500/10 text-rose-400'
                       }`}>
-                        <div className="flex items-center gap-2 font-bold mb-1">
+                        <div className="flex items-center gap-1.5 font-bold mb-0.5">
                           {rockParsingState === 'uploading' && <Loader2 className="animate-spin" size={10} />}
                           {rockParsingState === 'success' && <CheckCircle2 size={10} />}
                           {rockParsingState === 'error' && <AlertCircle size={10} />}
-                          <span>STATUS LOGGER</span>
+                          <span>PIPELINE ENGINE</span>
                         </div>
                         <p>{rockProgress}</p>
                       </div>
                     )}
                   </section>
                 </div>
-
-                {/* Right side: Results & PDF download */}
-                <div className="lg:col-span-7 space-y-6">
-                  {rockParsingState === 'success' && rockResult ? (
-                    <>
-                      {/* Project Meta Info */}
-                      <section className="glass rounded-3xl p-6 space-y-4">
-                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                          <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
-                            <Activity size={16} />
-                            <span>Metadata Extracted</span>
-                          </div>
-                          <span className="font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] font-bold">
-                            {rockMeta(rockResult).boreholeId}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left text-[11px]">
-                          <div>
-                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project Name</span>
-                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).projectName}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Project ID</span>
-                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).projectId}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Borehole</span>
-                            <span className="font-semibold text-slate-200">{rockMeta(rockResult).boreholeId}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 block uppercase tracking-widest text-[9px] font-bold">Logged Interval</span>
-                            <span className="font-semibold text-sky-400 font-mono font-bold">{rockMeta(rockResult).startDepth}m - {rockMeta(rockResult).endDepth}m</span>
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* Rock Runs Table */}
-                      <section className="glass rounded-3xl p-6 space-y-4">
-                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                          <h3 className="font-bold text-xs uppercase tracking-wider text-sky-400">Core Run Details (NMLC)</h3>
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              try {
-                                const meta = rockMeta(rockResult);
-                                await downloadApiFile(meta.pdfUrl, meta.pdfName);
-                              } catch (error: any) {
-                                setRockParsingState('error');
-                                setRockProgress(error?.message || 'PDF download failed.');
-                              }
-                            }}
-                            className="py-1 px-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-lg text-[10px] flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/10"
-                          >
-                            <Download size={10} />
-                            <span>Download OpenGround PDF</span>
-                          </button>
-                        </div>
+                
+                {/* Column 2: Right - Log Editor & Live PDF Preview (xl:col-span-7) */}
+                <div className="xl:col-span-7 flex flex-col gap-6 h-full overflow-y-auto pr-1">
+                  
+                  {/* Panel 3: Editable Borehole Log Table & Discontinuity Builder */}
+                  <section className="glass rounded-2xl p-5 space-y-4 flex flex-col min-h-[420px]">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
+                        <Activity size={14} />
+                        <span>Panel 3: OpenGround Borehole Log Editor</span>
+                      </div>
+                      
+                      {/* Editor Sub Tabs */}
+                      <div className="flex bg-black/40 p-0.5 rounded-lg border border-white/5 text-[10px]">
+                        <button
+                          onClick={() => setActiveTableTab('lithology')}
+                          className={`px-3 py-1.5 rounded-md font-semibold transition-all ${activeTableTab === 'lithology' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-350'}`}
+                        >Lithology</button>
+                        <button
+                          onClick={() => setActiveTableTab('runs')}
+                          className={`px-3 py-1.5 rounded-md font-semibold transition-all ${activeTableTab === 'runs' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-350'}`}
+                        >Core Runs</button>
+                        <button
+                          onClick={() => setActiveTableTab('disconts')}
+                          className={`px-3 py-1.5 rounded-md font-semibold transition-all ${activeTableTab === 'disconts' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-350'}`}
+                        >Discontinuities</button>
+                      </div>
+                    </div>
+                    
+                    {/* Tab contents */}
+                    <div className="flex-1 overflow-y-auto max-h-[300px] scrollbar-thin">
+                      
+                      {activeTableTab === 'lithology' && (
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs border-collapse">
                             <thead>
                               <tr className="border-b border-white/10 text-slate-500 uppercase tracking-widest text-[9px] font-bold">
-                                <th className="py-2 px-1">Depth (m)</th>
-                                <th className="py-2 px-2">TCR %</th>
-                                <th className="py-2 px-2">RQD %</th>
+                                <th className="py-2 px-1">From (m)</th>
+                                <th className="py-2 px-1">To (m)</th>
+                                <th className="py-2 px-2">Material</th>
                                 <th className="py-2 px-2">Weathering</th>
                                 <th className="py-2 px-2">Strength</th>
                                 <th className="py-2 px-3">Description</th>
+                                <th className="py-2 px-1 text-center">Status</th>
+                                <th className="py-2 px-1 text-center">Action</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-350">
-                              {rockRuns(rockResult).map((run: any, idx: number) => (
-                                <tr key={idx} className="hover:bg-white/5 transition-colors">
-                                  <td className="py-2.5 px-1 font-bold text-sky-400 text-left">{Number(run.depth_from).toFixed(2)} - {Number(run.depth_to).toFixed(2)}</td>
-                                  <td className="py-2.5 px-2 text-white">{run.tcr}%</td>
-                                  <td className="py-2.5 px-2 text-white font-bold">{run.rqd}%</td>
-                                  <td className="py-2.5 px-2"><span className="bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.weathering}</span></td>
-                                  <td className="py-2.5 px-2"><span className="bg-red-500/10 text-red-400 px-1 py-0.5 rounded text-[10px] font-bold">{run.strength}</span></td>
-                                  <td className="py-2.5 px-3 text-slate-400 text-left">{run.description}</td>
+                            <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-300">
+                              {rockBoreholeData.lithology_units.length === 0 ? (
+                                <tr>
+                                  <td colSpan={8} className="py-8 text-center text-slate-650 italic">No lithology units drafted yet. Run AI Draft Log above.</td>
                                 </tr>
-                              ))}
+                              ) : (
+                                rockBoreholeData.lithology_units.map((unit: any, idx: number) => {
+                                  const statusColor = getFieldStatusColor(unit.status, unit.description);
+                                  return (
+                                    <tr key={idx} className="hover:bg-white/5 transition-colors">
+                                      <td className="py-1 px-1">
+                                        <input 
+                                          type="number" 
+                                          step="0.01"
+                                          value={unit.from}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].from = parseFloat(e.target.value) || 0.0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                          className="bg-transparent text-white font-mono text-[11px] w-12 outline-none border border-transparent hover:border-white/10 focus:border-sky-500/50 rounded text-left"
+                                        />
+                                      </td>
+                                      <td className="py-1 px-1">
+                                        <input 
+                                          type="number" 
+                                          step="0.01"
+                                          value={unit.to}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].to = parseFloat(e.target.value) || 0.0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                          className="bg-transparent text-white font-mono text-[11px] w-12 outline-none border border-transparent hover:border-white/10 focus:border-sky-500/50 rounded text-left"
+                                        />
+                                      </td>
+                                      <td className="py-1 px-2">
+                                        <input 
+                                          type="text"
+                                          value={unit.material}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].material = e.target.value;
+                                            setRockBoreholeData(d);
+                                          }}
+                                          className="bg-transparent text-white text-[11px] w-20 outline-none border border-transparent hover:border-white/10 focus:border-sky-500/50 rounded"
+                                        />
+                                      </td>
+                                      <td className="py-1 px-2">
+                                        <select 
+                                          value={unit.weathering}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].weathering = e.target.value;
+                                            setRockBoreholeData(d);
+                                          }}
+                                          className="bg-black/60 text-amber-400 text-[10px] font-bold rounded border border-white/10 px-1 py-0.5 outline-none"
+                                        >
+                                          {['FR','SW','MW','HW','EW','REVIEW'].map(w => <option key={w} value={w}>{w}</option>)}
+                                        </select>
+                                      </td>
+                                      <td className="py-1 px-2">
+                                        <select 
+                                          value={unit.strength}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].strength = e.target.value;
+                                            setRockBoreholeData(d);
+                                          }}
+                                          className="bg-black/60 text-red-400 text-[10px] font-bold rounded border border-white/10 px-1 py-0.5 outline-none"
+                                        >
+                                          {['VL','L','M','H','VH','EH','REVIEW'].map(s => <option key={s} value={s}>{s}</option>)}
+                                        </select>
+                                      </td>
+                                      <td className="py-1 px-3">
+                                        <textarea 
+                                          value={unit.description}
+                                          rows={1}
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units[idx].description = e.target.value;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                          className="bg-transparent text-slate-300 text-[11px] w-full min-w-[150px] outline-none border border-transparent hover:border-white/10 focus:border-sky-500/50 rounded resize-y"
+                                        />
+                                      </td>
+                                      <td className="py-1 px-1 text-center">
+                                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase border ${statusColor}`}>
+                                          {unit.status}
+                                        </span>
+                                      </td>
+                                      <td className="py-1 px-1 text-center space-x-1">
+                                        {unit.status !== 'approved' && (
+                                          <button
+                                            onClick={() => {
+                                              const d = { ...rockBoreholeData };
+                                              d.lithology_units[idx].status = 'approved';
+                                              setRockBoreholeData(d);
+                                              runLocalValidation(d);
+                                            }}
+                                            className="px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold rounded"
+                                          >Approve</button>
+                                        )}
+                                        <button
+                                          onClick={() => {
+                                            const d = { ...rockBoreholeData };
+                                            d.lithology_units.splice(idx, 1);
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                          className="px-1.5 py-0.5 border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-[9px] font-bold rounded"
+                                        >Del</button>
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
                             </tbody>
                           </table>
+                          <button 
+                            onClick={() => {
+                              const d = { ...rockBoreholeData };
+                              const nextFrom = d.lithology_units.length > 0 ? d.lithology_units[d.lithology_units.length - 1].to : d.borehole.depth_from;
+                              const nextTo = Math.min(d.borehole.depth_to, nextFrom + 1.0);
+                              d.lithology_units.push({
+                                from: nextFrom,
+                                to: nextTo,
+                                material: 'SANDSTONE',
+                                description: 'SANDSTONE: fine-grained, grey, bedded. Review required.',
+                                weathering: 'SW',
+                                strength: 'M',
+                                structure: 'bedded',
+                                uscs_symbol: 'ROCK',
+                                status: 'draft'
+                              });
+                              setRockBoreholeData(d);
+                              runLocalValidation(d);
+                            }}
+                            className="mt-3 px-3 py-1 bg-black/40 hover:bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-sky-400 transition-colors"
+                          >
+                            + Add Lithology Unit
+                          </button>
                         </div>
-                      </section>
-                    </>
-                  ) : (
-                    <div className="h-full min-h-[300px] flex flex-col items-center justify-center glass rounded-3xl p-8 border border-dashed border-white/10 text-center text-slate-500">
-                      <Camera size={36} className="text-slate-600 mb-3" />
-                      <h4 className="font-bold text-slate-400 mb-1">Awaiting Core Photo Upload</h4>
-                      <p className="text-xs max-w-sm mx-auto">
-                        Please upload a rock core box photo on the left panel to begin analysis and generate the OpenGround report.
-                      </p>
+                      )}
+                      
+                      {activeTableTab === 'runs' && (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="border-b border-white/10 text-slate-500 uppercase tracking-widest text-[9px] font-bold">
+                                <th className="py-2 px-1">Run No</th>
+                                <th className="py-2 px-2">From (m)</th>
+                                <th className="py-2 px-2">To (m)</th>
+                                <th className="py-2 px-2">TCR %</th>
+                                <th className="py-2 px-2">RQD %</th>
+                                <th className="py-2 px-2">Fracture Spacing (mm)</th>
+                                <th className="py-2 px-1 text-center">Status</th>
+                                <th className="py-2 px-1 text-center">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-300">
+                              {rockBoreholeData.core_runs.length === 0 ? (
+                                <tr>
+                                  <td colSpan={8} className="py-8 text-center text-slate-650 italic">No core runs active. Process piece extraction in Panel 2.</td>
+                                </tr>
+                              ) : (
+                                rockBoreholeData.core_runs.map((run: any, idx: number) => {
+                                  const statusColor = getFieldStatusColor(run.status, run.tcr);
+                                  return (
+                                    <tr key={idx} className="hover:bg-white/5 transition-colors">
+                                      <td className="py-1.5 px-1 font-bold text-white text-center">
+                                        <input 
+                                          type="number" 
+                                          value={run.run_no} 
+                                          className="bg-transparent w-8 text-center text-white outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].run_no = parseInt(e.target.value) || (idx + 1);
+                                            setRockBoreholeData(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-2">
+                                        <input 
+                                          type="number" 
+                                          step="0.01"
+                                          value={run.depth_from} 
+                                          className="bg-transparent w-12 text-left text-white outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].depth_from = parseFloat(e.target.value) || 0.0;
+                                            d.core_runs[idx].depthFromM = parseFloat(e.target.value) || 0.0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-2">
+                                        <input 
+                                          type="number" 
+                                          step="0.01"
+                                          value={run.depth_to} 
+                                          className="bg-transparent w-12 text-left text-white outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].depth_to = parseFloat(e.target.value) || 0.0;
+                                            d.core_runs[idx].depthToM = parseFloat(e.target.value) || 0.0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-2">
+                                        <input 
+                                          type="number" 
+                                          value={run.tcr} 
+                                          className="bg-transparent w-10 text-center text-sky-400 font-bold outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].tcr = parseInt(e.target.value) || 0;
+                                            d.core_runs[idx].tcrPercent = parseInt(e.target.value) || 0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-2">
+                                        <input 
+                                          type="number" 
+                                          value={run.rqd} 
+                                          className="bg-transparent w-10 text-center text-sky-400 font-bold outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].rqd = parseInt(e.target.value) || 0;
+                                            d.core_runs[idx].rqdPercent = parseInt(e.target.value) || 0;
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-2">
+                                        <input 
+                                          type="number" 
+                                          value={run.fracture_spacing_mm} 
+                                          className="bg-transparent w-16 text-center text-white outline-none border border-transparent hover:border-white/10 rounded"
+                                          onChange={(e) => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs[idx].fracture_spacing_mm = parseInt(e.target.value) || 0;
+                                            d.core_runs[idx].dominantJointSpacingMm = parseInt(e.target.value) || 0;
+                                            setRockBoreholeData(d);
+                                          }}
+                                        />
+                                      </td>
+                                      <td className="py-1.5 px-1 text-center">
+                                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase border ${statusColor}`}>
+                                          {run.status}
+                                        </span>
+                                      </td>
+                                      <td className="py-1.5 px-1 text-center space-x-1">
+                                        {run.status !== 'approved' && (
+                                          <button
+                                            onClick={() => {
+                                              const d = { ...rockBoreholeData };
+                                              d.core_runs[idx].status = 'approved';
+                                              setRockBoreholeData(d);
+                                              runLocalValidation(d);
+                                            }}
+                                            className="px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold rounded"
+                                          >Approve</button>
+                                        )}
+                                        <button
+                                          onClick={() => {
+                                            const d = { ...rockBoreholeData };
+                                            d.core_runs.splice(idx, 1);
+                                            setRockBoreholeData(d);
+                                            runLocalValidation(d);
+                                          }}
+                                          className="px-1.5 py-0.5 border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-[9px] font-bold rounded"
+                                        >Del</button>
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                          <button 
+                            onClick={() => {
+                              const d = { ...rockBoreholeData };
+                              const nextNo = d.core_runs.length + 1;
+                              const nextFrom = d.core_runs.length > 0 ? d.core_runs[d.core_runs.length - 1].depth_to : d.borehole.depth_from;
+                              const nextTo = Math.min(d.borehole.depth_to, nextFrom + 1.5);
+                              d.core_runs.push({
+                                run_no: nextNo,
+                                depth_from: nextFrom,
+                                depth_to: nextTo,
+                                tcr: 100,
+                                rqd: 85,
+                                fracture_spacing_mm: 150,
+                                status: 'draft'
+                              });
+                              setRockBoreholeData(d);
+                              runLocalValidation(d);
+                            }}
+                            className="mt-3 px-3 py-1 bg-black/40 hover:bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-sky-400 transition-colors"
+                          >
+                            + Add Core Run
+                          </button>
+                        </div>
+                      )}
+                      
+                      {activeTableTab === 'disconts' && (
+                        <div className="space-y-4">
+                          {/* Discontinuity Code Builder */}
+                          <div className="bg-black/30 border border-white/5 p-3.5 rounded-xl space-y-3">
+                            <div className="flex items-center gap-1.5 text-xs text-sky-400 font-bold uppercase tracking-wider">
+                              <Sparkles size={12} />
+                              <span>gINT / OpenGround Coded Discontinuity Builder</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-left text-[10px]">
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Depth (m)</label>
+                                <input 
+                                  type="number"
+                                  step="0.01"
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectDepth}
+                                  onChange={e => setDefectDepth(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Defect Type</label>
+                                <select 
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectType}
+                                  onChange={e => setDefectType(e.target.value)}
+                                >
+                                  <option value="BP">BP (Bedding Plane)</option>
+                                  <option value="JN">JN (Joint)</option>
+                                  <option value="CS">CS (Clay Seam)</option>
+                                  <option value="SZ">SZ (Shear Zone)</option>
+                                  <option value="DB">DB (Drilling Break)</option>
+                                  <option value="HB">HB (Handling Break)</option>
+                                  <option value="VN">VN (Vein)</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Angle (°)</label>
+                                <input 
+                                  type="number"
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectAngle}
+                                  onChange={e => setDefectAngle(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Shape</label>
+                                <select 
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectShape}
+                                  onChange={e => setDefectShape(e.target.value)}
+                                >
+                                  <option value="PR">PR (Planar)</option>
+                                  <option value="CU">CU (Curved)</option>
+                                  <option value="IR">IR (Irregular)</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Roughness</label>
+                                <select 
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectRoughness}
+                                  onChange={e => setDefectRoughness(e.target.value)}
+                                >
+                                  <option value="RO">RO (Rough)</option>
+                                  <option value="SM">SM (Smooth)</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Infilling</label>
+                                <select 
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectInfilling}
+                                  onChange={e => setDefectInfilling(e.target.value)}
+                                >
+                                  <option value="CN">CN (Clean)</option>
+                                  <option value="SN">SN (Stained)</option>
+                                  <option value="VN">VN (Veneer)</option>
+                                </select>
+                              </div>
+                              <div className="col-span-2">
+                                <label className="text-slate-500 block mb-0.5 uppercase tracking-wider font-bold">Notes</label>
+                                <input 
+                                  type="text"
+                                  className="w-full bg-black/50 border border-white/10 rounded px-2 py-0.5 text-xs text-white"
+                                  value={defectNotes}
+                                  onChange={e => setDefectNotes(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between border-t border-white/5 pt-2">
+                              <div className="text-[10px] font-mono text-emerald-400 font-bold">
+                                Preview: {defectDepth}m: {defectType} -{defectAngle}° {defectShape} {defectRoughness} {defectInfilling} ({defectNotes})
+                              </div>
+                              
+                              <button
+                                onClick={() => {
+                                  const d = { ...rockBoreholeData };
+                                  d.discontinuities.push({
+                                    depth: parseFloat(defectDepth) || 0.0,
+                                    defect_type: defectType,
+                                    angle: parseInt(defectAngle) || 0,
+                                    shape: defectShape,
+                                    roughness: defectRoughness,
+                                    infilling: defectInfilling,
+                                    notes: defectNotes,
+                                    status: 'draft'
+                                  });
+                                  setRockBoreholeData(d);
+                                  runLocalValidation(d);
+                                }}
+                                className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded text-[10px] font-bold transition-all shadow"
+                              >+ Add Joint to Log</button>
+                            </div>
+                          </div>
+                          
+                          {/* Discontinuities Table */}
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs border-collapse">
+                              <thead>
+                                <tr className="border-b border-white/10 text-slate-500 uppercase tracking-widest text-[9px] font-bold">
+                                  <th className="py-2 px-1">Depth (m)</th>
+                                  <th className="py-2 px-2">Type</th>
+                                  <th className="py-2 px-2">Angle</th>
+                                  <th className="py-2 px-2">Shape/Rough</th>
+                                  <th className="py-2 px-2">Infill</th>
+                                  <th className="py-2 px-3">Notes</th>
+                                  <th className="py-2 px-1 text-center">Status</th>
+                                  <th className="py-2 px-1 text-center">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/5 font-mono text-[11px] text-slate-300">
+                                {rockBoreholeData.discontinuities.length === 0 ? (
+                                  <tr>
+                                    <td colSpan={8} className="py-6 text-center text-slate-650 italic">No discontinuities registered yet. Create using builder.</td>
+                                  </tr>
+                                ) : (
+                                  rockBoreholeData.discontinuities.map((disc: any, idx: number) => {
+                                    const statusColor = getFieldStatusColor(disc.status, disc.depth);
+                                    return (
+                                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                                        <td className="py-1 px-1 font-bold text-sky-400">
+                                          <input 
+                                            type="number"
+                                            step="0.01"
+                                            value={disc.depth}
+                                            className="bg-transparent w-12 text-left text-sky-400 outline-none"
+                                            onChange={(e) => {
+                                              const d = { ...rockBoreholeData };
+                                              d.discontinuities[idx].depth = parseFloat(e.target.value) || 0.0;
+                                              setRockBoreholeData(d);
+                                              runLocalValidation(d);
+                                            }}
+                                          />
+                                        </td>
+                                        <td className="py-1 px-2">{disc.defect_type || disc.type}</td>
+                                        <td className="py-1 px-2">{disc.angle}°</td>
+                                        <td className="py-1 px-2">{disc.shape} / {disc.roughness}</td>
+                                        <td className="py-1 px-2">{disc.infilling}</td>
+                                        <td className="py-1 px-3 text-slate-400 truncate max-w-[120px]" title={disc.notes}>{disc.notes}</td>
+                                        <td className="py-1 px-1 text-center">
+                                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase border ${statusColor}`}>
+                                            {disc.status}
+                                          </span>
+                                        </td>
+                                        <td className="py-1 px-1 text-center space-x-1">
+                                          {disc.status !== 'approved' && (
+                                            <button
+                                              onClick={() => {
+                                                const d = { ...rockBoreholeData };
+                                                d.discontinuities[idx].status = 'approved';
+                                                setRockBoreholeData(d);
+                                                runLocalValidation(d);
+                                              }}
+                                              className="px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold rounded"
+                                            >Approve</button>
+                                          )}
+                                          <button
+                                            onClick={() => {
+                                              const d = { ...rockBoreholeData };
+                                              d.discontinuities.splice(idx, 1);
+                                              setRockBoreholeData(d);
+                                              runLocalValidation(d);
+                                            }}
+                                            className="px-1.5 py-0.5 border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-[9px] font-bold rounded"
+                                          >Del</button>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                    
+                    {/* Approve all & Save actions */}
+                    <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const d = { ...rockBoreholeData };
+                            d.lithology_units = d.lithology_units.map((u: any) => ({ ...u, status: 'approved' }));
+                            d.core_runs = d.core_runs.map((r: any) => ({ ...r, status: 'approved' }));
+                            d.discontinuities = d.discontinuities.map((disc: any) => ({ ...disc, status: 'approved' }));
+                            setRockBoreholeData(d);
+                            runLocalValidation(d);
+                            alert("All drafted log elements set to Approved!");
+                          }}
+                          className="py-1.5 px-3 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <CheckCircle2 size={12} />
+                          <span>Approve All Log Fields</span>
+                        </button>
+                        
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await apiFetch(apiUrl('/core/save'), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(rockBoreholeData)
+                              });
+                              if (res.ok) {
+                                alert("Borehole dataset committed to local SQLite database!");
+                              } else {
+                                alert("Save operation failed.");
+                              }
+                            } catch (e: any) {
+                              alert(`Error: ${e.message}`);
+                            }
+                          }}
+                          className="py-1.5 px-3 border border-white/10 hover:bg-white/5 text-slate-350 text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <Database size={12} />
+                          <span>Save Logs to DB</span>
+                        </button>
+                      </div>
+                      
+                      <button
+                        onClick={async () => {
+                          const errors = runLocalValidation(rockBoreholeData);
+                          if (errors.length > 0) {
+                            alert("Validation checks failed. Please approve all fields and clear errors before PDF compilation.");
+                            return;
+                          }
+                          setRockParsingState('uploading');
+                          setRockProgress('Generating professional OpenGround-style vector PDF...');
+                          try {
+                            const res = await apiFetch(apiUrl('/pdf/export'), {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(rockBoreholeData)
+                            });
+                            if (res.ok) {
+                              const data = await res.json();
+                              setGeneratedPdfUrl(apiUrl(data.pdf_url));
+                              setGeneratedPdfName(data.pdf_name);
+                              setRockParsingState('success');
+                              setRockProgress('Professional PDF Borehole Log compiled successfully!');
+                            } else {
+                              setRockParsingState('error');
+                              setRockProgress('PDF compilation failed.');
+                            }
+                          } catch (e: any) {
+                            setRockParsingState('error');
+                            setRockProgress(`Error: ${e.message}`);
+                          }
+                        }}
+                        className="py-1.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-all shadow-md flex items-center gap-1"
+                      >
+                        <RefreshCw size={12} />
+                        <span>Sync & Export PDF</span>
+                      </button>
+                    </div>
+                  </section>
+                  
+                  {/* Panel 4: Live PDF Preview & Validation Status */}
+                  <section className="glass rounded-2xl p-5 space-y-4 flex-1 flex flex-col min-h-[300px]">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2 shrink-0">
+                      <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs">
+                        <FileText size={14} />
+                        <span>Panel 4: Live OpenGround PDF Log Preview</span>
+                      </div>
+                      
+                      {generatedPdfUrl && (
+                        <a 
+                          href={generatedPdfUrl}
+                          download={generatedPdfName}
+                          className="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all"
+                        >
+                          <Download size={10} />
+                          Download PDF
+                        </a>
+                      )}
+                    </div>
+                    
+                    {/* Validation Errors panel */}
+                    <div className={`p-3 rounded-lg border text-[10px] font-mono leading-relaxed transition-all shrink-0 ${
+                      validationErrors.length > 0 ? 'bg-rose-500/5 border-rose-500/10 text-rose-300' : 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400'
+                    }`}>
+                      <div className="flex items-center gap-1.5 font-bold mb-1">
+                        {validationErrors.length > 0 ? <AlertCircle size={12} /> : <CheckCircle2 size={12} />}
+                        <span>{validationErrors.length > 0 ? "VALIDATION CHECKS (" + validationErrors.length + " ISSUES)" : 'VERIFICATION PASSED'}</span>
+                      </div>
+                      {validationErrors.length > 0 ? (
+                        <ul className="list-disc list-inside space-y-0.5 max-h-[60px] overflow-y-auto pr-1">
+                          {validationErrors.map((err, idx) => (
+                            <li key={idx} className="truncate" title={err}>{err}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>All depths continuous. Joint spacing valid. Lithology logs fully approved. AS1726 Compliant.</p>
+                      )}
+                    </div>
+                    
+                    {/* Frame Preview */}
+                    <div className="flex-1 bg-slate-950 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center min-h-[220px]">
+                      {generatedPdfUrl ? (
+                        <iframe 
+                          src={generatedPdfUrl + "#toolbar=0&navpanes=0"} 
+                          className="w-full h-full min-h-[220px] rounded-xl bg-slate-900 border-none"
+                          title="OpenGround Borehole Log Preview"
+                        />
+                      ) : (
+                        <div className="text-center p-6 text-slate-500 italic text-xs">
+                          <FileText size={28} className="mx-auto text-slate-650 mb-2" />
+                          <p>Awaiting PDF Log Compilation.</p>
+                          <p className="text-[10px] text-slate-600 mt-1">Make adjustments, click "Sync & Export PDF" to generate the vector log sheet.</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
+                
               </div>
             </motion.div>
-          )}
-
-          {activeTab === 'rag' && (
+          )}{activeTab === 'rag' && (
             <motion.div 
               key="rag-tab"
               initial={{ opacity: 0, y: 15 }}

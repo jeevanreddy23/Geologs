@@ -3,10 +3,25 @@
 import os
 import re
 import sqlite3
-import docx
-import openpyxl
-from pypdf import PdfReader
-import pdfplumber
+try:
+    import docx
+except ImportError:
+    docx = None
+
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
+    from pypdf import PdfReader
+except ImportError:
+    PdfReader = None
+
+try:
+    import pdfplumber
+except ImportError:
+    pdfplumber = None
 from typing import List, Dict, Any, Optional
 import numpy as np
 
@@ -67,6 +82,9 @@ def init_rag_db():
 
 def extract_docx_text(file_path: str) -> str:
     """Extract text from a .docx file paragraphs and tables."""
+    if docx is None:
+        print("[RAG Manager] python-docx is not installed. docx extraction skipped.")
+        return ""
     if not os.path.exists(file_path):
         return ""
     try:
@@ -107,9 +125,12 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
         allow_ocr = False
 
     text = ""
-    try:
-        # First try fast text extraction
-        with pdfplumber.open(file_path) as pdf:
+    if pdfplumber is None:
+        print("[RAG Manager] pdfplumber is not installed. Fast text extraction skipped.")
+    else:
+        try:
+            # First try fast text extraction
+            with pdfplumber.open(file_path) as pdf:
             pages_text = []
             pages_to_read = pdf.pages[:5] if is_large else pdf.pages
             for page in pages_to_read:
@@ -122,8 +143,11 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
 
     # Fallback to pypdf if pdfplumber fails
     if not text:
-        try:
-            reader = PdfReader(file_path)
+        if PdfReader is None:
+            print("[RAG Manager] pypdf is not installed. Fallback PDF text extraction skipped.")
+        else:
+            try:
+                reader = PdfReader(file_path)
             pages_text = []
             pages_to_read = reader.pages[:5] if is_large else reader.pages
             for page in reader.pages:
@@ -139,8 +163,11 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
         print(f"[RAG Manager] PDF contains no text. Attempting OCR on {file_path}...")
         try:
             # We use pdfplumber's page.to_image() which doesn't require poppler binaries if we can draw or save it
-            with pdfplumber.open(file_path) as pdf:
-                ocr_pages = []
+            if pdfplumber is None:
+                print("[RAG Manager] pdfplumber is not installed. PDF OCR extraction skipped.")
+            else:
+                with pdfplumber.open(file_path) as pdf:
+                    ocr_pages = []
                 for i, page in enumerate(pdf.pages[:5]): # Limit to first 5 pages for speed
                     try:
                         img = page.to_image(resolution=150)
@@ -174,6 +201,9 @@ def extract_pdf_text(file_path: str, allow_ocr: bool = True) -> str:
 def extract_xlsx_text(file_path: str) -> str:
     """Extract text from an Excel file."""
     if not os.path.exists(file_path):
+        return ""
+    if openpyxl is None:
+        print("[RAG Manager] openpyxl is not installed. xlsx extraction skipped.")
         return ""
     try:
         wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)

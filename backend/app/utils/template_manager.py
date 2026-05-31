@@ -2,7 +2,10 @@
 
 import os
 import re
-import docx
+try:
+    import docx
+except ImportError:
+    docx = None
 from typing import List, Dict, Set
 
 # Regex to match placeholders like [CLIENT], [CLIENT_NAME], [Site Address], {{client}}, etc.
@@ -26,6 +29,8 @@ def extract_from_paragraph(p) -> Set[str]:
 
 def extract_placeholders(file_path: str) -> List[str]:
     """Scan a .docx file and return a unique list of detected placeholders."""
+    if docx is None:
+        return []
     if not os.path.exists(file_path) or not file_path.endswith('.docx'):
         return []
     
@@ -164,6 +169,8 @@ def replace_in_paragraph(paragraph, replacements: Dict[str, str]):
 
 def fill_template(template_path: str, replacements: Dict[str, str], output_path: str) -> str:
     """Load a .docx template, substitute placeholders, and save to output_path."""
+    if docx is None:
+        raise RuntimeError("docx library is not installed")
     if not os.path.exists(template_path):
         raise FileNotFoundError(f"Template not found at {template_path}")
         
@@ -239,6 +246,8 @@ def list_history() -> List[Dict]:
 
 def extract_variables_from_docx(file_path: str) -> Dict[str, str]:
     """Extremely robust text parsing and regex pattern matching to auto-extract report fields."""
+    if docx is None:
+        return extracted
     extracted = {
         "CLIENT": "",
         "CLIENT_NAME": "",

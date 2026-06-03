@@ -1,0 +1,144 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - banner [ref=e4]:
+        - generic [ref=e5]:
+          - link "Render" [ref=e7] [cursor=pointer]:
+            - /url: /
+            - img "Render" [ref=e8]
+          - button "M My Workspace" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - generic [ref=e14]: M
+              - generic "My Workspace" [ref=e15]
+              - img [ref=e16]
+        - generic [ref=e20]:
+          - navigation [ref=e21]:
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - generic [ref=e339]:
+                  - img [ref=e743]
+                  - generic [ref=e345]: New Blueprint
+          - button "Search Ctrl + K" [ref=e31] [cursor=pointer]:
+            - img [ref=e33]
+            - text: Search
+            - generic [ref=e35]:
+              - img [ref=e36]
+              - generic [ref=e38]: Ctrl
+              - generic [ref=e39]: +
+              - generic [ref=e40]: K
+              - generic [ref=e41]: K
+        - generic [ref=e42]:
+          - button "New" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]:
+              - img [ref=e46]
+              - generic [ref=e48]: New
+          - button "Upgrade" [ref=e50] [cursor=pointer]:
+            - generic [ref=e51]:
+              - img [ref=e52]
+              - generic [ref=e54]: Upgrade
+          - button "Help" [ref=e56] [cursor=pointer]:
+            - img "Help" [ref=e57]
+          - button "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e62] [cursor=pointer]:
+            - img "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e64]
+      - main [ref=e748]:
+        - heading "You are deploying from a Blueprint for jeevanreddy23/Auto-Soil-Logger-Project-1" [level=1] [ref=e751]:
+          - text: You are deploying from a Blueprint for
+          - link "jeevanreddy23/Auto-Soil-Logger-Project-1" [ref=e752] [cursor=pointer]:
+            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1
+        - generic [ref=e753]:
+          - generic [ref=e754]:
+            - generic [ref=e755]:
+              - generic [ref=e756]:
+                - generic [ref=e758]: Blueprint Name
+                - generic [ref=e759]: A unique name for your Blueprint.
+              - generic [ref=e762]:
+                - textbox "Blueprint Name" [ref=e764]: Geologs Blueprint
+                - generic [ref=e852]:
+                  - img [ref=e853]
+                  - generic [ref=e855]: Required
+            - generic [ref=e765]:
+              - generic [ref=e766]:
+                - generic [ref=e768]: Branch
+                - generic [ref=e769]:
+                  - text: The repository branch with the
+                  - code [ref=e770]: render.yaml
+                  - text: file.
+              - combobox [ref=e772]:
+                - generic [ref=e775]:
+                  - img
+                  - textbox "Branch" [ref=e776]:
+                    - /placeholder: Search
+                    - text: main
+                  - button "Clear search input" [ref=e777] [cursor=pointer]:
+                    - img [ref=e778]
+            - generic [ref=e780]:
+              - generic [ref=e781]:
+                - generic [ref=e783]: Blueprint PathOptional
+                - generic [ref=e784]:
+                  - text: The path to the Blueprint file in your repo (e.g.,
+                  - code [ref=e785]: infra/render.yaml
+                  - text: ). Defaults to
+                  - code [ref=e786]: render.yaml
+                  - text: at the root of your repository.
+              - textbox "Blueprint PathOptional" [ref=e790]:
+                - /placeholder: render.yaml
+            - generic [ref=e791]:
+              - heading "Review Blueprint configurations from jeevanreddy23/Auto-Soil-Logger-Project-1." [level=2] [ref=e792]:
+                - text: Review Blueprint configurations from
+                - strong [ref=e793]: jeevanreddy23/Auto-Soil-Logger-Project-1
+                - text: .
+              - alert [ref=e794]:
+                - generic [ref=e796]:
+                  - img [ref=e798]
+                  - generic [ref=e804]:
+                    - text: All future updates to your
+                    - link "Blueprint file" [ref=e805] [cursor=pointer]:
+                      - /url: https://render.com/docs/blueprint-spec
+                    - text: will be synced automatically, which may change your costs.
+            - generic [ref=e810]:
+              - heading "Specified configurations" [level=3] [ref=e812]
+              - generic [ref=e814]:
+                - generic [ref=e816]:
+                  - img [ref=e817]
+                  - generic [ref=e820]:
+                    - text: Create web service
+                    - strong [ref=e821]: auto-soil-logger-api
+                - generic [ref=e822]:
+                  - generic [ref=e823]:
+                    - generic [ref=e824]:
+                      - generic [ref=e825]: Key
+                      - textbox "Key" [ref=e827]: AUTOSOIL_API_KEY
+                    - generic [ref=e828]:
+                      - generic [ref=e829]: Value
+                      - textbox "Value" [ref=e834]:
+                        - /placeholder: Enter value
+                  - generic [ref=e835]:
+                    - generic [ref=e836]:
+                      - generic [ref=e837]: Key
+                      - textbox "Key" [ref=e839]: DeepSeek
+                    - generic [ref=e840]:
+                      - generic [ref=e841]: Value
+                      - textbox "Value" [ref=e846]:
+                        - /placeholder: Enter value
+          - generic [ref=e848]:
+            - button "Deploy Blueprint" [active] [ref=e849] [cursor=pointer]
+            - button "Cancel" [ref=e850] [cursor=pointer]
+          - generic [ref=e856]: There are some errors above. Please fix them and try again.
+    - generic:
+      - generic:
+        - generic: "0 services selected:"
+        - generic:
+          - generic:
+            - button:
+              - generic:
+                - img
+              - generic: Move
+              - img
+      - generic:
+        - separator
+        - generic:
+          - generic:
+            - button:
+              - img
+  - iframe [ref=e319]:
+    

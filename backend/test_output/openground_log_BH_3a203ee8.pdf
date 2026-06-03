@@ -1,0 +1,376 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R /F3 4 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/BaseFont /ZapfDingbats /Name /F3 /Subtype /Type1 /Type /Font
+>>
+endobj
+5 0 obj
+<<
+/Contents 9 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 8 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+6 0 obj
+<<
+/PageMode /UseNone /Pages 8 0 R /Type /Catalog
+>>
+endobj
+7 0 obj
+<<
+/Author (anonymous) /CreationDate (D:20260531162900+10'00') /Creator (anonymous) /Keywords () /ModDate (D:20260531162900+10'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (unspecified) /Title (untitled) /Trapped /False
+>>
+endobj
+8 0 obj
+<<
+/Count 1 /Kids [ 5 0 R ] /Type /Pages
+>>
+endobj
+9 0 obj
+<<
+/Length 7313
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+0 0 0 RG
+.75 w
+n 30 710 535 100 re S
+n 30 770 m 565 770 l S
+BT /F2 36 Tf 43.2 TL ET
+.184314 .490196 .270588 rg
+BT 1 0 0 1 35 785 Tm (STS) Tj T* ET
+BT /F2 8 Tf 9.6 TL ET
+.501961 .501961 .501961 rg
+BT 1 0 0 1 35 775 Tm (GEOTECHNICS PTY LTD) Tj T* ET
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 35 772 Tm (CONSULTING GEOTECHNICAL ENGINEERS) Tj T* ET
+0 0 0 rg
+BT /F1 18 Tf 21.6 TL ET
+BT 1 0 0 1 225.477 785 Tm (BOREHOLE LOG) Tj T* ET
+n 400 770 m 400 810 l S
+BT /F1 16 Tf 19.2 TL ET
+BT 1 0 0 1 468.416 792 Tm (BH ID: BH01) Tj T* ET
+n 30 750 m 565 750 l S
+n 30 730 m 565 730 l S
+n 250 710 m 250 770 l S
+n 400 710 m 400 770 l S
+n 480 710 m 480 770 l S
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 32 760 Tm (Client) Tj T* ET
+BT 1 0 0 1 32 752 Tm (Job No.) Tj T* ET
+BT 1 0 0 1 252 760 Tm (Date) Tj T* ET
+BT 1 0 0 1 252 752 Tm (Logged By) Tj T* ET
+BT 1 0 0 1 402 752 Tm (Review By) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 70 760 Tm  T* ET
+BT 1 0 0 1 70 752 Tm  T* ET
+BT 1 0 0 1 290 760 Tm  T* ET
+BT 1 0 0 1 290 752 Tm  T* ET
+BT 1 0 0 1 440 752 Tm  T* ET
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 32 738 Tm (Address) Tj T* ET
+BT 1 0 0 1 252 738 Tm (Location #) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 70 738 Tm  T* ET
+BT 1 0 0 1 290 738 Tm (-) Tj T* ET
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 32 720 Tm (Drilling Contractor) Tj T* ET
+BT 1 0 0 1 32 712 Tm (Plant) Tj T* ET
+BT 1 0 0 1 252 720 Tm (Surface RL) Tj T* ET
+BT 1 0 0 1 252 712 Tm (Inclination) Tj T* ET
+BT 1 0 0 1 402 720 Tm (Drill Bit) Tj T* ET
+BT 1 0 0 1 402 712 Tm (Hole \330 \(mm\)) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 110 720 Tm  T* ET
+BT 1 0 0 1 110 712 Tm  T* ET
+BT 1 0 0 1 300 720 Tm  T* ET
+BT 1 0 0 1 300 712 Tm  T* ET
+BT 1 0 0 1 450 720 Tm  T* ET
+BT 1 0 0 1 450 712 Tm  T* ET
+n 30 620 535 90 re S
+BT /F1 7 Tf 8.4 TL ET
+q
+0 1 -1 0 40 630 cm
+BT 1 0 0 1 0 0 Tm (METHOD) Tj T* ET
+Q
+q
+0 1 -1 0 60 630 cm
+BT 1 0 0 1 0 0 Tm (Flush Return) Tj T* ET
+Q
+q
+0 1 -1 0 80 630 cm
+BT 1 0 0 1 0 0 Tm (TCR %) Tj T* ET
+Q
+q
+0 1 -1 0 100 630 cm
+BT 1 0 0 1 0 0 Tm (RQD %) Tj T* ET
+Q
+q
+0 1 -1 0 120 630 cm
+BT 1 0 0 1 0 0 Tm (DEPTH \(m\)) Tj T* ET
+Q
+q
+0 1 -1 0 155 630 cm
+BT 1 0 0 1 0 0 Tm (GRAPHIC) Tj T* ET
+BT 1 0 0 1 0 -10 Tm (LOG) Tj T* ET
+Q
+q
+0 1 -1 0 185 630 cm
+BT 1 0 0 1 0 0 Tm (RL \(m AHD\)) Tj T* ET
+Q
+BT 1 0 0 1 232.6045 665 Tm (MATERIAL DESCRIPTION) Tj T* ET
+q
+0 1 -1 0 365 630 cm
+BT 1 0 0 1 0 0 Tm (WEATHERING) Tj T* ET
+Q
+BT /F1 5 Tf 6 TL ET
+BT 1 0 0 1 395.6925 702 Tm (ESTIMATED) Tj T* ET
+BT 1 0 0 1 396.25 695 Tm (STRENGTH) Tj T* ET
+BT 1 0 0 1 403.61 688 Tm (Is\(50\)) Tj T* ET
+BT 1 0 0 1 400.13 681 Tm /F3 5 Tf 6 TL (t) Tj /F1 5 Tf 6 TL ( - Axial) Tj T* ET
+BT 1 0 0 1 395.18 674 Tm /F3 5 Tf 6 TL (n) Tj /F1 5 Tf 6 TL ( - Diametral) Tj T* ET
+q
+0 1 -1 0 389 622 cm
+BT 1 0 0 1 0 0 Tm (VL 0.1) Tj T* ET
+Q
+q
+0 1 -1 0 397.33 622 cm
+BT 1 0 0 1 0 0 Tm (L 0.3) Tj T* ET
+Q
+q
+0 1 -1 0 405.66 622 cm
+BT 1 0 0 1 0 0 Tm (M 1) Tj T* ET
+Q
+q
+0 1 -1 0 413.99 622 cm
+BT 1 0 0 1 0 0 Tm (H 3) Tj T* ET
+Q
+q
+0 1 -1 0 422.32 622 cm
+BT 1 0 0 1 0 0 Tm (VH 10) Tj T* ET
+Q
+q
+0 1 -1 0 430.65 622 cm
+BT 1 0 0 1 0 0 Tm (EH) Tj T* ET
+Q
+n 385 670 m 435 670 l S
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 446.4695 665 Tm (DISCONTINUITIES) Tj T* ET
+BT 1 0 0 1 442.3815 655 Tm (& ADDITIONAL DATA) Tj T* ET
+BT /F1 5 Tf 6 TL ET
+BT 1 0 0 1 528.39 700 Tm (FRACTURE) Tj T* ET
+BT 1 0 0 1 530.7475 693 Tm (SPACING) Tj T* ET
+n 520 660 m 565 660 l S
+q
+0 1 -1 0 524 622 cm
+BT 1 0 0 1 0 0 Tm (30) Tj T* ET
+Q
+q
+0 1 -1 0 533 622 cm
+BT 1 0 0 1 0 0 Tm (100) Tj T* ET
+Q
+q
+0 1 -1 0 542 622 cm
+BT 1 0 0 1 0 0 Tm (300) Tj T* ET
+Q
+q
+0 1 -1 0 551 622 cm
+BT 1 0 0 1 0 0 Tm (1000) Tj T* ET
+Q
+q
+0 1 -1 0 560 622 cm
+BT 1 0 0 1 0 0 Tm (3000) Tj T* ET
+Q
+n 30 80 m 30 710 l S
+n 50 80 m 50 710 l S
+n 70 80 m 70 710 l S
+n 90 80 m 90 710 l S
+n 110 80 m 110 710 l S
+n 140 80 m 140 710 l S
+n 175 80 m 175 710 l S
+n 195 80 m 195 710 l S
+n 355 80 m 355 710 l S
+n 385 80 m 385 710 l S
+n 435 80 m 435 710 l S
+n 520 80 m 520 710 l S
+n 565 80 m 565 710 l S
+.501961 .501961 .501961 RG
+.5 w
+n 393.33 80 m 393.33 670 l S
+n 401.66 80 m 401.66 670 l S
+n 409.99 80 m 409.99 670 l S
+n 418.32 80 m 418.32 670 l S
+n 426.65 80 m 426.65 670 l S
+n 529 80 m 529 660 l S
+n 538 80 m 538 660 l S
+n 547 80 m 547 660 l S
+n 556 80 m 556 660 l S
+0 0 0 RG
+.75 w
+BT /F1 7 Tf 8.4 TL ET
+n 140 620 m 130 620 l S
+BT 1 0 0 1 123.054 618 Tm (0) Tj T* ET
+n 140 609.2 m 135 609.2 l S
+n 140 598.4 m 135 598.4 l S
+n 140 587.6 m 135 587.6 l S
+n 140 576.8 m 135 576.8 l S
+n 140 566 m 135 566 l S
+n 140 555.2 m 135 555.2 l S
+n 140 544.4 m 135 544.4 l S
+n 140 533.6 m 135 533.6 l S
+n 140 522.8 m 135 522.8 l S
+n 140 512 m 130 512 l S
+BT 1 0 0 1 123.054 510 Tm (1) Tj T* ET
+n 140 501.2 m 135 501.2 l S
+n 140 490.4 m 135 490.4 l S
+n 140 479.6 m 135 479.6 l S
+n 140 468.8 m 135 468.8 l S
+n 140 458 m 135 458 l S
+n 140 447.2 m 135 447.2 l S
+n 140 436.4 m 135 436.4 l S
+n 140 425.6 m 135 425.6 l S
+n 140 414.8 m 135 414.8 l S
+n 140 404 m 130 404 l S
+BT 1 0 0 1 123.054 402 Tm (2) Tj T* ET
+n 140 393.2 m 135 393.2 l S
+n 140 382.4 m 135 382.4 l S
+n 140 371.6 m 135 371.6 l S
+n 140 360.8 m 135 360.8 l S
+n 140 350 m 135 350 l S
+n 140 339.2 m 135 339.2 l S
+n 140 328.4 m 135 328.4 l S
+n 140 317.6 m 135 317.6 l S
+n 140 306.8 m 135 306.8 l S
+n 140 296 m 130 296 l S
+BT 1 0 0 1 123.054 294 Tm (3) Tj T* ET
+n 140 285.2 m 135 285.2 l S
+n 140 274.4 m 135 274.4 l S
+n 140 263.6 m 135 263.6 l S
+n 140 252.8 m 135 252.8 l S
+n 140 242 m 135 242 l S
+n 140 231.2 m 135 231.2 l S
+n 140 220.4 m 135 220.4 l S
+n 140 209.6 m 135 209.6 l S
+n 140 198.8 m 135 198.8 l S
+n 140 188 m 130 188 l S
+BT 1 0 0 1 123.054 186 Tm (4) Tj T* ET
+n 140 177.2 m 135 177.2 l S
+n 140 166.4 m 135 166.4 l S
+n 140 155.6 m 135 155.6 l S
+n 140 144.8 m 135 144.8 l S
+n 140 134 m 135 134 l S
+n 140 123.2 m 135 123.2 l S
+n 140 112.4 m 135 112.4 l S
+n 140 101.6 m 135 101.6 l S
+n 140 90.8 m 135 90.8 l S
+n 140 80 m 130 80 l S
+BT 1 0 0 1 123.054 78 Tm (5) Tj T* ET
+.886275 .909804 .941176 RG
+.5 w
+0 0 0 RG
+.75 w
+q
+n 140 80 35 540 re W* n
+.827451 .827451 .827451 RG
+n 140 110 m 145 145 l S
+n 140 105 m 150 140 l S
+n 140 100 m 155 135 l S
+n 140 95 m 160 130 l S
+n 140 90 m 165 125 l S
+n 140 85 m 170 120 l S
+n 140 80 m 175 115 l S
+n 145 80 m 175 110 l S
+n 150 80 m 175 105 l S
+n 155 80 m 175 100 l S
+n 160 80 m 175 95 l S
+n 165 80 m 175 90 l S
+n 170 80 m 175 85 l S
+n 175 80 m 175 80 l S
+n 180 80 m 175 75 l S
+n 185 80 m 175 70 l S
+Q
+q
+1 0 0 1 197 610 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 1 Tm /F1 7 Tf 8 TL (test) Tj T* ET
+Q
+Q
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 370 608 Tm  T* ET
+BT /F1 7 Tf 8.4 TL ET
+q
+0 1 -1 0 40 338 cm
+BT 1 0 0 1 0 0 Tm (NMLC) Tj T* ET
+Q
+q
+0 1 -1 0 80 345 cm
+BT 1 0 0 1 0 0 Tm  T* ET
+Q
+q
+0 1 -1 0 100 345 cm
+BT 1 0 0 1 0 0 Tm  T* ET
+Q
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 440 618 Tm (0.00) Tj T* ET
+n 30 30 535 50 re S
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 173.6705 72 Tm (Notes: See explanation sheets for meaning of all descriptive terms and symbols) Tj T* ET
+n 30 68 m 565 68 l S
+BT 1 0 0 1 32 58 Tm (D - disturbed sample) Tj T* ET
+BT 1 0 0 1 32 48 Tm (U - undisturbed tube sample) Tj T* ET
+BT 1 0 0 1 180 58 Tm (S - jar sample) Tj T* ET
+BT 1 0 0 1 180 48 Tm (B - bulk sample) Tj T* ET
+BT 1 0 0 1 330 58 Tm (WT - level of water table or free water) Tj T* ET
+BT 1 0 0 1 330 48 Tm (N - Standard Penetration Test \(SPT\)) Tj T* ET
+n 480 68 m 480 30 l S
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 495.035 45 Tm (Sheet 1 of 1) Tj T* ET
+ 
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000061 00000 n 
+0000000112 00000 n 
+0000000219 00000 n 
+0000000331 00000 n 
+0000000414 00000 n 
+0000000617 00000 n 
+0000000685 00000 n 
+0000000946 00000 n 
+0000001005 00000 n 
+trailer
+<<
+/ID 
+[<9240734709fbfbccd3833bc669a1d862><9240734709fbfbccd3833bc669a1d862>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 7 0 R
+/Root 6 0 R
+/Size 10
+>>
+startxref
+8369
+%%EOF

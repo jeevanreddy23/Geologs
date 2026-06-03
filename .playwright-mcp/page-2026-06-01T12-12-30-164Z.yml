@@ -1,0 +1,38 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+    - navigation [ref=e13]
+    - navigation [ref=e16]:
+      - link "Help" [ref=e17] [cursor=pointer]:
+        - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+        - img [ref=e19]
+        - generic [ref=e22]: Help
+  - banner [ref=e23]:
+    - button [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+  - main [ref=e38]
+  - contentinfo [ref=e39]:
+    - text: © Seequent, the Bentley Subsurface Company |
+    - link "Attributions" [ref=e40] [cursor=pointer]:
+      - /url: /attributions
+    - text: "|"
+    - link "Terms of Use" [ref=e41] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+    - text: "|"
+    - link "Terms of Service" [ref=e42] [cursor=pointer]:
+      - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+    - text: "|"
+    - link "Privacy Policy" [ref=e43] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/privacy-policy/
+    - text: "|"
+    - link "Cookie Policy" [ref=e44] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/cookie-policy/
+    - text: "|"
+    - link "Legal Notices" [ref=e45] [cursor=pointer]:
+      - /url: https://connect.bentley.com/Legal

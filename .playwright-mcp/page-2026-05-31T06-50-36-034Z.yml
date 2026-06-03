@@ -1,0 +1,572 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - banner [ref=e4]:
+        - generic [ref=e5]:
+          - link "Render" [ref=e7] [cursor=pointer]:
+            - /url: /
+            - img "Render" [ref=e8]
+          - button "M My Workspace" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - generic [ref=e14]: M
+              - generic "My Workspace" [ref=e15]
+              - img [ref=e16]
+        - generic [ref=e20]:
+          - navigation [ref=e21]:
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - button "Geologs" [ref=e26] [cursor=pointer]:
+                  - generic [ref=e27]:
+                    - img [ref=e28]
+                    - generic [ref=e30]:
+                      - generic [ref=e31]: Geologs
+                      - img [ref=e32]
+          - button "Search Ctrl + K" [ref=e35] [cursor=pointer]:
+            - img [ref=e37]
+            - text: Search
+            - generic [ref=e39]:
+              - img [ref=e40]
+              - generic [ref=e42]: Ctrl
+              - generic [ref=e43]: +
+              - generic [ref=e44]: K
+              - generic [ref=e45]: K
+        - generic [ref=e46]:
+          - button "New" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]:
+              - img [ref=e50]
+              - generic [ref=e52]: New
+          - button "Upgrade" [ref=e54] [cursor=pointer]:
+            - generic [ref=e55]:
+              - img [ref=e56]
+              - generic [ref=e58]: Upgrade
+          - button "Help" [ref=e60] [cursor=pointer]:
+            - img "Help" [ref=e61]
+          - button "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e66] [cursor=pointer]:
+            - img "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e68]
+      - generic [ref=e69]:
+        - navigation [ref=e70]:
+          - separator [ref=e71]
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - link "Dashboard" [ref=e74] [cursor=pointer]:
+                - /url: /
+                - img [ref=e75]
+                - generic [ref=e77]: Dashboard
+              - generic [ref=e78]:
+                - img [ref=e79]
+                - generic [ref=e81]: Geologs
+            - generic [ref=e82]:
+              - list [ref=e83]:
+                - listitem [ref=e84]:
+                  - link "Events" [ref=e85] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/events
+                    - img [ref=e86]
+                    - generic [ref=e93]: Events
+                - listitem [ref=e94]:
+                  - link "Settings" [ref=e95] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/settings
+                    - img [ref=e96]
+                    - generic [ref=e99]: Settings
+              - generic [ref=e100]:
+                - generic [ref=e101]: Monitor
+                - list "Monitor" [ref=e102]:
+                  - listitem [ref=e103]:
+                    - link "Logs" [ref=e104] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/logs
+                      - img [ref=e105]
+                      - generic [ref=e110]: Logs
+                  - listitem [ref=e111]:
+                    - link "Metrics" [ref=e112] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/metrics
+                      - img [ref=e113]
+                      - generic [ref=e115]: Metrics
+              - generic [ref=e116]:
+                - generic [ref=e117]: Manage
+                - list "Manage" [ref=e118]:
+                  - listitem [ref=e119]:
+                    - link "Environment" [ref=e120] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/env
+                      - img [ref=e121]
+                      - generic [ref=e125]: Environment
+                  - listitem [ref=e126]:
+                    - link "Shell" [ref=e127] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/shell
+                      - img [ref=e128]
+                      - generic [ref=e131]: Shell
+                  - listitem [ref=e132]:
+                    - link "Scaling" [ref=e133] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/scaling
+                      - img [ref=e134]
+                      - generic [ref=e138]: Scaling
+                  - listitem [ref=e139]:
+                    - link "Previews" [ref=e140] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/previews
+                      - img [ref=e141]
+                      - generic [ref=e145]: Previews
+                  - listitem [ref=e146]:
+                    - link "Disk" [ref=e147] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/disks
+                      - img [ref=e148]
+                      - generic [ref=e152]: Disk
+                  - listitem [ref=e153]:
+                    - link "One-Off Jobs" [ref=e154] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/jobs
+                      - img [ref=e155]
+                      - generic [ref=e160]: One-Off Jobs
+          - generic [ref=e162]:
+            - button "Collapse items" [expanded] [ref=e163] [cursor=pointer]:
+              - img [ref=e164]
+            - list "Footer navigation" [ref=e166]:
+              - listitem [ref=e167]:
+                - link "Changelog" [ref=e168] [cursor=pointer]:
+                  - /url: https://render.com/changelog
+                  - img [ref=e169]
+                  - generic [ref=e174]: Changelog
+              - listitem [ref=e175]:
+                - link "Invite a friend" [ref=e176] [cursor=pointer]:
+                  - /url: /invites
+                  - img [ref=e177]
+                  - generic [ref=e179]: Invite a friend
+              - listitem [ref=e180]:
+                - button "Contact support" [ref=e181] [cursor=pointer]:
+                  - img [ref=e182]
+                  - generic [ref=e186]: Contact support
+            - link "Render Status" [ref=e188] [cursor=pointer]:
+              - /url: https://status.render.com
+              - img [ref=e189]
+              - generic [ref=e191]: Render Status
+        - generic [ref=e193]:
+          - banner [ref=e195]:
+            - generic [ref=e196]:
+              - generic [ref=e197]:
+                - img [ref=e198]
+                - generic [ref=e200]: Web Service
+              - generic [ref=e201]:
+                - heading "Geologs Node Starter" [level=1] [ref=e203]:
+                  - generic [ref=e204]: Geologs
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: Node
+                    - link "Starter" [ref=e207] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/plan
+                      - generic [ref=e208]: Starter
+                - generic [ref=e210]:
+                  - button "Connect" [ref=e211] [cursor=pointer]:
+                    - generic [ref=e212]: Connect
+                    - img [ref=e213]
+                  - button "Manual Deploy" [ref=e215] [cursor=pointer]:
+                    - generic [ref=e216]: Manual Deploy
+                    - img [ref=e217]
+            - generic [ref=e221]:
+              - generic [ref=e223]:
+                - generic [ref=e224]: "Service ID:"
+                - generic "Service ID:" [ref=e225]:
+                  - generic [ref=e226]: srv-d7543pidbo4c7396dgjg
+                  - button "Copy" [ref=e229] [cursor=pointer]:
+                    - img [ref=e230]
+              - generic [ref=e234]:
+                - img "GitHub" [ref=e236]
+                - link "jeevanreddy23 / Auto-Soil-Logger-Project-1 main" [ref=e238] [cursor=pointer]:
+                  - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/tree/main
+                  - generic [ref=e239]:
+                    - generic [ref=e240]: jeevanreddy23 / Auto-Soil-Logger-Project-1
+                    - img [ref=e241]
+                    - generic [ref=e243]: main
+              - generic "Copy" [ref=e245]:
+                - link "https://geologs-hpcd.onrender.com" [ref=e247] [cursor=pointer]:
+                  - /url: https://geologs-hpcd.onrender.com
+                - button "Copy" [ref=e250] [cursor=pointer]:
+                  - img [ref=e251]
+          - main [ref=e254]:
+            - generic [ref=e255]:
+              - button "Filter events 31" [ref=e257] [cursor=pointer]:
+                - img [ref=e259]
+                - generic [ref=e261]:
+                  - text: Filter events
+                  - generic [ref=e262]: "31"
+                - img [ref=e263]
+              - generic [ref=e265]:
+                - list [ref=e266]:
+                  - listitem [ref=e267]:
+                    - generic [ref=e268]:
+                      - img [ref=e271]
+                      - generic [ref=e273]:
+                        - generic [ref=e274]:
+                          - generic [ref=e275]:
+                            - link "Deploy" [ref=e276] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dtavurnols739n1md0
+                            - text: failed
+                          - text: for
+                          - link "c9acaa1" [ref=e278] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/c9acaa1df7faffbb4254732a89182d806e3873de
+                          - text: ":"
+                          - generic [ref=e279]: "fix: restore render.yaml buildCommand to avoid using npm in python environment"
+                        - generic [ref=e280]:
+                          - text: Exited with status 1 while running your code. Check your
+                          - link "deploy logs" [ref=e281] [cursor=pointer]:
+                            - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dtavurnols739n1md0
+                          - text: for more information.
+                        - generic [ref=e282]: May 31, 2026 at 4:31 PM
+                    - button "Rollback" [disabled] [ref=e284]:
+                      - img [ref=e286]
+                      - text: Rollback
+                  - listitem [ref=e288]:
+                    - generic [ref=e289]:
+                      - img [ref=e292]
+                      - generic [ref=e295]:
+                        - generic [ref=e296]:
+                          - generic [ref=e297]:
+                            - generic [ref=e298]:
+                              - link "Deploy" [ref=e299] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dtavurnols739n1md0
+                              - text: started
+                            - text: for
+                            - link "c9acaa1" [ref=e301] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/c9acaa1df7faffbb4254732a89182d806e3873de
+                            - text: ":"
+                            - generic [ref=e302]: "fix: restore render.yaml buildCommand to avoid using npm in python environment"
+                          - generic [ref=e303]: Manually triggered by you via Dashboard
+                        - generic [ref=e304]: May 31, 2026 at 4:30 PM
+                  - listitem [ref=e305]:
+                    - generic [ref=e306]:
+                      - img [ref=e309]
+                      - generic [ref=e311]:
+                        - generic [ref=e312]:
+                          - generic [ref=e313]:
+                            - link "Deploy" [ref=e314] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dolk7avr4c73fvsn60
+                            - text: failed
+                          - text: for
+                          - link "1fbc20e" [ref=e316] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/1fbc20e22d2a87e900183b87b1f8c7fe2396a94d
+                          - text: ":"
+                          - generic [ref=e317]: "fix: normalize SQLite DB paths on Linux when Windows paths are supplied in environment"
+                        - generic [ref=e318]:
+                          - text: Exited with status 1 while running your code. Check your
+                          - link "deploy logs" [ref=e319] [cursor=pointer]:
+                            - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dolk7avr4c73fvsn60
+                          - text: for more information.
+                        - generic [ref=e320]: May 31, 2026 at 11:12 AM
+                    - button "Rollback" [disabled] [ref=e322]:
+                      - img [ref=e324]
+                      - text: Rollback
+                  - listitem [ref=e326]:
+                    - generic [ref=e327]:
+                      - img [ref=e330]
+                      - generic [ref=e333]:
+                        - generic [ref=e334]:
+                          - generic [ref=e335]:
+                            - generic [ref=e336]:
+                              - link "Deploy" [ref=e337] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8dolk7avr4c73fvsn60
+                              - text: started
+                            - text: for
+                            - link "1fbc20e" [ref=e339] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/1fbc20e22d2a87e900183b87b1f8c7fe2396a94d
+                            - text: ":"
+                            - generic [ref=e340]: "fix: normalize SQLite DB paths on Linux when Windows paths are supplied in environment"
+                          - generic [ref=e341]: Manually triggered by you via Dashboard
+                          - generic [ref=e342]: Build cache cleared
+                        - generic [ref=e343]: May 31, 2026 at 11:11 AM
+                  - listitem [ref=e344]:
+                    - generic [ref=e345]:
+                      - img [ref=e348]
+                      - generic [ref=e350]:
+                        - generic [ref=e351]:
+                          - generic [ref=e352]:
+                            - link "Deploy" [ref=e353] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8d5kln40ujc73car12g
+                            - text: failed
+                          - text: for
+                          - link "282c235" [ref=e355] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/282c235ea3cc9b3313fc7c8d8c9c6c968036d702
+                          - text: ":"
+                          - generic [ref=e356]: Add Render backend blueprint
+                        - generic [ref=e357]:
+                          - text: Exited with status 1 while running your code. Check your
+                          - link "deploy logs" [ref=e358] [cursor=pointer]:
+                            - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8d5kln40ujc73car12g
+                          - text: for more information.
+                        - generic [ref=e359]: May 30, 2026 at 1:33 PM
+                    - button "Rollback" [disabled] [ref=e361]:
+                      - img [ref=e363]
+                      - text: Rollback
+                  - listitem [ref=e365]:
+                    - generic [ref=e366]:
+                      - img [ref=e369]
+                      - generic [ref=e372]:
+                        - generic [ref=e373]:
+                          - generic [ref=e374]:
+                            - generic [ref=e375]:
+                              - link "Deploy" [ref=e376] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d8d5kln40ujc73car12g
+                              - text: started
+                            - text: for
+                            - link "282c235" [ref=e378] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/282c235ea3cc9b3313fc7c8d8c9c6c968036d702
+                            - text: ":"
+                            - generic [ref=e379]: Add Render backend blueprint
+                          - generic [ref=e380]: Manually triggered by you via Dashboard
+                        - generic [ref=e381]: May 30, 2026 at 1:32 PM
+                  - listitem [ref=e382]:
+                    - generic [ref=e383]:
+                      - img [ref=e386]
+                      - generic [ref=e388]:
+                        - generic [ref=e389]:
+                          - generic [ref=e390]:
+                            - link "Deploy" [ref=e391] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83fg2jeo5us73b786l0
+                            - text: live
+                          - text: for
+                          - link "ec76784" [ref=e393] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ec7678466e8ffeb891cf2a8c57bb6ddba4c56a52
+                          - text: ":"
+                          - generic [ref=e394]: "Merge pull request #42 from jeevanreddy23/codex/add-template-intelligence-index Codex/add template intelligence index"
+                        - generic [ref=e395]: May 15, 2026 at 8:41 PM
+                  - listitem [ref=e396]:
+                    - generic [ref=e397]:
+                      - img [ref=e400]
+                      - generic [ref=e403]:
+                        - generic [ref=e404]:
+                          - generic [ref=e405]:
+                            - generic [ref=e406]:
+                              - link "Deploy" [ref=e407] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83fg2jeo5us73b786l0
+                              - text: started
+                            - text: for
+                            - link "ec76784" [ref=e409] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ec7678466e8ffeb891cf2a8c57bb6ddba4c56a52
+                            - text: ":"
+                            - generic [ref=e410]: "Merge pull request #42 from jeevanreddy23/codex/add-template-intelligence-index Codex/add template intelligence index"
+                          - generic [ref=e411]: Manually triggered by you via Dashboard
+                        - generic [ref=e412]: May 15, 2026 at 8:40 PM
+                  - listitem [ref=e413]:
+                    - generic [ref=e414]:
+                      - img [ref=e417]
+                      - generic [ref=e419]:
+                        - generic [ref=e420]:
+                          - generic [ref=e421]:
+                            - link "Deploy" [ref=e422] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83fffe7r5hc73bo7ls0
+                            - text: live
+                          - text: for
+                          - link "ead88dc" [ref=e424] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                          - text: ":"
+                          - generic [ref=e425]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                        - generic [ref=e426]: May 15, 2026 at 8:39 PM
+                    - link "Rollback" [ref=e428] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83fffe7r5hc73bo7ls0/rollback
+                      - img [ref=e430]
+                      - text: Rollback
+                  - listitem [ref=e432]:
+                    - generic [ref=e433]:
+                      - img [ref=e436]
+                      - generic [ref=e439]:
+                        - generic [ref=e440]:
+                          - generic [ref=e441]:
+                            - generic [ref=e442]:
+                              - link "Deploy" [ref=e443] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83fffe7r5hc73bo7ls0
+                              - text: started
+                            - text: for
+                            - link "ead88dc" [ref=e445] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                            - text: ":"
+                            - generic [ref=e446]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                          - generic [ref=e447]: Manually triggered by you via Dashboard
+                        - generic [ref=e448]: May 15, 2026 at 8:38 PM
+                  - listitem [ref=e449]:
+                    - generic [ref=e450]:
+                      - img [ref=e453]
+                      - generic [ref=e455]:
+                        - generic [ref=e456]:
+                          - generic [ref=e457]:
+                            - link "Deploy" [ref=e458] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83ecqojs32c73cc3leg
+                            - text: live
+                          - text: for
+                          - link "ead88dc" [ref=e460] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                          - text: ":"
+                          - generic [ref=e461]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                        - generic [ref=e462]: May 15, 2026 at 7:26 PM
+                    - link "Rollback" [ref=e464] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83ecqojs32c73cc3leg/rollback
+                      - img [ref=e466]
+                      - text: Rollback
+                  - listitem [ref=e468]:
+                    - generic [ref=e469]:
+                      - img [ref=e472]
+                      - generic [ref=e475]:
+                        - generic [ref=e476]:
+                          - generic [ref=e477]:
+                            - generic [ref=e478]:
+                              - link "Deploy" [ref=e479] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d83ecqojs32c73cc3leg
+                              - text: started
+                            - text: for
+                            - link "ead88dc" [ref=e481] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                            - text: ":"
+                            - generic [ref=e482]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                          - generic [ref=e483]: Manually triggered by you via Dashboard
+                        - generic [ref=e484]: May 15, 2026 at 7:25 PM
+                  - listitem [ref=e485]:
+                    - generic [ref=e486]:
+                      - img [ref=e489]
+                      - generic [ref=e491]:
+                        - generic [ref=e492]:
+                          - generic [ref=e493]:
+                            - link "Deploy" [ref=e494] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839l0rtqb8s73dg0s50
+                            - text: live
+                          - text: for
+                          - link "ead88dc" [ref=e496] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                          - text: ":"
+                          - generic [ref=e497]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                        - generic [ref=e498]: May 15, 2026 at 2:02 PM
+                    - link "Rollback" [ref=e500] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839l0rtqb8s73dg0s50/rollback
+                      - img [ref=e502]
+                      - text: Rollback
+                  - listitem [ref=e504]:
+                    - generic [ref=e505]:
+                      - img [ref=e508]
+                      - generic [ref=e511]:
+                        - generic [ref=e512]:
+                          - generic [ref=e513]:
+                            - generic [ref=e514]:
+                              - link "Deploy" [ref=e515] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839l0rtqb8s73dg0s50
+                              - text: started
+                            - text: for
+                            - link "ead88dc" [ref=e517] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ead88dcc13f203a9dce7fa42e2208c9517f2d546
+                            - text: ":"
+                            - generic [ref=e518]: "Merge pull request #40 from jeevanreddy23/codex/mcp-profiles-test-harness Add MCP profiles and test harness docs"
+                          - generic [ref=e519]: Manually triggered by you via Dashboard
+                        - generic [ref=e520]: May 15, 2026 at 2:01 PM
+                  - listitem [ref=e521]:
+                    - generic [ref=e522]:
+                      - img [ref=e525]
+                      - generic [ref=e527]:
+                        - generic [ref=e528]:
+                          - generic [ref=e529]:
+                            - link "Deploy" [ref=e530] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839k8m7r5hc73bi9gpg
+                            - text: live
+                          - text: for
+                          - link "0249df6" [ref=e532] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/0249df6c4823b0dafb1df915fa1c7342de8ef42a
+                          - text: ":"
+                          - generic [ref=e533]: "Merge pull request #39 from jeevanreddy23/codex/add-template-intelligence-index Add AutoSoil template intelligence index"
+                        - generic [ref=e534]: May 15, 2026 at 2:00 PM
+                    - link "Rollback" [ref=e536] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839k8m7r5hc73bi9gpg/rollback
+                      - img [ref=e538]
+                      - text: Rollback
+                  - listitem [ref=e540]:
+                    - generic [ref=e541]:
+                      - img [ref=e544]
+                      - generic [ref=e547]:
+                        - generic [ref=e548]:
+                          - generic [ref=e549]:
+                            - generic [ref=e550]:
+                              - link "Deploy" [ref=e551] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d839k8m7r5hc73bi9gpg
+                              - text: started
+                            - text: for
+                            - link "0249df6" [ref=e553] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/0249df6c4823b0dafb1df915fa1c7342de8ef42a
+                            - text: ":"
+                            - generic [ref=e554]: "Merge pull request #39 from jeevanreddy23/codex/add-template-intelligence-index Add AutoSoil template intelligence index"
+                          - generic [ref=e555]: Manually triggered by you via Dashboard
+                        - generic [ref=e556]: May 15, 2026 at 1:59 PM
+                  - listitem [ref=e557]:
+                    - generic [ref=e558]:
+                      - img [ref=e561]
+                      - generic [ref=e563]:
+                        - generic [ref=e564]:
+                          - generic [ref=e565]:
+                            - link "Deploy" [ref=e566] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d82srfojs32c7383megg
+                            - text: live
+                          - text: for
+                          - link "0249df6" [ref=e568] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/0249df6c4823b0dafb1df915fa1c7342de8ef42a
+                          - text: ":"
+                          - generic [ref=e569]: "Merge pull request #39 from jeevanreddy23/codex/add-template-intelligence-index Add AutoSoil template intelligence index"
+                        - generic [ref=e570]: May 14, 2026 at 11:28 PM
+                    - link "Rollback" [ref=e572] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d82srfojs32c7383megg/rollback
+                      - img [ref=e574]
+                      - text: Rollback
+                  - listitem [ref=e576]:
+                    - generic [ref=e577]:
+                      - img [ref=e580]
+                      - generic [ref=e583]:
+                        - generic [ref=e584]:
+                          - generic [ref=e585]:
+                            - generic [ref=e586]:
+                              - link "Deploy" [ref=e587] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d82srfojs32c7383megg
+                              - text: started
+                            - text: for
+                            - link "0249df6" [ref=e589] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/0249df6c4823b0dafb1df915fa1c7342de8ef42a
+                            - text: ":"
+                            - generic [ref=e590]: "Merge pull request #39 from jeevanreddy23/codex/add-template-intelligence-index Add AutoSoil template intelligence index"
+                          - generic [ref=e591]: Manually triggered by you via Dashboard
+                        - generic [ref=e592]: May 14, 2026 at 11:27 PM
+                  - listitem [ref=e593]:
+                    - generic [ref=e594]:
+                      - img [ref=e597]
+                      - generic [ref=e599]:
+                        - generic [ref=e600]:
+                          - generic [ref=e601]:
+                            - link "Deploy" [ref=e602] [cursor=pointer]:
+                              - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d82pebog4nts73b7vo9g
+                            - text: live
+                          - text: for
+                          - link "ff4208c" [ref=e604] [cursor=pointer]:
+                            - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ff4208cf14892e9a1bcdabc28a54400d2934fee5
+                          - text: ":"
+                          - generic [ref=e605]: "Merge pull request #38 from jeevanreddy23/codex/fix-api-auth-and-storage-guards Fix API auth and storage guards"
+                        - generic [ref=e606]: May 14, 2026 at 7:35 PM
+                  - listitem [ref=e607]:
+                    - generic [ref=e608]:
+                      - img [ref=e611]
+                      - generic [ref=e614]:
+                        - generic [ref=e615]:
+                          - generic [ref=e616]:
+                            - generic [ref=e617]:
+                              - link "Deploy" [ref=e618] [cursor=pointer]:
+                                - /url: /web/srv-d7543pidbo4c7396dgjg/deploys/dep-d82pebog4nts73b7vo9g
+                              - text: started
+                            - text: for
+                            - link "ff4208c" [ref=e620] [cursor=pointer]:
+                              - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/commit/ff4208cf14892e9a1bcdabc28a54400d2934fee5
+                            - text: ":"
+                            - generic [ref=e621]: "Merge pull request #38 from jeevanreddy23/codex/fix-api-auth-and-storage-guards Fix API auth and storage guards"
+                          - generic [ref=e622]: Manually triggered by you via Dashboard
+                        - generic [ref=e623]: May 14, 2026 at 7:34 PM
+                - img "Loading..." [ref=e625]
+    - generic:
+      - generic:
+        - generic: "0 services selected:"
+        - generic:
+          - generic:
+            - button:
+              - generic:
+                - img
+              - generic: Move
+              - img
+      - generic:
+        - separator
+        - generic:
+          - generic:
+            - button:
+              - img
+  - iframe [ref=e628]:
+    

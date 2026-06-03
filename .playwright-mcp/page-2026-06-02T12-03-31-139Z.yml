@@ -1,0 +1,140 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e9]:
+      - link [ref=e12] [cursor=pointer]:
+        - /url: https://koregeosystems.com/
+      - generic [ref=e14]:
+        - navigation "Menu" [ref=e15]:
+          - list [ref=e16]:
+            - listitem [ref=e17]:
+              - link "Home" [ref=e18] [cursor=pointer]:
+                - /url: https://koregeosystems.com/
+            - listitem [ref=e19]:
+              - link "About Us" [ref=e20] [cursor=pointer]:
+                - /url: https://koregeosystems.com/about-us/
+                - text: About Us
+                - generic [ref=e21]:
+                  - generic: 
+            - listitem [ref=e22]:
+              - link "Solutions" [ref=e23] [cursor=pointer]:
+                - /url: https://koregeosystems.com/solutions/
+                - text: Solutions
+                - generic [ref=e24]:
+                  - generic: 
+            - listitem [ref=e25]:
+              - link "Contact" [ref=e26] [cursor=pointer]:
+                - /url: https://koregeosystems.com/contact/
+            - listitem [ref=e27]:
+              - link "Log In" [ref=e28] [cursor=pointer]:
+                - /url: https://spectorgeo.koregeosystems.com/
+        - text:    
+    - generic [ref=e31]:
+      - generic [ref=e34]:
+        - heading "Supercharge your core logging with KORE" [level=2] [ref=e37]
+        - heading "Spector Geo and Spector.AI empower geologists to enhance productivity, maintain consistency, and foster collaboration." [level=3] [ref=e40]:
+          - text: Spector Geo and
+          - generic [ref=e41]: Spector.AI
+          - text: empower geologists to enhance productivity, maintain consistency, and foster collaboration.
+        - link "Learn more" [ref=e44] [cursor=pointer]:
+          - /url: https://koregeosystems.com/digital-core-logging/
+      - generic [ref=e48]:
+        - img "IPad" [ref=e49]
+        - img "Spector GEO" [ref=e50]
+    - generic [ref=e52]:
+      - heading "Our global customers include:" [level=3] [ref=e55]
+      - region "Image Carousel" [ref=e58]:
+        - generic [ref=e59]:
+          - group [ref=e60]:
+            - figure [ref=e61]:
+              - img [ref=e62]
+          - group [ref=e63]:
+            - figure [ref=e64]:
+              - img [ref=e65]
+          - group [ref=e66]:
+            - figure [ref=e67]:
+              - img [ref=e68]
+          - group [ref=e69]:
+            - figure [ref=e70]:
+              - img [ref=e71]
+          - group "2 / 3" [ref=e72]:
+            - figure [ref=e73]:
+              - img "northern star" [ref=e74]
+          - group "3 / 3" [ref=e75]:
+            - figure [ref=e76]:
+              - img "newmont logo" [ref=e77]
+          - group "1 / 3" [ref=e78]:
+            - figure [ref=e79]:
+              - img "G-Mining-Ventures" [ref=e80]
+          - group [ref=e81]:
+            - figure [ref=e82]:
+              - img [ref=e83]
+          - group [ref=e84]:
+            - figure [ref=e85]:
+              - img [ref=e86]
+    - generic [ref=e88]:
+      - heading "KORE Solutions" [level=2] [ref=e91]
+      - generic [ref=e93]:
+        - list [ref=e95]:
+          - listitem [ref=e96] [cursor=pointer]: Digital Core Logging
+          - listitem [ref=e97] [cursor=pointer]: AI
+          - listitem [ref=e98] [cursor=pointer]: Image Management
+          - listitem [ref=e99] [cursor=pointer]: Imaging
+          - listitem [ref=e100]:
+            - link "Book a demo" [ref=e102] [cursor=pointer]:
+              - /url: https://koregeosystems.com/contact/
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - img "Digital Core Logging Software" [ref=e106]
+            - heading "Spector Geo" [level=3] [ref=e107]
+            - generic [ref=e108]: Spector Geo is an AI-powered digital core logging platform for geologists. With Spector Geo, core logging is faster, more consistent, and more collaborative—helping geologists and geotechnical engineers optimize their core logging workflows.
+            - link "Learn more" [ref=e110] [cursor=pointer]:
+              - /url: https://koregeosystems.com/digital-core-logging/
+          - generic [ref=e112]:
+            - img "IPad" [ref=e113]
+            - img "Spector GEO" [ref=e114]
+    - generic [ref=e115]:
+      - heading "Work better, log smarter. Try KORE." [level=2] [ref=e118]
+      - form "New Form contact-us" [ref=e127]:
+        - generic [ref=e128]:
+          - generic [ref=e129]:
+            - generic [ref=e130] [cursor=pointer]: First Name *
+            - textbox "First Name *" [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133] [cursor=pointer]: Last Name *
+            - textbox "Last Name * Sign up for our newsletter" [ref=e134]
+          - generic [ref=e135]:
+            - generic [ref=e136] [cursor=pointer]: Company *
+            - textbox "Company *" [ref=e137]
+          - generic [ref=e138]:
+            - generic [ref=e139] [cursor=pointer]: "E-mail:"
+            - textbox "E-mail:" [ref=e140]
+          - iframe [ref=e144]:
+            - generic [ref=f1e6]:
+              - text: protected by
+              - strong [ref=f1e7]: reCAPTCHA
+          - button "Submit" [ref=e146] [cursor=pointer]:
+            - generic [ref=e148]: Submit
+      - link "Book a demo" [ref=e152] [cursor=pointer]:
+        - /url: https://koregeosystems.com/contact/
+    - generic [ref=e158]:
+      - generic [ref=e159]:
+        - paragraph [ref=e165]: AI-Powered Core Logging
+        - generic [ref=e166]:
+          - paragraph [ref=e169]:
+            - strong [ref=e170]: Get in Touch
+          - paragraph [ref=e173]:
+            - link "in*******@************ms.com" [ref=e174] [cursor=pointer]:
+              - /url: mailto:in*******@************ms.com
+              - generic "This contact has been encoded by Anti-Spam by CleanTalk. Click to decode. To finish the decoding make sure that JavaScript is enabled in your browser." [ref=e175]: in*******@************ms.com
+            - text: or
+            - link "LinkedIn" [ref=e176] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/kore-geosystems/
+          - form "Subscribe" [ref=e179]:
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182] [cursor=pointer]: Sign up for our newsletter
+                - textbox "Enter Email address" [ref=e183]
+              - button "Subscribe" [ref=e185] [cursor=pointer]:
+                - generic [ref=e187]: Subscribe
+      - paragraph [ref=e190]: © 2023 KORE GeoSystems. All Rights Reserved
+  - generic [ref=e191]: desktop

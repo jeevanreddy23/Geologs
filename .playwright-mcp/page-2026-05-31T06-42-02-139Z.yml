@@ -1,0 +1,144 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - banner [ref=e4]:
+        - generic [ref=e5]:
+          - link "Render" [ref=e7] [cursor=pointer]:
+            - /url: /
+            - img "Render" [ref=e8]
+          - button "M My Workspace" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - generic [ref=e14]: M
+              - generic "My Workspace" [ref=e15]
+              - img [ref=e16]
+        - button "Search Ctrl + K" [ref=e22] [cursor=pointer]:
+          - img [ref=e24]
+          - text: Search
+          - generic [ref=e26]:
+            - img [ref=e27]
+            - generic [ref=e29]: Ctrl
+            - generic [ref=e30]: +
+            - generic [ref=e31]: K
+            - generic [ref=e32]: K
+        - generic [ref=e33]:
+          - button "New" [ref=e35] [cursor=pointer]:
+            - generic [ref=e36]:
+              - img [ref=e37]
+              - generic [ref=e39]: New
+          - button "Help" [ref=e41] [cursor=pointer]:
+            - img "Help" [ref=e42]
+          - button "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e47] [cursor=pointer]:
+            - img "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e49]
+      - generic [ref=e50]:
+        - navigation [ref=e51]:
+          - separator [ref=e52]
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - link "Dashboard" [ref=e55] [cursor=pointer]:
+                - /url: /
+                - img [ref=e56]
+                - generic [ref=e58]: Dashboard
+              - generic [ref=e59]:
+                - img [ref=e60]
+                - generic "Loading..." [ref=e62]
+            - generic [ref=e63]:
+              - list [ref=e64]:
+                - listitem [ref=e65]:
+                  - link "Events" [ref=e66] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/events
+                    - img [ref=e67]
+                    - generic [ref=e74]: Events
+                - listitem [ref=e75]:
+                  - link "Settings" [ref=e76] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/settings
+                    - img [ref=e77]
+                    - generic [ref=e80]: Settings
+              - generic [ref=e81]:
+                - generic [ref=e82]: Monitor
+                - list "Monitor" [ref=e83]:
+                  - listitem [ref=e84]:
+                    - link "Logs" [ref=e85] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/logs
+                      - img [ref=e86]
+                      - generic [ref=e91]: Logs
+                  - listitem [ref=e92]:
+                    - link "Metrics" [ref=e93] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/metrics
+                      - img [ref=e94]
+                      - generic [ref=e96]: Metrics
+              - generic [ref=e97]:
+                - generic [ref=e98]: Manage
+                - list "Manage" [ref=e99]:
+                  - listitem [ref=e100]:
+                    - link "Environment" [ref=e101] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/env
+                      - img [ref=e102]
+                      - generic [ref=e106]: Environment
+                  - listitem [ref=e107]:
+                    - link "Shell" [ref=e108] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/shell
+                      - img [ref=e109]
+                      - generic [ref=e112]: Shell
+                  - listitem [ref=e113]:
+                    - link "Scaling" [ref=e114] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/scaling
+                      - img [ref=e115]
+                      - generic [ref=e119]: Scaling
+                  - listitem [ref=e120]:
+                    - link "Previews" [ref=e121] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/previews
+                      - img [ref=e122]
+                      - generic [ref=e126]: Previews
+                  - listitem [ref=e127]:
+                    - link "Disk" [ref=e128] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/disks
+                      - img [ref=e129]
+                      - generic [ref=e133]: Disk
+                  - listitem [ref=e134]:
+                    - link "One-Off Jobs" [ref=e135] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/jobs
+                      - img [ref=e136]
+                      - generic [ref=e141]: One-Off Jobs
+          - generic [ref=e143]:
+            - button "Collapse items" [expanded] [ref=e144] [cursor=pointer]:
+              - img [ref=e145]
+            - list "Footer navigation" [ref=e147]:
+              - listitem [ref=e148]:
+                - link "Changelog" [ref=e149] [cursor=pointer]:
+                  - /url: https://render.com/changelog
+                  - img [ref=e150]
+                  - generic [ref=e155]: Changelog
+              - listitem [ref=e156]:
+                - link "Invite a friend" [ref=e157] [cursor=pointer]:
+                  - /url: /invites
+                  - img [ref=e158]
+                  - generic [ref=e160]: Invite a friend
+              - listitem [ref=e161]:
+                - button "Contact support" [ref=e162] [cursor=pointer]:
+                  - img [ref=e163]
+                  - generic [ref=e167]: Contact support
+            - link "Render Status" [ref=e169] [cursor=pointer]:
+              - /url: https://status.render.com
+              - img [ref=e170]
+              - generic [ref=e172]: Render Status
+        - generic [ref=e175]:
+          - img "Loading..." [ref=e176]
+          - generic [ref=e179]: Loading...
+    - generic:
+      - generic:
+        - generic: "0 services selected:"
+        - generic:
+          - generic:
+            - button:
+              - generic:
+                - img
+              - generic: Move
+              - img
+      - generic:
+        - separator
+        - generic:
+          - generic:
+            - button:
+              - img
+  - iframe [ref=e180]:
+    

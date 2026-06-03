@@ -1,0 +1,244 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Render" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "Render" [ref=e8]
+        - button "M My Workspace" [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: M
+            - generic "My Workspace" [ref=e15]
+            - img [ref=e16]
+      - generic [ref=e20]:
+        - navigation [ref=e21]:
+          - list [ref=e22]:
+            - listitem [ref=e23]:
+              - generic [ref=e24]:
+                - img [ref=e25]
+                - generic [ref=e29]: Projects
+        - button "Search Ctrl + K" [ref=e31] [cursor=pointer]:
+          - img [ref=e33]
+          - text: Search
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - generic [ref=e38]: Ctrl
+            - generic [ref=e39]: +
+            - generic [ref=e40]: K
+            - generic [ref=e41]: K
+      - generic [ref=e42]:
+        - button "New" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]:
+            - img [ref=e46]
+            - generic [ref=e48]: New
+        - button "Upgrade" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - generic [ref=e54]: Upgrade
+        - button "Help" [ref=e56] [cursor=pointer]:
+          - img "Help" [ref=e57]
+        - button "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e62] [cursor=pointer]:
+          - img "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e64]
+    - generic [ref=e65]:
+      - navigation [ref=e66]:
+        - separator [ref=e67]
+        - generic [ref=e69]:
+          - list [ref=e70]:
+            - listitem [ref=e71]:
+              - link "Projects" [ref=e72] [cursor=pointer]:
+                - /url: /
+                - img [ref=e73]
+                - generic [ref=e77]: Projects
+            - listitem [ref=e78]:
+              - link "Blueprints" [ref=e79] [cursor=pointer]:
+                - /url: /blueprints
+                - img [ref=e80]
+                - generic [ref=e85]: Blueprints
+            - listitem [ref=e86]:
+              - link "Environment Groups" [ref=e87] [cursor=pointer]:
+                - /url: /env-groups
+                - img [ref=e88]
+                - generic [ref=e94]: Environment Groups
+          - generic [ref=e95]:
+            - generic [ref=e96]: Integrations
+            - list "Integrations" [ref=e97]:
+              - listitem [ref=e98]:
+                - link "Observability" [ref=e99] [cursor=pointer]:
+                  - /url: /observability
+                  - img [ref=e100]
+                  - generic [ref=e102]: Observability
+              - listitem [ref=e103]:
+                - link "Webhooks" [ref=e104] [cursor=pointer]:
+                  - /url: /webhooks
+                  - img [ref=e105]
+                  - generic [ref=e109]: Webhooks
+              - listitem [ref=e110]:
+                - link "Notifications" [ref=e111] [cursor=pointer]:
+                  - /url: /notifications
+                  - img [ref=e112]
+                  - generic [ref=e122]: Notifications
+          - generic [ref=e123]:
+            - generic [ref=e124]: Networking
+            - list "Networking" [ref=e125]:
+              - listitem [ref=e126]:
+                - link "Private Links" [ref=e127] [cursor=pointer]:
+                  - /url: /private-links
+                  - img [ref=e128]
+                  - generic [ref=e130]: Private Links
+              - listitem [ref=e131]:
+                - link "Dedicated IPs New" [ref=e132] [cursor=pointer]:
+                  - /url: /dedicated-ips
+                  - img [ref=e133]
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: Dedicated IPs
+                    - generic [ref=e137]: New
+          - generic [ref=e138]:
+            - generic [ref=e139]: Workspace
+            - list "Workspace" [ref=e140]:
+              - listitem [ref=e141]:
+                - link "Billing" [ref=e142] [cursor=pointer]:
+                  - /url: /w/tea-d753ji63jp1c739ckoi0/billing
+                  - img [ref=e143]
+                  - generic [ref=e146]: Billing
+              - listitem [ref=e147]:
+                - link "Settings" [ref=e148] [cursor=pointer]:
+                  - /url: /w/tea-d753ji63jp1c739ckoi0/settings
+                  - img [ref=e149]
+                  - generic [ref=e152]: Settings
+        - generic [ref=e153]:
+          - alert [ref=e154]:
+            - img [ref=e156]
+            - generic [ref=e160]:
+              - generic [ref=e161]:
+                - generic [ref=e162]: New plans, zero seat fees
+                - generic [ref=e163]: We're updating workspace pricing to help teams grow faster. No seat fees, more self-serve features, granular bandwidth billing, and more.
+              - link "Opt-in early" [ref=e165] [cursor=pointer]:
+                - /url: /billing/update-plan
+            - button "Close notification" [ref=e166] [cursor=pointer]:
+              - img [ref=e167]
+          - generic [ref=e169]:
+            - button "Collapse items" [expanded] [ref=e170] [cursor=pointer]:
+              - img [ref=e171]
+            - list "Footer navigation" [ref=e173]:
+              - listitem [ref=e174]:
+                - link "Changelog" [ref=e175] [cursor=pointer]:
+                  - /url: https://render.com/changelog
+                  - img [ref=e176]
+                  - generic [ref=e181]: Changelog
+              - listitem [ref=e182]:
+                - link "Invite a friend" [ref=e183] [cursor=pointer]:
+                  - /url: /invites
+                  - img [ref=e184]
+                  - generic [ref=e186]: Invite a friend
+              - listitem [ref=e187]:
+                - button "Contact support" [ref=e188] [cursor=pointer]:
+                  - img [ref=e189]
+                  - generic [ref=e193]: Contact support
+            - link "Render Status" [ref=e195] [cursor=pointer]:
+              - /url: https://status.render.com
+              - img [ref=e196]
+              - generic [ref=e198]: Render Status
+      - main [ref=e200]:
+        - generic [ref=e201]:
+          - heading "Overview" [level=1] [ref=e203]
+          - generic [ref=e205]:
+            - button "Invite your team" [disabled] [ref=e210]:
+              - img [ref=e212]
+              - text: Invite your team
+            - button "New" [ref=e217] [cursor=pointer]:
+              - generic [ref=e218]:
+                - img [ref=e219]
+                - generic [ref=e221]: New
+                - img [ref=e222]
+        - generic [ref=e224]:
+          - generic [ref=e225]:
+            - generic [ref=e228]: Projects
+            - list [ref=e229]:
+              - listitem [ref=e230]:
+                - link "My project" [ref=e231] [cursor=pointer]:
+                  - /url: /project/prj-d7540ikhg0os73acct6g
+                  - generic [ref=e232]:
+                    - heading "My project" [level=6] [ref=e233]:
+                      - generic [ref=e234]: My project
+                    - img [ref=e237]
+              - listitem [ref=e240]:
+                - link "Create new project" [ref=e242] [cursor=pointer]:
+                  - /url: /new/project
+                  - img [ref=e244]
+                  - text: Create new project
+          - generic [ref=e246]:
+            - generic [ref=e248]: Ungrouped Services
+            - generic [ref=e249]:
+              - list [ref=e252]:
+                - listitem [ref=e253]:
+                  - tab "active (1)" [selected] [ref=e254] [cursor=pointer]:
+                    - generic [ref=e255]:
+                      - generic [ref=e256]: active
+                      - generic [ref=e257]: (1)
+                - listitem [ref=e258]:
+                  - tab "suspended (0)" [ref=e259] [cursor=pointer]:
+                    - generic [ref=e260]:
+                      - generic [ref=e261]: suspended
+                      - generic [ref=e262]: (0)
+                - listitem [ref=e263]:
+                  - tab "all (1)" [ref=e264] [cursor=pointer]:
+                    - generic [ref=e265]:
+                      - generic [ref=e266]: all
+                      - generic [ref=e267]: (1)
+              - generic [ref=e268]:
+                - generic [ref=e269]: Search services
+                - generic [ref=e270]:
+                  - img
+                  - textbox "Search services" [ref=e271]
+            - list [ref=e273]:
+              - columnheader "Select all rows Service Name 1 total row" [ref=e274]:
+                - generic [ref=e276] [cursor=pointer]:
+                  - checkbox "Select all rows" [ref=e277]
+                  - generic [ref=e279]: Select all rows
+                - button "Service Name 1 total row" [ref=e280] [cursor=pointer]:
+                  - generic [ref=e281]:
+                    - generic [ref=e282]: Service Name
+                    - generic "1 total row" [ref=e283]: "1"
+              - listitem [ref=e284]:
+                - generic [ref=e285]:
+                  - rowheader "Select row Geologs" [ref=e286]:
+                    - generic [ref=e289] [cursor=pointer]:
+                      - checkbox "Select row" [ref=e290]
+                      - generic [ref=e292]: Select row
+                    - link "Geologs" [ref=e295] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg
+                      - generic [ref=e296]: Geologs
+                  - button "Options" [ref=e298] [cursor=pointer]:
+                    - generic [ref=e299]: Options
+                    - img [ref=e300]
+                - generic [ref=e304]:
+                  - generic [ref=e305]:
+                    - columnheader "Status" [ref=e306]
+                    - cell
+                  - generic [ref=e307]:
+                    - columnheader "Runtime" [ref=e308]
+                    - cell "Node" [ref=e309]:
+                      - generic "Node" [ref=e311]
+                  - generic [ref=e312]:
+                    - columnheader "Region" [ref=e313]
+                    - cell "ohio" [ref=e314]
+                  - generic [ref=e315]:
+                    - columnheader "Updated" [ref=e316]
+                    - cell "15d" [ref=e317]:
+                      - time [ref=e318]: 15d
+  - generic:
+    - generic:
+      - generic: "0 services selected:"
+      - generic:
+        - generic:
+          - button:
+            - generic:
+              - img
+            - generic: Move
+            - img
+    - generic:
+      - separator
+      - generic:
+        - generic:
+          - button:
+            - img

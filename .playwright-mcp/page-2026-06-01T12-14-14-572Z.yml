@@ -1,0 +1,227 @@
+- generic:
+  - generic [ref=e1]:
+    - generic [ref=e2]:
+      - generic [ref=e4]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+        - link [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+      - navigation [ref=e13]:
+        - link [ref=e143] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/details
+          - img [ref=e48]
+          - generic [ref=e51]: Details
+        - link [ref=e144] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/explorer
+          - img [ref=e54]
+          - generic [ref=e57]: Explorer
+        - link [ref=e145] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/data-entry
+          - img [ref=e60]
+          - generic [ref=e63]: Data Entry
+        - link [ref=e146] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/import
+          - img [ref=e66]
+          - generic [ref=e74]: Import
+        - link [ref=e147] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/export
+          - img [ref=e77]
+          - generic [ref=e85]: Export
+        - link [ref=e148] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/documents
+          - img [ref=e88]
+          - generic [ref=e91]: Documents
+        - link [ref=e149] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/map
+          - img [ref=e94]
+          - generic [ref=e97]: Map
+        - link [ref=e150] [cursor=pointer]:
+          - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects
+          - img [ref=e100]
+          - generic [ref=e103]: Close Project
+      - navigation [ref=e16]:
+        - link [ref=e151] [cursor=pointer]:
+          - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+          - img [ref=e19]
+          - generic [ref=e22]: Help
+    - banner [ref=e23]:
+      - generic [ref=e27]:
+        - button [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+        - generic [ref=e104]:
+          - combobox [ref=e152] [cursor=pointer]: EIAustralia
+          - textbox: australiaeast_c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad
+          - img
+        - button [ref=e153] [cursor=pointer]:
+          - generic [ref=e107]: EO
+    - main [ref=e38]
+    - contentinfo [ref=e39]:
+      - text: © Seequent, the Bentley Subsurface Company |
+      - link [ref=e154] [cursor=pointer]:
+        - /url: /attributions
+        - text: Attributions
+      - text: "|"
+      - link [ref=e155] [cursor=pointer]:
+        - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+        - text: Terms of Use
+      - text: "|"
+      - link [ref=e156] [cursor=pointer]:
+        - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+        - text: Terms of Service
+      - text: "|"
+      - link [ref=e157] [cursor=pointer]:
+        - /url: https://www.bentley.com/legal/privacy-policy/
+        - text: Privacy Policy
+      - text: "|"
+      - link [ref=e158] [cursor=pointer]:
+        - /url: https://www.bentley.com/legal/cookie-policy/
+        - text: Cookie Policy
+      - text: "|"
+      - link [ref=e159] [cursor=pointer]:
+        - /url: https://connect.bentley.com/Legal
+        - text: Legal Notices
+  - dialog "Edit Project - Geotechnical Investigation (32904/2014E-G)" [ref=e162]:
+    - heading "Edit Project - Geotechnical Investigation (32904/2014E-G)" [level=2] [ref=e163]:
+      - text: Edit Project - Geotechnical Investigation (32904/2014E-G)
+      - button [ref=e164] [cursor=pointer]:
+        - img [ref=e165]
+    - paragraph [ref=e167]: "* = Required Field"
+    - paragraph [ref=e168]: ☐ = Blank checkbox(es) will be recorded as "No"
+    - separator [ref=e169]
+    - generic [ref=e171]:
+      - generic [ref=e172]:
+        - generic [ref=e173]:
+          - paragraph [ref=e174]: Details
+          - separator [ref=e175]
+          - generic [ref=e177]:
+            - generic [ref=e179]:
+              - generic: Project Subcode
+              - generic [ref=e180]:
+                - textbox "Project Subcode" [ref=e181]
+                - group:
+                  - generic: Project Subcode
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - text: Project ID
+                - generic [ref=e185]: "*"
+              - generic [ref=e186]:
+                - textbox "Project ID" [ref=e187]: 32904/2014E-G
+                - group:
+                  - generic: Project ID *
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - text: Project Description
+                - generic [ref=e191]: "*"
+              - generic [ref=e192]:
+                - textbox "Project Description" [ref=e193]: Geotechnical Investigation
+                - group:
+                  - generic: Project Description *
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - text: Site Address
+                - generic [ref=e197]: "*"
+              - generic [ref=e198]:
+                - textbox "Site Address" [ref=e199]: 105-113 Hollinsworth Road, Marsden park
+                - group:
+                  - generic: Site Address *
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - text: Client Name
+                - generic [ref=e203]: "*"
+              - generic [ref=e204]:
+                - textbox "Client Name" [ref=e205]: BY Group
+                - group:
+                  - generic: Client Name *
+            - generic [ref=e208]:
+              - generic [ref=e209]: Status
+              - generic [ref=e210]:
+                - combobox "Status Open" [ref=e211] [cursor=pointer]: Open
+                - textbox: f7d35e30-6d4c-44f8-b8cf-a11800a4acd7
+                - img
+                - group:
+                  - generic: Status
+            - generic [ref=e214]:
+              - generic [ref=e215]: Office
+              - generic [ref=e216]:
+                - combobox "Office STS Geotechnics" [ref=e217] [cursor=pointer]: STS Geotechnics
+                - textbox: 3f87d423-ce19-41fb-af95-c2b0a549451c
+                - img
+                - group:
+                  - generic: Office
+            - generic [ref=e219]:
+              - generic [ref=e220]: Longitude
+              - generic [ref=e221]:
+                - spinbutton "Longitude" [ref=e222]: "150.8369059"
+                - group:
+                  - generic: Longitude
+            - generic [ref=e224]:
+              - generic [ref=e225]: Latitude
+              - generic [ref=e226]:
+                - spinbutton "Latitude" [ref=e227]: "-33.7228225"
+                - group:
+                  - generic: Latitude
+            - generic [ref=e229]:
+              - generic: General project comments
+              - generic [ref=e230]:
+                - textbox "General project comments" [ref=e231]
+                - group:
+                  - generic: General project comments
+            - generic [ref=e234]:
+              - generic [ref=e235]: Category
+              - generic [ref=e236]:
+                - combobox "Category Default" [ref=e237] [cursor=pointer]: Default
+                - textbox: bee0d9fa-e41c-4867-9568-80d265cebe56
+                - img
+                - group:
+                  - generic: Category
+        - generic [ref=e238]:
+          - paragraph [ref=e239]: Configurations
+          - separator [ref=e240]
+          - generic [ref=e242]:
+            - generic [ref=e245]:
+              - generic [ref=e246]:
+                - text: Config Pack
+                - generic [ref=e247]: "*"
+              - generic [ref=e248]:
+                - combobox "Config Pack AS - Australia Standard V2" [disabled] [ref=e249]: AS - Australia Standard V2
+                - textbox [disabled]: 03b0325c-4956-4d04-bd69-addd006315c5
+                - img
+                - group:
+                  - generic: Config Pack *
+            - generic [ref=e252]:
+              - generic [ref=e253]:
+                - text: Coordinate System
+                - generic [ref=e254]: "*"
+              - generic [ref=e255]:
+                - combobox "Coordinate System GDA94 / MGA zone 56 (For Sydney, Brisbane & Eastern NSW)" [ref=e256] [cursor=pointer]: GDA94 / MGA zone 56 (For Sydney, Brisbane & Eastern NSW)
+                - textbox: 493f47a5-b963-41b6-8ed9-3a1aaa05aeed
+                - img
+                - group:
+                  - generic: Coordinate System *
+            - generic [ref=e259]:
+              - generic [ref=e260]: Picklist Set
+              - generic [ref=e261]:
+                - combobox "Picklist Set AGS 4.1 AU" [disabled] [ref=e262]: AGS 4.1 AU
+                - textbox [disabled]: 6411711e-e942-4fd0-9edc-addd0064ae19
+                - img
+                - group:
+                  - generic: Picklist Set
+            - generic [ref=e264] [cursor=pointer]:
+              - generic [ref=e265]:
+                - checkbox "Project Setup" [checked] [ref=e266]
+                - img [ref=e267]
+              - generic [ref=e269]: Project Setup
+            - generic [ref=e271]:
+              - generic:
+                - checkbox "Is Archived" [disabled]
+                - img
+              - generic [ref=e272]: Is Archived
+        - generic [ref=e273]:
+          - paragraph [ref=e274]: Logo
+          - separator [ref=e275]
+      - generic [ref=e276]:
+        - button "Cancel" [ref=e277] [cursor=pointer]
+        - button "Save" [ref=e278] [cursor=pointer]:
+          - generic [ref=e279]: Save

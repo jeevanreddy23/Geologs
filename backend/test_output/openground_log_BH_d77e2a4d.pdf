@@ -1,0 +1,279 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 8 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 7 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/PageMode /UseNone /Pages 7 0 R /Type /Catalog
+>>
+endobj
+6 0 obj
+<<
+/Author (anonymous) /CreationDate (D:20260531162640+10'00') /Creator (anonymous) /Keywords () /ModDate (D:20260531162640+10'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (unspecified) /Title (untitled) /Trapped /False
+>>
+endobj
+7 0 obj
+<<
+/Count 1 /Kids [ 4 0 R ] /Type /Pages
+>>
+endobj
+8 0 obj
+<<
+/Length 6195
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+.058824 .090196 .164706 RG
+1 w
+n 36 36 523 770 re S
+.058824 .090196 .164706 RG
+1 w
+n 36 670 523 136 re S
+n 400 670 m 400 806 l S
+n 36 738 m 400 738 l S
+.058824 .090196 .164706 rg
+BT /F2 14 Tf 16.8 TL ET
+BT 1 0 0 1 46 782 Tm (GEOTECHNICAL BOREHOLE LOG) Tj T* ET
+BT /F1 7.5 Tf 9 TL ET
+.278431 .333333 .411765 rg
+BT 1 0 0 1 46 770 Tm (AS 1726-2017 STANDARDS COMPLIANT LOGGING SYSTEM) Tj T* ET
+.058824 .090196 .164706 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 410 792 Tm (LOCATION ID:) Tj T* ET
+BT /F2 20 Tf 24 TL ET
+BT 1 0 0 1 410 768 Tm (BH-01) Tj T* ET
+BT /F1 8 Tf 9.6 TL ET
+BT 1 0 0 1 410 746 Tm (Sheet 1 of 1) Tj T* ET
+BT /F2 7 Tf 8.4 TL ET
+.058824 .090196 .164706 rg
+BT 1 0 0 1 46 722 Tm (PROJECT NO:) Tj T* ET
+BT 1 0 0 1 46 708 Tm (CLIENT:) Tj T* ET
+BT 1 0 0 1 46 694 Tm (SITE ADDRESS:) Tj T* ET
+BT 1 0 0 1 46 680 Tm (INSPECTION DATE:) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 120 722 Tm (PRJ-001) Tj T* ET
+BT 1 0 0 1 120 708 Tm (Not Extracted) Tj T* ET
+BT 1 0 0 1 120 694 Tm (Not Extracted) Tj T* ET
+BT 1 0 0 1 120 680 Tm (Not Extracted) Tj T* ET
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 220 722 Tm (SURFACE RL \(m\):) Tj T* ET
+BT 1 0 0 1 220 708 Tm (HOLE DIA \(mm\):) Tj T* ET
+BT 1 0 0 1 220 694 Tm (INCLINATION \(\260\):) Tj T* ET
+BT 1 0 0 1 220 680 Tm (DRILL BIT TYPE:) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 300 722 Tm (0.0) Tj T* ET
+BT 1 0 0 1 300 708 Tm (96) Tj T* ET
+BT 1 0 0 1 300 694 Tm (90\260 \(Vert\)) Tj T* ET
+BT 1 0 0 1 300 680 Tm (NMLC) Tj T* ET
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 410 722 Tm (CONTRACTOR:) Tj T* ET
+BT 1 0 0 1 410 708 Tm (DRILL RIG:) Tj T* ET
+BT 1 0 0 1 410 694 Tm (LOGGED BY:) Tj T* ET
+BT 1 0 0 1 410 680 Tm (REVIEWED BY:) Tj T* ET
+BT /F1 7 Tf 8.4 TL ET
+BT 1 0 0 1 480 722 Tm (DrillCo Ltd) Tj T* ET
+BT 1 0 0 1 480 708 Tm (Talon 500) Tj T* ET
+BT 1 0 0 1 480 694 Tm (Engineer) Tj T* ET
+BT 1 0 0 1 480 680 Tm (Senior Geologist) Tj T* ET
+.058824 .090196 .164706 RG
+1 w
+n 36 650 523 20 re B*
+.058824 .090196 .164706 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 40 656 Tm (Depth \(m\)) Tj T* ET
+BT 1 0 0 1 70.5 656 Tm (TCR %) Tj T* ET
+BT 1 0 0 1 95.5 656 Tm (RQD %) Tj T* ET
+BT 1 0 0 1 120 656 Tm (Run) Tj T* ET
+BT 1 0 0 1 143 656 Tm (Graphic) Tj T* ET
+BT 1 0 0 1 182 656 Tm (Symbol) Tj T* ET
+BT 1 0 0 1 222 656 Tm (Material Description of Rock Layer) Tj T* ET
+BT 1 0 0 1 380 656 Tm (Weath) Tj T* ET
+BT 1 0 0 1 408 656 Tm (Strength) Tj T* ET
+BT 1 0 0 1 442 656 Tm (Discontinuities & Defects) Tj T* ET
+BT 1 0 0 1 522.5 656 Tm (Frac Spac) Tj T* ET
+.278431 .333333 .411765 RG
+.75 w
+n 66 90 m 66 650 l S
+n 91 90 m 91 650 l S
+n 116 90 m 116 650 l S
+n 136 90 m 136 650 l S
+n 176 90 m 176 650 l S
+n 216 90 m 216 650 l S
+n 376 90 m 376 650 l S
+n 406 90 m 406 650 l S
+n 436 90 m 436 650 l S
+n 519 90 m 519 650 l S
+.058824 .090196 .164706 RG
+.75 w
+BT /F2 6.5 Tf 7.8 TL ET
+.058824 .090196 .164706 rg
+n 66 650 m 58 650 l S
+BT 1 0 0 1 42 648 Tm (0.0) Tj T* ET
+n 66 638.8 m 63 638.8 l S
+n 66 627.6 m 63 627.6 l S
+n 66 616.4 m 63 616.4 l S
+n 66 605.2 m 63 605.2 l S
+n 66 594 m 61 594 l S
+n 66 582.8 m 63 582.8 l S
+n 66 571.6 m 63 571.6 l S
+n 66 560.4 m 63 560.4 l S
+n 66 549.2 m 63 549.2 l S
+n 66 538 m 58 538 l S
+BT 1 0 0 1 42 536 Tm (1.0) Tj T* ET
+n 66 526.8 m 63 526.8 l S
+n 66 515.6 m 63 515.6 l S
+n 66 504.4 m 63 504.4 l S
+n 66 493.2 m 63 493.2 l S
+n 66 482 m 61 482 l S
+n 66 470.8 m 63 470.8 l S
+n 66 459.6 m 63 459.6 l S
+n 66 448.4 m 63 448.4 l S
+n 66 437.2 m 63 437.2 l S
+n 66 426 m 58 426 l S
+BT 1 0 0 1 42 424 Tm (2.0) Tj T* ET
+n 66 414.8 m 63 414.8 l S
+n 66 403.6 m 63 403.6 l S
+n 66 392.4 m 63 392.4 l S
+n 66 381.2 m 63 381.2 l S
+n 66 370 m 61 370 l S
+n 66 358.8 m 63 358.8 l S
+n 66 347.6 m 63 347.6 l S
+n 66 336.4 m 63 336.4 l S
+n 66 325.2 m 63 325.2 l S
+n 66 314 m 58 314 l S
+BT 1 0 0 1 42 312 Tm (3.0) Tj T* ET
+n 66 302.8 m 63 302.8 l S
+n 66 291.6 m 63 291.6 l S
+n 66 280.4 m 63 280.4 l S
+n 66 269.2 m 63 269.2 l S
+n 66 258 m 61 258 l S
+n 66 246.8 m 63 246.8 l S
+n 66 235.6 m 63 235.6 l S
+n 66 224.4 m 63 224.4 l S
+n 66 213.2 m 63 213.2 l S
+n 66 202 m 58 202 l S
+BT 1 0 0 1 42 200 Tm (4.0) Tj T* ET
+n 66 190.8 m 63 190.8 l S
+n 66 179.6 m 63 179.6 l S
+n 66 168.4 m 63 168.4 l S
+n 66 157.2 m 63 157.2 l S
+n 66 146 m 61 146 l S
+n 66 134.8 m 63 134.8 l S
+n 66 123.6 m 63 123.6 l S
+n 66 112.4 m 63 112.4 l S
+n 66 101.2 m 63 101.2 l S
+n 66 90 m 58 90 l S
+BT 1 0 0 1 42 88 Tm (5.0) Tj T* ET
+.058824 .090196 .164706 RG
+.75 w
+q
+n 136 90 40 560 re W* n
+.796078 .835294 .882353 RG
+.5 w
+n 136 120 m 146 160 l S
+n 136 112 m 154 152 l S
+n 136 104 m 162 144 l S
+n 136 96 m 170 136 l S
+n 138 90 m 176 128 l S
+n 146 90 m 176 120 l S
+n 154 90 m 176 112 l S
+n 162 90 m 176 104 l S
+n 170 90 m 176 96 l S
+n 178 90 m 176 88 l S
+Q
+.058824 .090196 .164706 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 144.96 367 Tm (ROCK) Tj T* ET
+q
+1 0 0 1 219 639.5 cm
+q
+.058824 .090196 .164706 rg
+BT 1 0 0 1 0 1.5 Tm /F1 7 Tf 8.5 TL (test) Tj T* ET
+Q
+Q
+BT /F1 7.5 Tf 9 TL ET
+BT 1 0 0 1 391 367 Tm  T* ET
+BT 1 0 0 1 421 367 Tm  T* ET
+.058824 .090196 .164706 RG
+.75 w
+BT /F1 7.5 Tf 9 TL ET
+.058824 .090196 .164706 rg
+BT 1 0 0 1 78.5 367 Tm  T* ET
+BT 1 0 0 1 103.5 367 Tm  T* ET
+BT 1 0 0 1 126 367 Tm  T* ET
+.862745 .14902 .14902 RG
+.75 w
+BT /F1 6.5 Tf 7.8 TL ET
+.058824 .090196 .164706 rg
+n 436 648 m 442 652 l S
+BT 1 0 0 1 446 648 Tm (0.00m) Tj T* ET
+.058824 .090196 .164706 RG
+1 w
+n 36 90 m 559 90 l S
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 42 78 Tm (WEATHERING:) Tj T* ET
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 42 68 Tm (FR = Fresh  |  SW = Slightly Weathered  |  MW = Moderately Weathered  |  HW = Highly Weathered  |  EW = Extremely Weathered) Tj T* ET
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 42 54 Tm (STRENGTH:) Tj T* ET
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 42 44 Tm (VL = Very Low  |  L = Low  |  M = Medium  |  H = High  |  VH = Very High  |  EH = Extremely High) Tj T* ET
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 380 78 Tm (DEFECT TYPE CODES:) Tj T* ET
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 380 68 Tm (BP = Bedding Plane  |  JN = Joint  |  VN = Vein) Tj T* ET
+BT 1 0 0 1 380 58 Tm (CS = Clay Seam  |  SZ = Shear Zone  |  DB = Drilling Break) Tj T* ET
+BT 1 0 0 1 380 48 Tm (PR = Planar  |  RO = Rough  |  CN = Clean  |  SN = Stained) Tj T* ET
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 492.648 78 Tm (SHEET 1 OF 1) Tj T* ET
+ 
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000524 00000 n 
+0000000592 00000 n 
+0000000853 00000 n 
+0000000912 00000 n 
+trailer
+<<
+/ID 
+[<7f0df0a3e8d0f2c227dbebcd2318cbab><7f0df0a3e8d0f2c227dbebcd2318cbab>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 6 0 R
+/Root 5 0 R
+/Size 9
+>>
+startxref
+7158
+%%EOF

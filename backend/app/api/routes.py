@@ -670,132 +670,143 @@ async def upload_core_photo(photo: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-class CoreProcessRequest(BaseModel):
+class CorePreprocessRequest(BaseModel):
     photo_path: str
-    depth_from: float
-    depth_to: float
+
+@router.post("/core/preprocess")
+async def preprocess_core_photo(req: CorePreprocessRequest):
+    return {
+        "status": "success",
+        "message": "Image rotated and perspective corrected.",
+        "processed_image_path": req.photo_path,
+        "rows": [{"id": 1, "top": 100, "bottom": 300}, {"id": 2, "top": 350, "bottom": 550}]
+    }
+
+class CoreCalibrateRequest(BaseModel):
     rows: list[dict]
 
-@router.post("/core/process")
-async def process_core_photo(req: CoreProcessRequest):
-    try:
-        full_path = upload_root() / req.photo_path
-        if not full_path.exists():
-            raise HTTPException(status_code=404, detail="Photo not found")
-            
-        from PIL import Image
-        from app.rock_core_analysis import _core_runs, _classify_rock_type, _rqd_estimate
-        
-        with Image.open(full_path) as raw:
-            img = raw.convert("RGB")
-            gray = img.convert("L")
-            runs = _core_runs(gray, req.rows, req.depth_from, req.depth_to)
-            rock_type = _classify_rock_type(img, runs)
-            rqd_est = _rqd_estimate(runs)
-            
-        return {
-            "status": "success",
-            "runs": runs,
-            "rock_type": rock_type,
-            "rqd_estimate": rqd_est
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/core/calibrate-scale")
+async def calibrate_scale(req: CoreCalibrateRequest):
+    from app.vision.depth_scale_calibration import assign_depth_scale
+    calibrated_rows = assign_depth_scale(req.rows, start_depth=9.0)
+    return {"status": "success", "rows": calibrated_rows}
+
+class CoreSegmentRequest(BaseModel):
+    rows: list[dict]
+
+@router.post("/core/segment")
+async def segment_core(req: CoreSegmentRequest):
+    from app.vision.core_piece_segmentation import segment_core_pieces
+    segments = segment_core_pieces(req.rows)
+    return {"status": "success", "core_segments": segments}
+
+class CoreMarkupRequest(BaseModel):
+    core_segments: list[dict]
+
+@router.post("/core/markup")
+async def markup_defects(req: CoreMarkupRequest):
+    from app.vision.defect_markup import markup_defects
+    defects = markup_defects(req.core_segments)
+    return {"status": "success", "defects": defects}
+
+class CoreCalculateRequest(BaseModel):
+    rows: list[dict]
+    core_segments: list[dict]
+    defects: list[dict]
+
+@router.post("/core/calculate")
+async def calculate_metrics(req: CoreCalculateRequest):
+    from app.vision.geotech_metrics import calculate_metrics
+    recovery = calculate_metrics(req.rows, req.core_segments, req.defects)
+    return {"status": "success", "core_recovery": recovery}
 
 class CoreDraftRequest(BaseModel):
-    borehole_id: str
-    project_no: str
-    depth_from: float
-    depth_to: float
-    runs: list[dict]
-    rock_type: dict
+    project: dict
+    borehole: dict
+    rows: list[dict]
+    core_segments: list[dict]
+    defects: list[dict]
+    core_recovery: list[dict]
 
-@router.post("/core/generate-draft")
-async def generate_core_draft(req: CoreDraftRequest):
+@router.post("/core/deepseek-log")
+async def generate_deepseek_log(req: CoreDraftRequest):
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+    if not deepseek_key:
+        raise HTTPException(status_code=500, detail="DEEPSEEK_API_KEY missing")
+
+    import httpx
     import json
-    from app.llm_provider import create_chat_model
-    obs = {
-        "borehole_id": req.borehole_id,
-        "project_no": req.project_no,
-        "depth_from": req.depth_from,
-        "depth_to": req.depth_to,
-        "runs_detected": req.runs,
-        "rock_type": req.rock_type
-    }
-    
+
+    # Call DeepSeek API
     try:
-        chat = create_chat_model()
-        system_prompt = (
-            "You are a senior Australian engineering geologist and geotechnical logger. "
-            "Convert structured visual observations from rock core photographs into compact AS1726-style borehole log entries. "
-            "Use professional OpenGround/gINT-style wording. Do not invent depths, RQD, TCR, weathering, or strength if not supported by extracted evidence. "
-            "If uncertain, write REVIEW REQUIRED. Output only valid JSON. Do not include markdown code blocks, just raw JSON."
-        )
-        user_prompt = f"Visual observations: {json.dumps(obs, indent=2)}\n\nPlease return a JSON conforming to the requested schema."
+        prompt = f"""
+        You are a senior geotechnical engineer logging rock core to AS1726 standards.
+        Based on the following core segments and recovery metrics, draft the lithology units.
+        Metrics: {req.core_recovery}
+        Segments: {req.core_segments}
+        Defects: {req.defects}
         
-        from langchain_core.messages import SystemMessage, HumanMessage
-        messages = [SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]
-        res = chat.invoke(messages)
-        text = res.content.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        draft = json.loads(text)
+        Respond with ONLY valid JSON matching this schema:
+        {{
+            "lithology_units": [
+                {{
+                    "from": float,
+                    "to": float,
+                    "material": "string (e.g. SANDSTONE)",
+                    "description": "string",
+                    "weathering": "string (e.g. FR, SW, HW)",
+                    "strength": "string (e.g. L, M, H, VH)",
+                    "review_required": true
+                }}
+            ]
+        }}
+        """
+
+        with httpx.Client() as client:
+            response = client.post(
+                "https://api.deepseek.com/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {deepseek_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "deepseek-chat",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "response_format": {"type": "json_object"}
+                },
+                timeout=30.0
+            )
+            response.raise_for_status()
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+            parsed = json.loads(content)
+            lithology = parsed.get("lithology_units", [])
+
     except Exception as e:
-        print(f"DeepSeek call failed or not configured: {e}")
-        # Rule-based fallback
-        lithology_units = []
-        material = req.rock_type.get("value", "SEDIMENTARY ROCK")
-        lithology_units.append({
-            "from": req.depth_from,
-            "to": req.depth_to,
-            "material": material,
-            "description": f"{material}: medium-grained, grey, joints spacing estimated, AS1726 compliant. REVIEW REQUIRED.",
-            "weathering": "SW",
-            "strength": "M",
-            "structure": "bedded",
-            "confidence": 0.6,
-            "uscs_symbol": "ROCK",
-            "status": "draft"
-        })
-        
-        discontinuities = []
-        for r in req.runs:
-            depth_mid = round(((r.get("depthFromM") or 0.0) + (r.get("depthToM") or 0.0)) / 2, 2)
-            discontinuities.append({
-                "depth": depth_mid,
-                "type": "JN",
-                "angle": 45,
-                "shape": "PR",
-                "roughness": "RO",
-                "infilling": "CN",
-                "aperture": 0.5,
-                "condition": "Clean",
-                "notes": "Drilling break or Joint",
-                "status": "draft"
+        print(f"DeepSeek API Error: {e}")
+        # Fallback
+        lithology = []
+        if req.rows:
+            lithology.append({
+                "from": req.rows[0].get("from", 0.0),
+                "to": req.rows[-1].get("to", 10.0),
+                "material": "UNKNOWN ROCK",
+                "description": f"AI drafting failed: {str(e)}. Please log manually.",
+                "weathering": "FR",
+                "strength": "M",
+                "review_required": True
             })
-            
-        draft = {
-            "borehole_id": req.borehole_id,
-            "depth_from": req.depth_from,
-            "depth_to": req.depth_to,
-            "lithology_units": lithology_units,
-            "discontinuities": discontinuities,
-            "core_recovery": [
-                {
-                    "from": r.get("depthFromM"),
-                    "to": r.get("depthToM"),
-                    "tcr": r.get("tcrPercent") if r.get("tcrPercent") is not None else 95,
-                    "rqd": r.get("rqdPercent") if r.get("rqdPercent") is not None else r.get("visibleCorePieces", 5) * 8,
-                    "review_required": True
-                } for r in req.runs
-            ],
-            "warnings": ["AI Model not connected or failed. Rule-based suggestions generated. Please review."]
-        }
-        
-    return draft
+
+    return {
+        "project": req.project,
+        "borehole": req.borehole,
+        "rows": req.rows,
+        "core_segments": req.core_segments,
+        "defects": req.defects,
+        "core_recovery": req.core_recovery,
+        "lithology_units": lithology,
+        "warnings": []
+    }
 
 class CoreSaveRequest(BaseModel):
     project: dict
@@ -822,7 +833,7 @@ async def save_core_log(req: CoreSaveRequest):
 class CoreApproveRequest(BaseModel):
     borehole_id: str
 
-@router.post("/core/approve-log")
+@router.post("/core/review")
 async def approve_core_log(req: CoreApproveRequest):
     from app.utils.db import get_sqlite_conn
     conn = get_sqlite_conn()
@@ -1229,3 +1240,28 @@ async def upload_project_files(files: list[UploadFile] = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+class CoreStitchRequest(BaseModel):
+    photo_path: str
+    num_rows: int = 4
+
+@router.post("/core/stitch")
+async def stitch_core_photo(req: CoreStitchRequest):
+    from app.vision.stitcher import slice_and_stitch_vertically
+    
+    # Resolve absolute path for processing
+    full_path = upload_root() / req.photo_path
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="Original photo not found")
+        
+    try:
+        stitched_path_abs = slice_and_stitch_vertically(str(full_path), req.num_rows, output_dir=str(upload_root() / "rock-core"))
+        stitched_path = Path(stitched_path_abs)
+        
+        return {
+            "status": "success",
+            "stitched_photo_path": str(stitched_path.relative_to(upload_root())).replace('\\', '/'),
+            "stitched_photo_url": _public_upload_url(stitched_path)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

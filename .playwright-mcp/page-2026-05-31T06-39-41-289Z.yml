@@ -1,0 +1,55 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: Loading
+        - progressbar [ref=e8]
+      - main [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e18]:
+            - generic [ref=e19]:
+              - img [ref=e21]
+              - generic [ref=e26]: Sign in with Google
+            - img "Render" [ref=e27]
+          - generic [ref=e28]:
+            - heading "Sign in" [level=1] [ref=e29]
+            - generic [ref=e31]:
+              - text: to continue to
+              - button "Render" [ref=e32] [cursor=pointer]
+        - generic [ref=e35]:
+          - generic [ref=e40]:
+            - generic [ref=e45]:
+              - textbox "Email or phone" [active] [ref=e46]
+              - generic: Email or phone
+            - button "Forgot email?" [ref=e50] [cursor=pointer]
+          - generic [ref=e53]:
+            - text: Before using this app, you can review Render’s
+            - link "Privacy Policy" [ref=e54] [cursor=pointer]:
+              - /url: https://render.com/privacy
+            - text: and
+            - link "Terms of Service" [ref=e55] [cursor=pointer]:
+              - /url: https://render.com/terms
+            - text: .
+        - generic [ref=e57]:
+          - button "Next" [ref=e61]:
+            - generic [ref=e64]: Next
+          - button "Create account" [ref=e69]:
+            - generic [ref=e72]: Create account
+    - contentinfo [ref=e76]:
+      - combobox "Change language English (United States)" [ref=e80] [cursor=pointer]:
+        - generic:
+          - generic: English (United States)
+        - generic:
+          - img
+      - list [ref=e82]:
+        - listitem [ref=e83]:
+          - link "Help" [ref=e84] [cursor=pointer]:
+            - /url: https://support.google.com/accounts?hl=en-US&p=account_iph
+        - listitem [ref=e85]:
+          - link "Privacy" [ref=e86] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=AU&hl=en-US&privacy=true
+        - listitem [ref=e87]:
+          - link "Terms" [ref=e88] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=AU&hl=en-US
+  - iframe [ref=e89]:
+    

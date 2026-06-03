@@ -1,0 +1,120 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+    - navigation [ref=e13]:
+      - link "Details" [ref=e280] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/details
+        - img [ref=e48]
+        - generic [ref=e51]: Details
+      - link "Explorer" [ref=e281] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/explorer
+        - img [ref=e54]
+        - generic [ref=e57]: Explorer
+      - link "Data Entry" [ref=e282] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/data-entry
+        - img [ref=e60]
+        - generic [ref=e63]: Data Entry
+      - link "Import" [ref=e283] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/import
+        - img [ref=e66]
+        - generic [ref=e74]: Import
+      - link "Export" [active] [ref=e284] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/export
+        - img [ref=e77]
+        - generic [ref=e85]: Export
+      - link "Documents" [ref=e285] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/documents
+        - img [ref=e88]
+        - generic [ref=e91]: Documents
+      - link "Map" [ref=e286] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/map
+        - img [ref=e94]
+        - generic [ref=e97]: Map
+      - link "Close Project" [ref=e287] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects
+        - img [ref=e100]
+        - generic [ref=e103]: Close Project
+    - navigation [ref=e16]:
+      - link "Help" [ref=e288] [cursor=pointer]:
+        - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+        - img [ref=e19]
+        - generic [ref=e22]: Help
+  - banner [ref=e23]:
+    - generic [ref=e27]:
+      - button [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+      - generic [ref=e104]:
+        - combobox "EIAustralia" [ref=e289] [cursor=pointer]
+        - textbox: australiaeast_c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad
+        - img
+      - button "User profile" [ref=e290] [cursor=pointer]:
+        - generic [ref=e107]: EO
+  - main [ref=e38]:
+    - generic [ref=e486]:
+      - generic [ref=e487]:
+        - paragraph [ref=e489]: Steps
+        - generic [ref=e492]:
+          - generic [ref=e494]:
+            - img [ref=e496]:
+              - generic [ref=e498]: "1"
+            - generic [ref=e501]: Export mapping options
+          - generic [ref=e505]:
+            - img [ref=e507]:
+              - generic [ref=e509]: "2"
+            - generic [ref=e511]: Locations
+          - generic [ref=e515]:
+            - img [ref=e517]:
+              - generic [ref=e519]: "3"
+            - generic [ref=e521]: Groups
+          - generic [ref=e525]:
+            - img [ref=e527]:
+              - generic [ref=e529]: "4"
+            - generic [ref=e531]: Start
+      - generic [ref=e532]:
+        - paragraph [ref=e534]: 1. Export mapping options
+        - generic [ref=e536]:
+          - generic [ref=e537]:
+            - generic [ref=e538]:
+              - generic [ref=e539]: File format
+              - generic [ref=e540]:
+                - combobox [ref=e541] [cursor=pointer]
+                - textbox
+                - img
+            - generic [ref=e542]:
+              - generic [ref=e543]: Mapping
+              - generic [ref=e544]:
+                - combobox [disabled] [ref=e545]
+                - textbox [disabled]
+                - img
+          - generic [ref=e547] [cursor=pointer]:
+            - generic [ref=e548]:
+              - checkbox "Export associated documents" [ref=e549]
+              - img [ref=e550]
+            - generic [ref=e553]: Export associated documents
+          - generic [ref=e554]:
+            - button "Next" [disabled]
+  - contentinfo [ref=e39]:
+    - text: © Seequent, the Bentley Subsurface Company |
+    - link "Attributions" [ref=e325] [cursor=pointer]:
+      - /url: /attributions
+    - text: "|"
+    - link "Terms of Use" [ref=e326] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+    - text: "|"
+    - link "Terms of Service" [ref=e327] [cursor=pointer]:
+      - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+    - text: "|"
+    - link "Privacy Policy" [ref=e328] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/privacy-policy/
+    - text: "|"
+    - link "Cookie Policy" [ref=e329] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/cookie-policy/
+    - text: "|"
+    - link "Legal Notices" [ref=e330] [cursor=pointer]:
+      - /url: https://connect.bentley.com/Legal

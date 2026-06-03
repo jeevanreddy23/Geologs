@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ruler, Edit3, Camera, Activity, FileText, CheckCircle, PlusCircle, AlertTriangle } from 'lucide-react';
+import { Ruler, Edit3, Camera, Activity, FileText, CheckCircle, PlusCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import DiscontinuityBuilder from './DiscontinuityBuilder';
 
 interface VerticalLoggingCanvasProps {
@@ -8,6 +8,7 @@ interface VerticalLoggingCanvasProps {
   logData: any[];
   setLogData: (data: any[]) => void;
   maxDepth?: number;
+  isProcessing?: boolean;
 }
 
 const VerticalLoggingCanvas: React.FC<VerticalLoggingCanvasProps> = ({ 
@@ -15,7 +16,8 @@ const VerticalLoggingCanvas: React.FC<VerticalLoggingCanvasProps> = ({
   visionData, 
   logData, 
   setLogData,
-  maxDepth = 10 
+  maxDepth = 10,
+  isProcessing = false
 }) => {
   const [activeBuilderRow, setActiveBuilderRow] = useState<number | null>(null);
 
@@ -72,9 +74,14 @@ const VerticalLoggingCanvas: React.FC<VerticalLoggingCanvasProps> = ({
 
           {/* TRACK 2: Core Photo */}
           <div className="w-48 flex-shrink-0 border-r border-slate-800 relative overflow-hidden bg-slate-900/20 p-2">
-            {photoUrl ? (
+            {isProcessing ? (
+               <div className="w-full h-full flex flex-col items-center justify-center text-cyan-500 border border-dashed border-cyan-900/50 rounded bg-slate-900/40">
+                  <Loader2 size={32} className="mb-2 opacity-80 animate-spin" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 animate-pulse text-center px-2">Slicing & Stitching Core Box...</span>
+               </div>
+            ) : photoUrl ? (
               <div className="w-full h-full relative rounded overflow-hidden shadow-2xl border border-slate-700/50">
-                 <img src={photoUrl} alt="Core" className="absolute top-0 left-0 w-full object-cover" style={{ minHeight: '100%' }} />
+                 <img src={photoUrl} alt="Core" className="absolute top-0 left-0 w-full object-fill" style={{ height: '100%' }} />
               </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 border border-dashed border-slate-700 rounded bg-slate-900/30">
@@ -86,7 +93,7 @@ const VerticalLoggingCanvas: React.FC<VerticalLoggingCanvasProps> = ({
 
           {/* TRACK 3: Lithology & Material */}
           <div className="flex-1 relative border-r border-slate-800 bg-slate-900/10">
-            {logData.length === 0 && (
+            {logData.length === 0 && !isProcessing && (
               <div className="absolute inset-0 flex items-center justify-center text-slate-600 italic">Generate AI Draft to populate...</div>
             )}
             {logData.map((row, idx) => {

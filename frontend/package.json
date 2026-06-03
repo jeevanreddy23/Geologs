@@ -16,9 +16,10 @@
     "axios": "^1.16.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^1.16.0",
+    "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-quick-pinch-zoom": "^5.1.1",
     "react-router-dom": "^7.15.0",
     "tailwind-merge": "^3.6.0"
   },

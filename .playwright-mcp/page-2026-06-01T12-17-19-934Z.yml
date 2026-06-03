@@ -1,0 +1,136 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+    - navigation [ref=e13]:
+      - link "Details" [ref=e280] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/details
+        - img [ref=e48]
+        - generic [ref=e51]: Details
+      - link "Explorer" [ref=e281] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/explorer
+        - img [ref=e54]
+        - generic [ref=e57]: Explorer
+      - link "Data Entry" [ref=e282] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/data-entry
+        - img [ref=e60]
+        - generic [ref=e63]: Data Entry
+      - link "Import" [ref=e283] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/import
+        - img [ref=e66]
+        - generic [ref=e74]: Import
+      - link "Export" [ref=e284] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/export
+        - img [ref=e77]
+        - generic [ref=e85]: Export
+      - link "Documents" [active] [ref=e285] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/documents
+        - img [ref=e88]
+        - generic [ref=e91]: Documents
+      - link "Map" [ref=e286] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/map
+        - img [ref=e94]
+        - generic [ref=e97]: Map
+      - link "Close Project" [ref=e287] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects
+        - img [ref=e100]
+        - generic [ref=e103]: Close Project
+    - navigation [ref=e16]:
+      - link "Help" [ref=e288] [cursor=pointer]:
+        - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+        - img [ref=e19]
+        - generic [ref=e22]: Help
+  - banner [ref=e23]:
+    - generic [ref=e27]:
+      - button [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+      - generic [ref=e104]:
+        - combobox "EIAustralia" [ref=e289] [cursor=pointer]
+        - textbox: australiaeast_c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad
+        - img
+      - button "User profile" [ref=e290] [cursor=pointer]:
+        - generic [ref=e107]: EO
+  - main [ref=e38]:
+    - generic [ref=e555]:
+      - heading "Geotechnical Investigation (32904/2014E-G)" [level=1] [ref=e557]
+      - generic [ref=e559]:
+        - heading "Documents" [level=3] [ref=e560]
+        - generic [ref=e563]:
+          - generic [ref=e565]:
+            - generic [ref=e566]:
+              - generic "Search" [ref=e567]:
+                - generic [ref=e568]:
+                  - img [ref=e569]
+                  - searchbox "Search…" [ref=e571]
+              - button "Show filters" [ref=e572] [cursor=pointer]:
+                - img [ref=e575]
+                - text: Filters
+            - generic [ref=e577]:
+              - button "Preview Document" [disabled]:
+                - generic: Preview Document
+          - grid [ref=e578]:
+            - row "Name Location ID File Name Extension File Size Description Uploaded On Status Category" [ref=e579]:
+              - columnheader "Name" [ref=e580] [cursor=pointer]:
+                - generic [ref=e582]: Name
+                - generic [ref=e583]:
+                  - img
+              - columnheader "Location ID" [ref=e584] [cursor=pointer]:
+                - generic [ref=e586]: Location ID
+                - generic [ref=e587]:
+                  - img
+              - columnheader "File Name" [ref=e588] [cursor=pointer]:
+                - generic [ref=e590]: File Name
+                - generic [ref=e591]:
+                  - img
+              - columnheader "Extension" [ref=e592] [cursor=pointer]:
+                - generic [ref=e594]: Extension
+                - generic [ref=e595]:
+                  - img
+              - columnheader "File Size" [ref=e596] [cursor=pointer]:
+                - generic [ref=e598]: File Size
+                - generic [ref=e599]:
+                  - img
+              - columnheader "Description" [ref=e600] [cursor=pointer]:
+                - generic [ref=e602]: Description
+                - generic [ref=e603]:
+                  - img
+              - columnheader "Uploaded On" [ref=e604] [cursor=pointer]:
+                - generic [ref=e606]: Uploaded On
+                - generic [ref=e607]:
+                  - img
+              - columnheader "Status" [ref=e608] [cursor=pointer]:
+                - generic [ref=e610]: Status
+                - generic [ref=e611]:
+                  - img
+              - columnheader "Category" [ref=e612] [cursor=pointer]:
+                - generic [ref=e614]: Category
+                - generic [ref=e615]:
+                  - img
+            - generic [ref=e617]:
+              - img [ref=e618]
+              - generic [ref=e634]: No documents uploaded yet
+            - rowgroup
+  - contentinfo [ref=e39]:
+    - text: © Seequent, the Bentley Subsurface Company |
+    - link "Attributions" [ref=e325] [cursor=pointer]:
+      - /url: /attributions
+    - text: "|"
+    - link "Terms of Use" [ref=e326] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+    - text: "|"
+    - link "Terms of Service" [ref=e327] [cursor=pointer]:
+      - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+    - text: "|"
+    - link "Privacy Policy" [ref=e328] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/privacy-policy/
+    - text: "|"
+    - link "Cookie Policy" [ref=e329] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/cookie-policy/
+    - text: "|"
+    - link "Legal Notices" [ref=e330] [cursor=pointer]:
+      - /url: https://connect.bentley.com/Legal

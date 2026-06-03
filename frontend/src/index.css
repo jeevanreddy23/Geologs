@@ -1,8 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 @config "../tailwind.config.js";
-
-
-
 
 :root {
   --bg-dark: #070709;
@@ -39,7 +37,19 @@ body {
 }
 
 .btn-primary {
-  @apply bg-sky-600 hover:bg-sky-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95;
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-2 rounded font-bold shadow-lg shadow-blue-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2;
+}
+
+.btn-success {
+  @apply bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+}
+
+.btn-danger {
+  @apply bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white shadow-lg shadow-red-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+}
+
+.btn-accent {
+  @apply bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white shadow-lg shadow-purple-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
 }
 
 .agent-node {

@@ -1,0 +1,208 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - banner [ref=e4]:
+        - generic [ref=e5]:
+          - link "Render" [ref=e7] [cursor=pointer]:
+            - /url: /
+            - img "Render" [ref=e8]
+          - button "M My Workspace" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - generic [ref=e14]: M
+              - generic "My Workspace" [ref=e15]
+              - img [ref=e16]
+        - generic [ref=e20]:
+          - navigation [ref=e21]:
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - link "Geologs" [ref=e24] [cursor=pointer]:
+                  - /url: /web/srv-d7543pidbo4c7396dgjg
+                  - img [ref=e25]
+                  - generic [ref=e27]: Geologs
+                - button [ref=e30] [cursor=pointer]:
+                  - img [ref=e31]
+          - button "Search Ctrl + K" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - text: Search
+            - generic [ref=e38]:
+              - img [ref=e39]
+              - generic [ref=e41]: Ctrl
+              - generic [ref=e42]: +
+              - generic [ref=e43]: K
+              - generic [ref=e44]: K
+        - generic [ref=e45]:
+          - button "New" [ref=e47] [cursor=pointer]:
+            - generic [ref=e48]:
+              - img [ref=e49]
+              - generic [ref=e51]: New
+          - button "Upgrade" [ref=e53] [cursor=pointer]:
+            - generic [ref=e54]:
+              - img [ref=e55]
+              - generic [ref=e57]: Upgrade
+          - button "Help" [ref=e59] [cursor=pointer]:
+            - img "Help" [ref=e60]
+          - button "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e65] [cursor=pointer]:
+            - img "Gravatar for poreddyjeevanreddy@gmail.com" [ref=e67]
+      - generic [ref=e68]:
+        - navigation [ref=e69]:
+          - separator [ref=e70]
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - link "Dashboard" [ref=e73] [cursor=pointer]:
+                - /url: /
+                - img [ref=e74]
+                - generic [ref=e76]: Dashboard
+              - generic [ref=e77]:
+                - img [ref=e78]
+                - generic [ref=e80]: Geologs
+            - generic [ref=e81]:
+              - list [ref=e82]:
+                - listitem [ref=e83]:
+                  - link "Events" [ref=e84] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/events
+                    - img [ref=e85]
+                    - generic [ref=e92]: Events
+                - listitem [ref=e93]:
+                  - link "Settings" [ref=e94] [cursor=pointer]:
+                    - /url: /web/srv-d7543pidbo4c7396dgjg/settings
+                    - img [ref=e95]
+                    - generic [ref=e98]: Settings
+              - generic [ref=e99]:
+                - generic [ref=e100]: Monitor
+                - list "Monitor" [ref=e101]:
+                  - listitem [ref=e102]:
+                    - link "Logs" [ref=e103] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/logs
+                      - img [ref=e104]
+                      - generic [ref=e109]: Logs
+                  - listitem [ref=e110]:
+                    - link "Metrics" [ref=e111] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/metrics
+                      - img [ref=e112]
+                      - generic [ref=e114]: Metrics
+              - generic [ref=e115]:
+                - generic [ref=e116]: Manage
+                - list "Manage" [ref=e117]:
+                  - listitem [ref=e118]:
+                    - link "Environment" [ref=e119] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/env
+                      - img [ref=e120]
+                      - generic [ref=e124]: Environment
+                  - listitem [ref=e125]:
+                    - link "Shell" [ref=e126] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/shell
+                      - img [ref=e127]
+                      - generic [ref=e130]: Shell
+                  - listitem [ref=e131]:
+                    - link "Scaling" [ref=e132] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/scaling
+                      - img [ref=e133]
+                      - generic [ref=e137]: Scaling
+                  - listitem [ref=e138]:
+                    - link "Previews" [ref=e139] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/previews
+                      - img [ref=e140]
+                      - generic [ref=e144]: Previews
+                  - listitem [ref=e145]:
+                    - link "Disk" [ref=e146] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/disks
+                      - img [ref=e147]
+                      - generic [ref=e151]: Disk
+                  - listitem [ref=e152]:
+                    - link "One-Off Jobs" [ref=e153] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/jobs
+                      - img [ref=e154]
+                      - generic [ref=e159]: One-Off Jobs
+          - generic [ref=e160]:
+            - alert [ref=e161]:
+              - img [ref=e163]
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - generic [ref=e169]: New plans, zero seat fees
+                  - generic [ref=e170]: We're updating workspace pricing to help teams grow faster. No seat fees, more self-serve features, granular bandwidth billing, and more.
+                - link "Opt-in early" [ref=e172] [cursor=pointer]:
+                  - /url: /billing/update-plan
+              - button "Close notification" [ref=e173] [cursor=pointer]:
+                - img [ref=e174]
+            - generic [ref=e176]:
+              - button "Collapse items" [expanded] [ref=e177] [cursor=pointer]:
+                - img [ref=e178]
+              - list "Footer navigation" [ref=e180]:
+                - listitem [ref=e181]:
+                  - link "Changelog" [ref=e182] [cursor=pointer]:
+                    - /url: https://render.com/changelog
+                    - img [ref=e183]
+                    - generic [ref=e188]: Changelog
+                - listitem [ref=e189]:
+                  - link "Invite a friend" [ref=e190] [cursor=pointer]:
+                    - /url: /invites
+                    - img [ref=e191]
+                    - generic [ref=e193]: Invite a friend
+                - listitem [ref=e194]:
+                  - button "Contact support" [ref=e195] [cursor=pointer]:
+                    - img [ref=e196]
+                    - generic [ref=e200]: Contact support
+              - link "Render Status" [ref=e202] [cursor=pointer]:
+                - /url: https://status.render.com
+                - img [ref=e203]
+                - generic [ref=e205]: Render Status
+        - generic [ref=e207]:
+          - banner [ref=e209]:
+            - generic [ref=e210]:
+              - generic [ref=e211]:
+                - img [ref=e212]
+                - generic [ref=e214]: Web Service
+              - generic [ref=e215]:
+                - heading "Geologs Node Starter" [level=1] [ref=e217]:
+                  - generic [ref=e218]: Geologs
+                  - generic [ref=e219]:
+                    - generic [ref=e220]: Node
+                    - link "Starter" [ref=e221] [cursor=pointer]:
+                      - /url: /web/srv-d7543pidbo4c7396dgjg/plan
+                      - generic [ref=e222]: Starter
+                - generic [ref=e224]:
+                  - button "Connect" [ref=e225] [cursor=pointer]:
+                    - generic [ref=e226]: Connect
+                    - img [ref=e227]
+                  - button "Manual Deploy" [ref=e229] [cursor=pointer]:
+                    - generic [ref=e230]: Manual Deploy
+                    - img [ref=e231]
+            - generic [ref=e235]:
+              - generic [ref=e237]:
+                - generic [ref=e238]: "Service ID:"
+                - generic "Service ID:" [ref=e239]:
+                  - generic [ref=e240]: srv-d7543pidbo4c7396dgjg
+                  - button "Copy" [ref=e243] [cursor=pointer]:
+                    - img [ref=e244]
+              - generic [ref=e248]:
+                - img "GitHub" [ref=e250]
+                - link "jeevanreddy23 / Auto-Soil-Logger-Project-1 main" [ref=e252] [cursor=pointer]:
+                  - /url: https://github.com/jeevanreddy23/Auto-Soil-Logger-Project-1/tree/main
+                  - generic [ref=e253]:
+                    - generic [ref=e254]: jeevanreddy23 / Auto-Soil-Logger-Project-1
+                    - img [ref=e255]
+                    - generic [ref=e257]: main
+              - generic "Copy" [ref=e259]:
+                - link "https://geologs-hpcd.onrender.com" [ref=e261] [cursor=pointer]:
+                  - /url: https://geologs-hpcd.onrender.com
+                - button "Copy" [ref=e264] [cursor=pointer]:
+                  - img [ref=e265]
+          - main
+    - generic:
+      - generic:
+        - generic: "0 services selected:"
+        - generic:
+          - generic:
+            - button:
+              - generic:
+                - img
+              - generic: Move
+              - img
+      - generic:
+        - separator
+        - generic:
+          - generic:
+            - button:
+              - img
+  - iframe [ref=e268]:
+    

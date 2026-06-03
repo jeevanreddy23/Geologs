@@ -1,0 +1,139 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+    - navigation [ref=e13]:
+      - link "Details" [ref=e280] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/details
+        - img [ref=e48]
+        - generic [ref=e51]: Details
+      - link "Explorer" [ref=e281] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/explorer
+        - img [ref=e54]
+        - generic [ref=e57]: Explorer
+      - link "Data Entry" [ref=e282] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/data-entry
+        - img [ref=e60]
+        - generic [ref=e63]: Data Entry
+      - link "Import" [active] [ref=e283] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/import
+        - img [ref=e66]
+        - generic [ref=e74]: Import
+      - link "Export" [ref=e284] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/export
+        - img [ref=e77]
+        - generic [ref=e85]: Export
+      - link "Documents" [ref=e285] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/documents
+        - img [ref=e88]
+        - generic [ref=e91]: Documents
+      - link "Map" [ref=e286] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/map
+        - img [ref=e94]
+        - generic [ref=e97]: Map
+      - link "Close Project" [ref=e287] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects
+        - img [ref=e100]
+        - generic [ref=e103]: Close Project
+    - navigation [ref=e16]:
+      - link "Help" [ref=e288] [cursor=pointer]:
+        - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+        - img [ref=e19]
+        - generic [ref=e22]: Help
+  - banner [ref=e23]:
+    - generic [ref=e27]:
+      - button [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+      - generic [ref=e104]:
+        - combobox "EIAustralia" [ref=e289] [cursor=pointer]
+        - textbox: australiaeast_c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad
+        - img
+      - button "User profile" [ref=e290] [cursor=pointer]:
+        - generic [ref=e107]: EO
+  - main [ref=e38]:
+    - generic [ref=e371]:
+      - generic [ref=e372]:
+        - paragraph [ref=e374]: Steps
+        - generic [ref=e377]:
+          - generic [ref=e379]:
+            - img [ref=e381]:
+              - generic [ref=e383]: "1"
+            - generic [ref=e386]: Choose File
+          - generic [ref=e390]:
+            - img [ref=e392]:
+              - generic [ref=e394]: "2"
+            - generic [ref=e396]: Status
+          - generic [ref=e400]:
+            - img [ref=e402]:
+              - generic [ref=e404]: "3"
+            - generic [ref=e406]: Locations
+          - generic [ref=e410]:
+            - img [ref=e412]:
+              - generic [ref=e414]: "4"
+            - generic [ref=e416]: Groups
+          - generic [ref=e420]:
+            - img [ref=e422]:
+              - generic [ref=e424]: "5"
+            - generic [ref=e426]: Start
+          - generic [ref=e430]:
+            - img [ref=e432]:
+              - generic [ref=e434]: "6"
+            - generic [ref=e436]: Import
+      - generic [ref=e437]:
+        - paragraph [ref=e439]: 1. Choose File
+        - generic [ref=e441]:
+          - region "File upload drop zone" [ref=e442]:
+            - generic [ref=e443]:
+              - img [ref=e444]
+              - paragraph [ref=e460]:
+                - text: Drop files here to upload, or
+                - button "click here to browse" [ref=e461] [cursor=pointer]
+              - paragraph [ref=e462]: "Note: maximum file size is 100 MB."
+          - generic [ref=e463]:
+            - generic [ref=e464]:
+              - generic [ref=e465]:
+                - generic [ref=e466]: File format
+                - generic [ref=e467]:
+                  - combobox [ref=e468] [cursor=pointer]
+                  - textbox
+                  - img
+              - generic [ref=e469]:
+                - generic [ref=e470]: Mapping
+                - generic [ref=e471]:
+                  - combobox [disabled] [ref=e472]
+                  - textbox [disabled]
+                  - img
+            - generic [ref=e474] [cursor=pointer]:
+              - generic [ref=e475]:
+                - checkbox "Overwrite with blank values Select this if your import file(s) contains all fields including blank values that you want to use to replace existing data in your project with." [ref=e476]
+                - img [ref=e477]
+              - generic [ref=e480]:
+                - text: Overwrite with blank values
+                - button "Select this if your import file(s) contains all fields including blank values that you want to use to replace existing data in your project with." [ref=e481]:
+                  - img [ref=e482]
+            - generic [ref=e484]:
+              - button "Next" [disabled]
+  - contentinfo [ref=e39]:
+    - text: © Seequent, the Bentley Subsurface Company |
+    - link "Attributions" [ref=e325] [cursor=pointer]:
+      - /url: /attributions
+    - text: "|"
+    - link "Terms of Use" [ref=e326] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+    - text: "|"
+    - link "Terms of Service" [ref=e327] [cursor=pointer]:
+      - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+    - text: "|"
+    - link "Privacy Policy" [ref=e328] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/privacy-policy/
+    - text: "|"
+    - link "Cookie Policy" [ref=e329] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/cookie-policy/
+    - text: "|"
+    - link "Legal Notices" [ref=e330] [cursor=pointer]:
+      - /url: https://connect.bentley.com/Legal

@@ -1,0 +1,30 @@
+def calculate_metrics(calibrated_rows, core_segments, defects):
+    """
+    Calculate TCR %, RQD %, fracture count
+    """
+    recovery = []
+    
+    for r in calibrated_rows:
+        row_segments = [s for s in core_segments if s["row_id"] == r["row_id"]]
+        row_defects = [d for d in defects if r["from"] <= d["depth"] <= r["to"]]
+        
+        # TCR: total core recovered / run length
+        total_length = sum(s["length_m"] for s in row_segments)
+        tcr = int((total_length / (r["to"] - r["from"])) * 100)
+        tcr = min(tcr, 100) # Cap at 100
+        
+        # RQD: sum of intact pieces > 100mm / run length
+        solid_length = sum(s["length_m"] for s in row_segments if s["length_m"] >= 0.1)
+        rqd = int((solid_length / (r["to"] - r["from"])) * 100)
+        rqd = min(rqd, 100)
+        
+        recovery.append({
+            "from": r["from"],
+            "to": r["to"],
+            "tcr_percent": tcr,
+            "rqd_percent": rqd,
+            "fracture_count": len(row_defects),
+            "approved": False
+        })
+        
+    return recovery

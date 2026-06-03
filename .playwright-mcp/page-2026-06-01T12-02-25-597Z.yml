@@ -1,0 +1,810 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+    - navigation [ref=e13]:
+      - link "Details" [ref=e1519] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/details
+        - img [ref=e1521]
+        - generic [ref=e1524]: Details
+      - link "Explorer" [ref=e1525] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/explorer
+        - img [ref=e1527]
+        - generic [ref=e1530]: Explorer
+      - link "Data Entry" [ref=e1531] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/data-entry
+        - img [ref=e1533]
+        - generic [ref=e1536]: Data Entry
+      - link "Import" [ref=e1537] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/import
+        - img [ref=e1539]
+        - generic [ref=e1547]: Import
+      - link "Export" [ref=e1548] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/export
+        - img [ref=e1550]
+        - generic [ref=e1558]: Export
+      - link "Documents" [ref=e1559] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/documents
+        - img [ref=e1561]
+        - generic [ref=e1564]: Documents
+      - link "Map" [ref=e1565] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects/abe8c175-c4a4-4d71-9f59-1424dc9aae4e/map
+        - img [ref=e1567]
+        - generic [ref=e1570]: Map
+      - link "Close Project" [ref=e1571] [cursor=pointer]:
+        - /url: /clouds/australiaeast/c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad/projects
+        - img [ref=e1573]
+        - generic [ref=e1576]: Close Project
+    - navigation [ref=e20]:
+      - link "Help" [ref=e21] [cursor=pointer]:
+        - /url: https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0035844
+        - img [ref=e23]
+        - generic [ref=e26]: Help
+  - banner [ref=e27]:
+    - generic [ref=e31]:
+      - button [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+      - generic [ref=e38]:
+        - combobox "EIAustralia" [ref=e39] [cursor=pointer]
+        - textbox: australiaeast_c2f9efd6-1a3c-4dc4-8bfd-c47c66ef6fad
+        - img
+      - button "User profile" [ref=e41] [cursor=pointer]:
+        - generic [ref=e42]: EO
+  - main [ref=e43]:
+    - generic [ref=e1577]:
+      - heading "Geotechnical Investigation (32904/2014E-G)" [level=1] [ref=e1579]
+      - generic [ref=e1580]:
+        - generic [ref=e1581]:
+          - heading "Project Explorer" [level=3] [ref=e1583]
+          - generic [ref=e1584]:
+            - generic [ref=e1586]:
+              - generic: Search
+              - generic [ref=e1587]:
+                - textbox "Search" [ref=e1588]
+                - img [ref=e1589]
+            - tree [ref=e1594]:
+              - treeitem "Summary" [expanded] [ref=e1595]:
+                - generic [ref=e1596] [cursor=pointer]:
+                  - img [ref=e3489]
+                  - generic [ref=e1601]:
+                    - img [ref=e1602]
+                    - paragraph [ref=e1615]: Summary
+                - group [ref=e3491]:
+                  - generic [ref=e3493]:
+                    - treeitem "Location Details (15)" [expanded] [ref=e3494]:
+                      - generic [ref=e3495] [cursor=pointer]:
+                        - img [ref=e3497]
+                        - generic [ref=e3501]:
+                          - img [ref=e3502]
+                          - paragraph [ref=e3521]:
+                            - text: Location Details
+                            - generic [ref=e3522]: (15)
+                      - group [ref=e3523]:
+                        - treeitem "Shift (0)" [ref=e3526]:
+                          - generic [ref=e3530] [cursor=pointer]:
+                            - img [ref=e3531]
+                            - paragraph [ref=e3550]:
+                              - text: Shift
+                              - generic [ref=e3551]: (0)
+                          - group
+                    - treeitem "Geological Information" [expanded] [ref=e3552]:
+                      - generic [ref=e3553] [cursor=pointer]:
+                        - img [ref=e3753]
+                        - generic [ref=e3558]:
+                          - img [ref=e3559]
+                          - paragraph [ref=e3572]: Geological Information
+                      - group [ref=e3755]:
+                        - generic [ref=e3757]:
+                          - treeitem "Discontinuity Data (345)" [ref=e3758]:
+                            - generic [ref=e3762] [cursor=pointer]:
+                              - img [ref=e3763]
+                              - paragraph [ref=e3782]:
+                                - text: Discontinuity Data
+                                - generic [ref=e3783]: (345)
+                            - group
+                          - treeitem "Field Geological Descriptions (98)" [selected] [ref=e3784]:
+                            - generic [ref=e3788] [cursor=pointer]:
+                              - img [ref=e3789]
+                              - paragraph [ref=e3808]:
+                                - text: Field Geological Descriptions
+                                - generic [ref=e3809]: (98)
+                            - group
+                          - treeitem "Fracture Spacing (111)" [ref=e3810]:
+                            - generic [ref=e3814] [cursor=pointer]:
+                              - img [ref=e3815]
+                              - paragraph [ref=e3834]:
+                                - text: Fracture Spacing
+                                - generic [ref=e3835]: (111)
+                            - group
+                          - treeitem "Rock Strength (58)" [ref=e3836]:
+                            - generic [ref=e3840] [cursor=pointer]:
+                              - img [ref=e3841]
+                              - paragraph [ref=e3860]:
+                                - text: Rock Strength
+                                - generic [ref=e3861]: (58)
+                            - group
+                          - treeitem "Soil Consistency (39)" [ref=e3862]:
+                            - generic [ref=e3866] [cursor=pointer]:
+                              - img [ref=e3867]
+                              - paragraph [ref=e3886]:
+                                - text: Soil Consistency
+                                - generic [ref=e3887]: (39)
+                            - group
+                          - treeitem "Soil Moisture Condition (50)" [ref=e3888]:
+                            - generic [ref=e3892] [cursor=pointer]:
+                              - img [ref=e3893]
+                              - paragraph [ref=e3912]:
+                                - text: Soil Moisture Condition
+                                - generic [ref=e3913]: (50)
+                            - group
+                          - treeitem "Weathering (50)" [ref=e3914]:
+                            - generic [ref=e3918] [cursor=pointer]:
+                              - img [ref=e3919]
+                              - paragraph [ref=e3938]:
+                                - text: Weathering
+                                - generic [ref=e3939]: (50)
+                            - group
+                    - treeitem "Hole Construction" [ref=e3573]:
+                      - generic [ref=e3574] [cursor=pointer]:
+                        - img [ref=e3576]
+                        - generic [ref=e3579]:
+                          - img [ref=e3580]
+                          - paragraph [ref=e3593]: Hole Construction
+                    - treeitem "Insitu Tests" [ref=e3594]:
+                      - generic [ref=e3595] [cursor=pointer]:
+                        - img [ref=e3597]
+                        - generic [ref=e3600]:
+                          - img [ref=e3601]
+                          - paragraph [ref=e3614]: Insitu Tests
+                    - treeitem "Monitoring" [ref=e3615]:
+                      - generic [ref=e3616] [cursor=pointer]:
+                        - img [ref=e3618]
+                        - generic [ref=e3621]:
+                          - img [ref=e3622]
+                          - paragraph [ref=e3635]: Monitoring
+                    - treeitem "Samples and Lab Tests" [ref=e3636]:
+                      - generic [ref=e3637] [cursor=pointer]:
+                        - img [ref=e3639]
+                        - generic [ref=e3642]:
+                          - img [ref=e3643]
+                          - paragraph [ref=e3656]: Samples and Lab Tests
+              - treeitem "Reports" [expanded] [ref=e1782]:
+                - generic [ref=e1783] [cursor=pointer]:
+                  - img [ref=e3657]
+                  - generic [ref=e1788]:
+                    - img [ref=e1789]
+                    - paragraph [ref=e1802]: Reports
+                - group [ref=e3659]:
+                  - generic [ref=e3661]:
+                    - treeitem "Geology" [ref=e3662]:
+                      - generic [ref=e3663] [cursor=pointer]:
+                        - img [ref=e3665]
+                        - generic [ref=e3668]:
+                          - img [ref=e3669]
+                          - paragraph [ref=e3682]: Geology
+                    - treeitem "Statistics" [ref=e3683]:
+                      - generic [ref=e3684] [cursor=pointer]:
+                        - img [ref=e3686]
+                        - generic [ref=e3689]:
+                          - img [ref=e3690]
+                          - paragraph [ref=e3703]: Statistics
+                    - treeitem "Summary" [ref=e3704]:
+                      - generic [ref=e3705] [cursor=pointer]:
+                        - img [ref=e3707]
+                        - generic [ref=e3710]:
+                          - img [ref=e3711]
+                          - paragraph [ref=e3724]: Summary
+                    - treeitem "Validation" [ref=e3725]:
+                      - generic [ref=e3726] [cursor=pointer]:
+                        - img [ref=e3728]
+                        - generic [ref=e3731]:
+                          - img [ref=e3732]
+                          - paragraph [ref=e3745]: Validation
+              - treeitem "Sections" [ref=e1890]:
+                - generic [ref=e1891] [cursor=pointer]:
+                  - img [ref=e1893]
+                  - generic [ref=e1896]:
+                    - img [ref=e1897]
+                    - paragraph [ref=e1910]: Sections
+        - generic [ref=e1911]:
+          - button [ref=e1912] [cursor=pointer]:
+            - img [ref=e1913]
+          - img [ref=e1916]
+        - generic [ref=e4304]:
+          - heading "Field Geological Descriptions" [level=3] [ref=e4306]
+          - generic [ref=e4310]:
+            - generic [ref=e4311]:
+              - generic [ref=e4313]:
+                - generic "Rows per page" [ref=e4315]:
+                  - combobox [ref=e4316] [cursor=pointer]: "100"
+                  - textbox: "100"
+                  - img
+                - button "Previous page" [disabled]:
+                  - img
+                - button "Next page" [disabled]:
+                  - img
+                - paragraph [ref=e4317]: 1 - 98 / 98
+              - generic [ref=e4320]:
+                - generic [ref=e4321]: Location
+                - generic [ref=e4322]:
+                  - combobox "Location" [ref=e4323]: All Locations
+                  - button "Open" [ref=e4325] [cursor=pointer]:
+                    - img [ref=e4326]
+                  - group:
+                    - generic: Location
+              - group [ref=e4331]:
+                - button "Edit" [ref=e4332] [cursor=pointer]: Edit
+              - button "Refresh grid" [ref=e4333] [cursor=pointer]:
+                - img [ref=e4334]
+              - button "Export" [ref=e4336] [cursor=pointer]:
+                - img [ref=e4338]
+                - text: Export
+              - group [ref=e4340]:
+                - button "Change grid density to compact" [ref=e4341] [cursor=pointer]:
+                  - img [ref=e4342]
+                - button "Change grid density to standard" [disabled] [pressed]:
+                  - img
+                - button "Change grid density to comfortable" [ref=e4344] [cursor=pointer]:
+                  - img [ref=e4345]
+            - grid [ref=e4347]:
+              - row "Location ID Depth Top (m) Depth Base (m) Sublayer Depth Base (m) Boundary Type Color Code Primary Soil Name Secondary Soil Component Classification Group Symbol Soil Plasticity Range Particles Colour and Minor Components Origin Odour Remarks Origin 1 Qualifier FirstCoringEntry Shift End Depth (m) Coring Start Depth (m) Coring End Depth (m) Legend Code Sand or Gravel Grading (-) Auger End Depth Stratum Reference Alt Origin Text Proportion MaxCoringDepth (m)" [ref=e4348]:
+                - columnheader [ref=e4349]:
+                  - img [ref=e4353]
+                - columnheader "Location ID" [ref=e4355] [cursor=pointer]:
+                  - generic [ref=e4357]: Location ID
+                  - generic [ref=e4358]:
+                    - img
+                - columnheader "Depth Top (m)" [ref=e4359] [cursor=pointer]:
+                  - generic [ref=e4361]:
+                    - text: Depth Top
+                    - text: (m)
+                  - generic [ref=e4362]:
+                    - img
+                - columnheader "Depth Base (m)" [ref=e4363] [cursor=pointer]:
+                  - generic [ref=e4365]:
+                    - text: Depth Base
+                    - text: (m)
+                  - generic [ref=e4366]:
+                    - img
+                - columnheader "Sublayer Depth Base (m)" [ref=e4367] [cursor=pointer]:
+                  - generic [ref=e4369]:
+                    - text: Sublayer Depth Base
+                    - text: (m)
+                  - generic [ref=e4370]:
+                    - img
+                - columnheader "Boundary" [ref=e4371] [cursor=pointer]:
+                  - generic [ref=e4373]: Boundary
+                  - generic [ref=e4374]:
+                    - img
+                - columnheader "Type" [ref=e4375] [cursor=pointer]:
+                  - generic [ref=e4377]: Type
+                  - generic [ref=e4378]:
+                    - img
+                - columnheader "Color Code" [ref=e4379] [cursor=pointer]:
+                  - generic [ref=e4381]: Color Code
+                  - generic [ref=e4382]:
+                    - img
+                - columnheader "Primary Soil Name" [ref=e4383] [cursor=pointer]:
+                  - generic [ref=e4385]: Primary Soil Name
+                  - generic [ref=e4386]:
+                    - img
+                - columnheader "Secondary Soil Component" [ref=e4387] [cursor=pointer]:
+                  - generic [ref=e4389]: Secondary Soil Component
+                  - generic [ref=e4390]:
+                    - img
+                - columnheader "Classification Group Symbol" [ref=e4391] [cursor=pointer]:
+                  - generic [ref=e4393]: Classification Group Symbol
+                  - generic [ref=e4394]:
+                    - img
+                - columnheader "Soil Plasticity Range" [ref=e4395] [cursor=pointer]:
+                  - generic [ref=e4397]: Soil Plasticity Range
+                  - generic [ref=e4398]:
+                    - img
+                - columnheader "Particles Colour and Minor Components" [ref=e4399] [cursor=pointer]:
+                  - generic [ref=e4401]: Particles Colour and Minor Components
+                  - generic [ref=e4402]:
+                    - img
+                - columnheader "Origin" [ref=e4403] [cursor=pointer]:
+                  - generic [ref=e4405]: Origin
+                  - generic [ref=e4406]:
+                    - img
+                - columnheader "Odour" [ref=e4407] [cursor=pointer]:
+                  - generic [ref=e4409]: Odour
+                  - generic [ref=e4410]:
+                    - img
+                - columnheader "Remarks" [ref=e4411] [cursor=pointer]:
+                  - generic [ref=e4413]: Remarks
+                  - generic [ref=e4414]:
+                    - img
+                - columnheader "Origin 1 Qualifier" [ref=e4415] [cursor=pointer]:
+                  - generic [ref=e4417]: Origin 1 Qualifier
+                  - generic [ref=e4418]:
+                    - img
+                - columnheader "FirstCoringEntry" [ref=e4419] [cursor=pointer]:
+                  - generic [ref=e4421]: FirstCoringEntry
+                  - generic [ref=e4422]:
+                    - img
+                - columnheader "Shift End Depth (m)" [ref=e4423] [cursor=pointer]:
+                  - generic [ref=e4425]:
+                    - text: Shift End Depth
+                    - text: (m)
+                  - generic [ref=e4426]:
+                    - img
+                - columnheader "Coring Start Depth (m)" [ref=e4427] [cursor=pointer]:
+                  - generic [ref=e4429]:
+                    - text: Coring Start Depth
+                    - text: (m)
+                  - generic [ref=e4430]:
+                    - img
+                - columnheader "Coring End Depth (m)" [ref=e4431] [cursor=pointer]:
+                  - generic [ref=e4433]:
+                    - text: Coring End Depth
+                    - text: (m)
+                  - generic [ref=e4434]:
+                    - img
+                - columnheader "Legend Code" [ref=e4435] [cursor=pointer]:
+                  - generic [ref=e4437]: Legend Code
+                  - generic [ref=e4438]:
+                    - img
+                - columnheader "Sand or Gravel Grading (-)" [ref=e4439] [cursor=pointer]:
+                  - generic [ref=e4441]:
+                    - text: Sand or Gravel Grading
+                    - text: (-)
+                  - generic [ref=e4442]:
+                    - img
+                - columnheader "Auger End Depth" [ref=e4443] [cursor=pointer]:
+                  - generic [ref=e4445]: Auger End Depth
+                  - generic [ref=e4446]:
+                    - img
+                - columnheader "Stratum Reference" [ref=e4447] [cursor=pointer]:
+                  - generic [ref=e4449]: Stratum Reference
+                  - generic [ref=e4450]:
+                    - img
+                - columnheader "Alt Origin Text" [ref=e4451] [cursor=pointer]:
+                  - generic [ref=e4453]: Alt Origin Text
+                  - generic [ref=e4454]:
+                    - img
+                - columnheader "Proportion" [ref=e4455] [cursor=pointer]:
+                  - generic [ref=e4457]: Proportion
+                  - generic [ref=e4458]:
+                    - img
+                - columnheader "MaxCoringDepth (m)" [ref=e4459] [cursor=pointer]:
+                  - generic [ref=e4461]:
+                    - text: MaxCoringDepth
+                    - text: (m)
+                  - generic [ref=e4462]:
+                    - img
+                - columnheader [ref=e4463]:
+                  - img [ref=e4465]
+              - rowgroup [ref=e4467]:
+                - row [ref=e4468]:
+                  - gridcell [ref=e4469]
+                  - gridcell [ref=e4471]
+                  - gridcell [ref=e4472]
+                  - gridcell [ref=e4473]
+                  - gridcell [ref=e4474]
+                  - gridcell [ref=e4475]
+                  - gridcell [ref=e4476]
+                  - gridcell [ref=e4477]
+                  - gridcell [ref=e4478]
+                  - gridcell [ref=e4479]
+                  - gridcell [ref=e4480]
+                  - gridcell [ref=e4481]
+                  - gridcell [ref=e4482]
+                  - gridcell [ref=e4483]
+                  - gridcell [ref=e4484]
+                  - gridcell [ref=e4485]
+                  - gridcell [ref=e4486]
+                  - gridcell [ref=e4487]
+                  - gridcell [ref=e4488]
+                  - gridcell [ref=e4489]
+                  - gridcell [ref=e4490]
+                  - gridcell [ref=e4491]
+                  - gridcell [ref=e4492]
+                  - gridcell [ref=e4493]
+                  - gridcell [ref=e4494]
+                  - gridcell [ref=e4495]
+                  - gridcell [ref=e4496]
+                  - gridcell [ref=e4497]
+                  - gridcell [ref=e4498]:
+                    - menu [ref=e4499]:
+                      - menuitem "Delete" [ref=e4500] [cursor=pointer]:
+                        - img [ref=e4501]
+                - row "MP4-BH1 0.00 0.40 0 N SAND Gravelly - fine to medium grained, grey; medium to coarse grained, angular to sub-angular gravel. FILL FILL P 400" [ref=e4503]:
+                  - gridcell [ref=e4504]
+                  - gridcell "MP4-BH1" [ref=e4506]:
+                    - generic "MP4-BH1" [ref=e4507]:
+                      - generic [ref=e4508]: MP4-BH1
+                  - gridcell "0.00" [ref=e4509]:
+                    - generic "0.00" [ref=e4510]:
+                      - generic [ref=e4511]: "0.00"
+                  - gridcell "0.40" [ref=e4512]:
+                    - generic "0.40" [ref=e4513]:
+                      - generic [ref=e4514]: "0.40"
+                  - gridcell [ref=e4515]
+                  - gridcell "0" [ref=e4516]:
+                    - generic "0" [ref=e4517]:
+                      - generic "0 Solid - well defined boundary" [ref=e4518]:
+                        - generic [ref=e4520]: "0"
+                  - gridcell "N" [ref=e4521]:
+                    - generic "N" [ref=e4522]:
+                      - generic "N Soil" [ref=e4523]:
+                        - generic [ref=e4525]: "N"
+                  - gridcell [ref=e4526]
+                  - gridcell "SAND" [ref=e4527]:
+                    - generic "SAND" [ref=e4528]:
+                      - generic "SAND sand, 0.075 - 2.1 mm" [ref=e4529]:
+                        - generic [ref=e4531]: SAND
+                  - gridcell "Gravelly" [ref=e4532]:
+                    - generic "Gravelly" [ref=e4533]:
+                      - generic "Gravelly Particle size 2.36 - 63 mm, >30% of total soils by weight" [ref=e4534]:
+                        - generic [ref=e4536]: Gravelly
+                  - gridcell "-" [ref=e4537]:
+                    - generic "-" [ref=e4538]:
+                      - generic "- No Symbol" [ref=e4539]:
+                        - generic [ref=e4541]: "-"
+                  - gridcell [ref=e4542]
+                  - gridcell "fine to medium grained, grey; medium to coarse grained, angular to sub-angular gravel." [ref=e4543]:
+                    - generic "fine to medium grained, grey; medium to coarse grained, angular to sub-angular gravel." [ref=e4544]:
+                      - generic [ref=e4545]: fine to medium grained, grey; medium to coarse grained, angular to sub-angular gravel.
+                  - gridcell "FILL" [ref=e4546]:
+                    - generic "FILL" [ref=e4547]:
+                      - generic "FILL fill" [ref=e4548]:
+                        - generic [ref=e4550]: FILL
+                  - gridcell [ref=e4551]
+                  - gridcell [ref=e4552]
+                  - gridcell [ref=e4553]
+                  - gridcell [ref=e4554]
+                  - gridcell [ref=e4555]
+                  - gridcell [ref=e4556]
+                  - gridcell [ref=e4557]
+                  - gridcell "FILL" [ref=e4558]:
+                    - generic "FILL" [ref=e4559]:
+                      - generic "FILL FILL" [ref=e4560]:
+                        - generic [ref=e4563]: FILL
+                  - gridcell "P" [ref=e4564]:
+                    - generic "P" [ref=e4565]:
+                      - generic "P Poorly Graded" [ref=e4566]:
+                        - generic [ref=e4568]: P
+                  - gridcell [ref=e4569]
+                  - gridcell [ref=e4570]
+                  - gridcell [ref=e4571]
+                  - gridcell "400" [ref=e4572]:
+                    - generic "400" [ref=e4573]:
+                      - generic [ref=e4574]: "400"
+                  - gridcell [ref=e4575]
+                  - gridcell [ref=e4576]:
+                    - menu [ref=e4577]:
+                      - menuitem "Delete" [ref=e4578] [cursor=pointer]:
+                        - img [ref=e4579]
+                - row "MP4-BH1 0.40 1.20 0 N CLAY Silty - medium to high reddish brown, mottled grey, trace fine to medium, angular to sub-rounded Gravel. FILL FILL Y 800" [ref=e4581]:
+                  - gridcell [ref=e4582]
+                  - gridcell "MP4-BH1" [ref=e4584]:
+                    - generic "MP4-BH1" [ref=e4585]:
+                      - generic [ref=e4586]: MP4-BH1
+                  - gridcell "0.40" [ref=e4587]:
+                    - generic "0.40" [ref=e4588]:
+                      - generic [ref=e4589]: "0.40"
+                  - gridcell "1.20" [ref=e4590]:
+                    - generic "1.20" [ref=e4591]:
+                      - generic [ref=e4592]: "1.20"
+                  - gridcell [ref=e4593]
+                  - gridcell "0" [ref=e4594]:
+                    - generic "0" [ref=e4595]:
+                      - generic "0 Solid - well defined boundary" [ref=e4596]:
+                        - generic [ref=e4598]: "0"
+                  - gridcell "N" [ref=e4599]:
+                    - generic "N" [ref=e4600]:
+                      - generic "N Soil" [ref=e4601]:
+                        - generic [ref=e4603]: "N"
+                  - gridcell [ref=e4604]
+                  - gridcell "CLAY" [ref=e4605]:
+                    - generic "CLAY" [ref=e4606]:
+                      - generic "CLAY clay, <0.002 mm" [ref=e4607]:
+                        - generic [ref=e4609]: CLAY
+                  - gridcell "Silty" [ref=e4610]:
+                    - generic "Silty" [ref=e4611]:
+                      - generic "Silty Individual particles are not visible, no plasticity (can't be moulded and will stain your hands when wet), >12% of total soils by weight" [ref=e4612]:
+                        - generic [ref=e4614]: Silty
+                  - gridcell "-" [ref=e4615]:
+                    - generic "-" [ref=e4616]:
+                      - generic "- No Symbol" [ref=e4617]:
+                        - generic [ref=e4619]: "-"
+                  - gridcell "medium to high" [ref=e4620]:
+                    - generic "medium to high" [ref=e4621]:
+                      - generic "medium to high medium to high" [ref=e4622]:
+                        - generic [ref=e4624]: medium to high
+                  - gridcell "reddish brown, mottled grey, trace fine to medium, angular to sub-rounded Gravel." [ref=e4625]:
+                    - generic "reddish brown, mottled grey, trace fine to medium, angular to sub-rounded Gravel." [ref=e4626]:
+                      - generic [ref=e4627]: reddish brown, mottled grey, trace fine to medium, angular to sub-rounded Gravel.
+                  - gridcell "FILL" [ref=e4628]:
+                    - generic "FILL" [ref=e4629]:
+                      - generic "FILL fill" [ref=e4630]:
+                        - generic [ref=e4632]: FILL
+                  - gridcell [ref=e4633]
+                  - gridcell [ref=e4634]
+                  - gridcell [ref=e4635]
+                  - gridcell [ref=e4636]
+                  - gridcell [ref=e4637]
+                  - gridcell [ref=e4638]
+                  - gridcell [ref=e4639]
+                  - gridcell "FILL" [ref=e4640]:
+                    - generic "FILL" [ref=e4641]:
+                      - generic "FILL FILL" [ref=e4642]:
+                        - generic [ref=e4645]: FILL
+                  - gridcell [ref=e4646]
+                  - gridcell [ref=e4647]
+                  - gridcell "Y" [ref=e4648]:
+                    - generic "Y" [ref=e4649]:
+                      - generic [ref=e4650]: "Y"
+                  - gridcell [ref=e4651]
+                  - gridcell "800" [ref=e4652]:
+                    - generic "800" [ref=e4653]:
+                      - generic [ref=e4654]: "800"
+                  - gridcell [ref=e4655]
+                  - gridcell [ref=e4656]:
+                    - menu [ref=e4657]:
+                      - menuitem "Delete" [ref=e4658] [cursor=pointer]:
+                        - img [ref=e4659]
+                - row "MP4-BH1 1.20 6.00 0 N CLAY Silty CI-CH medium to high yellow brown,mottled grey NATURAL Silty CLAY N 4800" [ref=e4661]:
+                  - gridcell [ref=e4662]
+                  - gridcell "MP4-BH1" [ref=e4664]:
+                    - generic "MP4-BH1" [ref=e4665]:
+                      - generic [ref=e4666]: MP4-BH1
+                  - gridcell "1.20" [ref=e4667]:
+                    - generic "1.20" [ref=e4668]:
+                      - generic [ref=e4669]: "1.20"
+                  - gridcell "6.00" [ref=e4670]:
+                    - generic "6.00" [ref=e4671]:
+                      - generic [ref=e4672]: "6.00"
+                  - gridcell [ref=e4673]
+                  - gridcell "0" [ref=e4674]:
+                    - generic "0" [ref=e4675]:
+                      - generic "0 Solid - well defined boundary" [ref=e4676]:
+                        - generic [ref=e4678]: "0"
+                  - gridcell "N" [ref=e4679]:
+                    - generic "N" [ref=e4680]:
+                      - generic "N Soil" [ref=e4681]:
+                        - generic [ref=e4683]: "N"
+                  - gridcell [ref=e4684]
+                  - gridcell "CLAY" [ref=e4685]:
+                    - generic "CLAY" [ref=e4686]:
+                      - generic "CLAY clay, <0.002 mm" [ref=e4687]:
+                        - generic [ref=e4689]: CLAY
+                  - gridcell "Silty" [ref=e4690]:
+                    - generic "Silty" [ref=e4691]:
+                      - generic "Silty Individual particles are not visible, no plasticity (can't be moulded and will stain your hands when wet), >12% of total soils by weight" [ref=e4692]:
+                        - generic [ref=e4694]: Silty
+                  - gridcell "CI-CH" [ref=e4695]:
+                    - generic "CI-CH" [ref=e4696]:
+                      - generic "CI-CH Medium to High Plasticity CLAY" [ref=e4697]:
+                        - generic [ref=e4699]: CI-CH
+                  - gridcell "medium to high" [ref=e4700]:
+                    - generic "medium to high" [ref=e4701]:
+                      - generic "medium to high medium to high" [ref=e4702]:
+                        - generic [ref=e4704]: medium to high
+                  - gridcell "yellow brown,mottled grey" [ref=e4705]:
+                    - generic "yellow brown,mottled grey" [ref=e4706]:
+                      - generic [ref=e4707]: yellow brown,mottled grey
+                  - gridcell "NATURAL" [ref=e4708]:
+                    - generic "NATURAL" [ref=e4709]:
+                      - generic "NATURAL Natural, undisturbed soil (not ENM) (Use other descriptors when possible)" [ref=e4710]:
+                        - generic [ref=e4712]: NATURAL
+                  - gridcell [ref=e4713]
+                  - gridcell [ref=e4714]
+                  - gridcell [ref=e4715]
+                  - gridcell [ref=e4716]
+                  - gridcell [ref=e4717]
+                  - gridcell [ref=e4718]
+                  - gridcell [ref=e4719]
+                  - gridcell "Silty CLAY" [ref=e4720]:
+                    - generic "Silty CLAY" [ref=e4721]:
+                      - generic "Silty CLAY Silty CLAY" [ref=e4722]:
+                        - generic [ref=e4725]: Silty CLAY
+                  - gridcell [ref=e4726]
+                  - gridcell [ref=e4727]
+                  - gridcell "N" [ref=e4728]:
+                    - generic "N" [ref=e4729]:
+                      - generic [ref=e4730]: "N"
+                  - gridcell [ref=e4731]
+                  - gridcell "4800" [ref=e4732]:
+                    - generic "4800" [ref=e4733]:
+                      - generic [ref=e4734]: "4800"
+                  - gridcell [ref=e4735]
+                  - gridcell [ref=e4736]:
+                    - menu [ref=e4737]:
+                      - menuitem "Delete" [ref=e4738] [cursor=pointer]:
+                        - img [ref=e4739]
+                - row "MP4-BH1 6.00 9.50 0 N SILTSTONE - very thinly laminated Sandstone, dark brown, grey; recovered as Silty Clay, medium to high plasticity EXTREMELY WEATHERED MATERIAL SILTSTONE 9.50 N 3500" [ref=e4741]:
+                  - gridcell [ref=e4742]
+                  - gridcell "MP4-BH1" [ref=e4744]:
+                    - generic "MP4-BH1" [ref=e4745]:
+                      - generic [ref=e4746]: MP4-BH1
+                  - gridcell "6.00" [ref=e4747]:
+                    - generic "6.00" [ref=e4748]:
+                      - generic [ref=e4749]: "6.00"
+                  - gridcell "9.50" [ref=e4750]:
+                    - generic "9.50" [ref=e4751]:
+                      - generic [ref=e4752]: "9.50"
+                  - gridcell [ref=e4753]
+                  - gridcell "0" [ref=e4754]:
+                    - generic "0" [ref=e4755]:
+                      - generic "0 Solid - well defined boundary" [ref=e4756]:
+                        - generic [ref=e4758]: "0"
+                  - gridcell "N" [ref=e4759]:
+                    - generic "N" [ref=e4760]:
+                      - generic "N Soil" [ref=e4761]:
+                        - generic [ref=e4763]: "N"
+                  - gridcell [ref=e4764]
+                  - gridcell "SILTSTONE" [ref=e4765]:
+                    - generic "SILTSTONE" [ref=e4766]:
+                      - generic "SILTSTONE Siltstone" [ref=e4767]:
+                        - generic [ref=e4769]: SILTSTONE
+                  - gridcell [ref=e4770]
+                  - gridcell "-" [ref=e4771]:
+                    - generic "-" [ref=e4772]:
+                      - generic "- No Symbol" [ref=e4773]:
+                        - generic [ref=e4775]: "-"
+                  - gridcell [ref=e4776]
+                  - gridcell "very thinly laminated Sandstone, dark brown, grey; recovered as Silty Clay, medium to high plasticity" [ref=e4777]:
+                    - generic "very thinly laminated Sandstone, dark brown, grey; recovered as Silty Clay, medium to high plasticity" [ref=e4778]:
+                      - generic [ref=e4779]: very thinly laminated Sandstone, dark brown, grey; recovered as Silty Clay, medium to high plasticity
+                  - gridcell "EXTREMELY WEATHERED MATERIAL" [ref=e4780]:
+                    - generic "EXTREMELY WEATHERED MATERIAL" [ref=e4781]:
+                      - generic "EXTREMELY WEATHERED MATERIAL extremely weathered material (soil only, NOT for rock)" [ref=e4782]:
+                        - generic [ref=e4784]: EXTREMELY WEATHERED MATERIAL
+                  - gridcell [ref=e4785]
+                  - gridcell [ref=e4786]
+                  - gridcell [ref=e4787]
+                  - gridcell [ref=e4788]
+                  - gridcell [ref=e4789]
+                  - gridcell [ref=e4790]
+                  - gridcell [ref=e4791]
+                  - gridcell "SILTSTONE" [ref=e4792]:
+                    - generic "SILTSTONE" [ref=e4793]:
+                      - generic "SILTSTONE Siltstone" [ref=e4794]:
+                        - generic [ref=e4797]: SILTSTONE
+                  - gridcell [ref=e4798]
+                  - gridcell "9.50" [ref=e4799]:
+                    - generic "9.50" [ref=e4800]:
+                      - generic [ref=e4801]: "9.50"
+                  - gridcell "N" [ref=e4802]:
+                    - generic "N" [ref=e4803]:
+                      - generic [ref=e4804]: "N"
+                  - gridcell [ref=e4805]
+                  - gridcell "3500" [ref=e4806]:
+                    - generic "3500" [ref=e4807]:
+                      - generic [ref=e4808]: "3500"
+                  - gridcell [ref=e4809]
+                  - gridcell [ref=e4810]:
+                    - menu [ref=e4811]:
+                      - menuitem "Delete" [ref=e4812] [cursor=pointer]:
+                        - img [ref=e4813]
+                - row "MP4-BH1 7.00 7.00 9.50 1 grading into dark grey 0" [ref=e4815]:
+                  - gridcell [ref=e4816]
+                  - gridcell "MP4-BH1" [ref=e4818]:
+                    - generic "MP4-BH1" [ref=e4819]:
+                      - generic [ref=e4820]: MP4-BH1
+                  - gridcell "7.00" [ref=e4821]:
+                    - generic "7.00" [ref=e4822]:
+                      - generic [ref=e4823]: "7.00"
+                  - gridcell "7.00" [ref=e4824]:
+                    - generic "7.00" [ref=e4825]:
+                      - generic [ref=e4826]: "7.00"
+                  - gridcell "9.50" [ref=e4827]:
+                    - generic "9.50" [ref=e4828]:
+                      - generic [ref=e4829]: "9.50"
+                  - gridcell "1" [ref=e4830]:
+                    - generic "1" [ref=e4831]:
+                      - generic "1 Dash - grading boundary" [ref=e4832]:
+                        - generic [ref=e4834]: "1"
+                  - gridcell [ref=e4835]
+                  - gridcell [ref=e4836]
+                  - gridcell [ref=e4837]
+                  - gridcell [ref=e4838]
+                  - gridcell [ref=e4839]
+                  - gridcell [ref=e4840]
+                  - gridcell "grading into dark grey" [ref=e4841]:
+                    - generic "grading into dark grey" [ref=e4842]:
+                      - generic [ref=e4843]: grading into dark grey
+                  - gridcell [ref=e4844]
+                  - gridcell [ref=e4845]
+                  - gridcell [ref=e4846]
+                  - gridcell [ref=e4847]
+                  - gridcell [ref=e4848]
+                  - gridcell [ref=e4849]
+                  - gridcell [ref=e4850]
+                  - gridcell [ref=e4851]
+                  - gridcell [ref=e4852]
+                  - gridcell [ref=e4853]
+                  - gridcell [ref=e4854]
+                  - gridcell [ref=e4855]
+                  - gridcell [ref=e4856]
+                  - gridcell "0" [ref=e4857]:
+                    - generic "0" [ref=e4858]:
+                      - generic [ref=e4859]: "0"
+                  - gridcell [ref=e4860]
+                  - gridcell [ref=e4861]:
+                    - menu [ref=e4862]:
+                      - menuitem "Delete" [ref=e4863] [cursor=pointer]:
+                        - img [ref=e4864]
+        - generic [ref=e5127]:
+          - button [ref=e5128] [cursor=pointer]:
+            - img [ref=e5129]
+          - img [ref=e5132]
+        - generic [ref=e5137]:
+          - generic [ref=e5138]:
+            - generic [ref=e5141]:
+              - combobox "Location" [ref=e5142]: All Locations
+              - button "Open" [ref=e5144] [cursor=pointer]:
+                - img [ref=e5145]
+            - generic [ref=e5148] [cursor=pointer]:
+              - img [ref=e5149]
+              - paragraph [ref=e5151]: Refresh
+            - generic [ref=e5153]:
+              - img [ref=e5154]
+              - paragraph [ref=e5156]: PDF
+          - generic [ref=e5157]:
+            - generic [ref=e5158]:
+              - generic [ref=e5159]:
+                - generic "Select Template" [ref=e5162] [cursor=pointer]:
+                  - generic [ref=e5163]:
+                    - img [ref=e5164]
+                    - paragraph [ref=e5166]: Template
+                  - img [ref=e5167]
+                - separator [ref=e5169]
+                - generic "Default stripset" [ref=e5172]:
+                  - generic [ref=e5173]:
+                    - img [ref=e5174]
+                    - paragraph [ref=e5176]: Stripset
+              - separator [ref=e5177]
+              - generic [ref=e5178]:
+                - generic [ref=e5180]:
+                  - generic [ref=e5181]: Scale
+                  - generic [ref=e5182] [cursor=pointer]: Units
+                - generic "Scale 1:50 - Click to edit" [ref=e5184]:
+                  - button "50" [ref=e5185] [cursor=pointer]
+                  - generic [ref=e5186]:
+                    - img [ref=e5187] [cursor=pointer]
+                    - img [ref=e5189] [cursor=pointer]
+                - separator [ref=e5191]
+                - generic [ref=e5193]:
+                  - generic "Zoom Out" [ref=e5194]:
+                    - img [ref=e5195]
+                  - paragraph [ref=e5198]: 100%
+                  - generic "Zoom In" [ref=e5199]:
+                    - img [ref=e5200]
+                - separator [ref=e5203]
+                - generic [ref=e5205]:
+                  - generic "Previous Page" [ref=e5206]:
+                    - img [ref=e5207]
+                  - paragraph [ref=e5210]: 1/--
+                  - generic "Next Page" [ref=e5211]:
+                    - img [ref=e5212]
+            - generic [ref=e5215]:
+              - img [ref=e5216]
+              - heading "Select a location to preview Report" [level=6] [ref=e5218]
+  - contentinfo [ref=e519]:
+    - text: © Seequent, the Bentley Subsurface Company |
+    - link "Attributions" [ref=e520] [cursor=pointer]:
+      - /url: /attributions
+    - text: "|"
+    - link "Terms of Use" [ref=e521] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/web-properties-terms-of-use/
+    - text: "|"
+    - link "Terms of Service" [ref=e522] [cursor=pointer]:
+      - /url: https://connect-agreementportal.bentley.com/AgreementApp/Home/Eula/view/readonly/BentleyConnect
+    - text: "|"
+    - link "Privacy Policy" [ref=e523] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/privacy-policy/
+    - text: "|"
+    - link "Cookie Policy" [ref=e524] [cursor=pointer]:
+      - /url: https://www.bentley.com/legal/cookie-policy/
+    - text: "|"
+    - link "Legal Notices" [ref=e525] [cursor=pointer]:
+      - /url: https://connect.bentley.com/Legal

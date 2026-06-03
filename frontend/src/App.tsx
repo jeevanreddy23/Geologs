@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import VerticalLoggingCanvas from './components/VerticalLoggingCanvas';
-import { Upload, FileDown, Wand2, X, Settings2, FolderOpen } from 'lucide-react';
+import { Upload, FileDown, Wand2, X, Settings2, FolderOpen, Loader2 } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -10,21 +10,21 @@ function App() {
   const [logData, setLogData] = useState<any[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: any) => {
     const file = event.target.files[0];
     if (!file) return;
     
-    // Read local image for immediate display
-    const reader = new FileReader();
-    reader.onload = (e) => setPhotoData(e.target?.result as string);
-    reader.readAsDataURL(file);
+    setIsProcessing(true);
+    setPhotoData(null); // Clear previous
 
-    // Call backend to process
     const formData = new FormData();
     formData.append('photo', file);
+    
     try {
+      // 1. Upload
       const uploadRes = await fetch('http://localhost:8000/api/v1/core/upload', {
         method: 'POST',
         body: formData
@@ -32,6 +32,19 @@ function App() {
       const uploadData = await uploadRes.json();
       
       if (uploadData.status === 'success') {
+         // 2. Stitch visually
+         const stitchRes = await fetch('http://localhost:8000/api/v1/core/stitch', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             photo_path: uploadData.photo_path,
+             num_rows: 4
+           })
+         });
+         const stitchData = await stitchRes.json();
+         setPhotoData(stitchData.stitched_photo_url);
+
+         // 3. Process vision data (legacy pipeline for boxes if needed, or we just mock for now)
          const processRes = await fetch('http://localhost:8000/api/v1/core/process', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
@@ -41,12 +54,20 @@ function App() {
              depth_to: 10,
              rows: []
            })
-         });
-         const processData = await processRes.json();
-         setVisionData(processData.vision_data);
+         }).catch(() => null);
+         
+         if (processRes && processRes.ok) {
+             const processData = await processRes.json();
+             setVisionData(processData.vision_data || { rows: [] });
+         } else {
+             setVisionData({ rows: [] });
+         }
       }
     } catch (err) {
       console.error('Failed to process image:', err);
+      alert('Failed to upload and stitch image.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -155,15 +176,18 @@ function App() {
                 
                 <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg border border-slate-700/50 transition-all group shadow-sm"
+                    disabled={isProcessing}
+                    className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg border border-slate-700/50 transition-all group shadow-sm disabled:opacity-50"
                 >
-                    <Upload size={16} className="text-slate-400 group-hover:text-slate-200 transition-colors" />
-                    <span className="text-sm font-semibold tracking-wide">Upload Core Box</span>
+                    {isProcessing ? <Loader2 size={16} className="animate-spin text-cyan-400" /> : <Upload size={16} className="text-slate-400 group-hover:text-slate-200 transition-colors" />}
+                    <span className="text-sm font-semibold tracking-wide">
+                        {isProcessing ? "Processing Box..." : "Upload Core Box"}
+                    </span>
                 </button>
 
                 <button 
                     onClick={generateDraft}
-                    disabled={!visionData}
+                    disabled={!visionData || isProcessing}
                     className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white py-3 rounded-lg transition-all shadow-lg shadow-cyan-900/20"
                 >
                     <Wand2 size={16} />
@@ -192,6 +216,7 @@ function App() {
             logData={logData} 
             setLogData={setLogData} 
             maxDepth={10} 
+            isProcessing={isProcessing}
         />
       </div>
 

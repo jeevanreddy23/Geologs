@@ -1,5 +1,5 @@
 export const PRODUCTION_API_BASE = 'https://auto-soil-logger-api.onrender.com/api/v1';
-export const LOCAL_API_BASE = 'http://localhost:8000/api/v1';
+export const LOCAL_API_BASE = 'http://localhost:8001/api/v1';
 
 type ResolveApiBaseOptions = {
   envBase?: string;

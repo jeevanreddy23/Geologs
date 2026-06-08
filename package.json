@@ -6,10 +6,10 @@
     "node": "24.x"
   },
   "scripts": {
-    "prebuild": "npm install --prefix frontend",
-    "build": "npm run build --prefix frontend",
-    "dev": "npm run dev --prefix frontend",
-    "lint": "npm run lint --prefix frontend",
-    "preview": "npm run preview --prefix frontend"
+    "prebuild": "npm install --prefix as1726-logger",
+    "build": "npm run build --prefix as1726-logger",
+    "dev": "npm run dev --prefix as1726-logger",
+    "lint": "npm run lint --prefix as1726-logger",
+    "preview": "npm run preview --prefix as1726-logger"
   }
 }

@@ -1,0 +1,14 @@
+# Geotech Data Hub - Borehole Log Editor
+
+This is a field-engineer-friendly web app for logging soil and rock strata to AS1726 standards.
+It features real-time validation and a live colored profile column.
+
+## Pages
+- `/` - Landing page
+- `/log` - Main editor page with project details, strata data grid, and visual profile.
+
+## Tech Stack
+- TanStack Start v1
+- React
+- Tailwind CSS v4
+- shadcn/ui

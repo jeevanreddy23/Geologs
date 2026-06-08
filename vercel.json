@@ -2,5 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build && mv as1726-logger/.vercel .vercel"
 }

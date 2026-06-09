@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { type LayerInput, blocksSave } from '@/lib/as1726'
 import { StrataGrid } from '@/components/StrataGrid'
-import { StrataProfile } from '@/components/StrataProfile'
 import { CoreViewer } from '@/components/CoreViewer'
 import { Upload, FileDown, FolderOpen, Map } from 'lucide-react'
 
@@ -136,21 +135,11 @@ function LogEditor() {
 
       {/* RIGHT PANEL */}
       <div className="w-[800px] flex flex-col flex-shrink-0 bg-slate-950 overflow-hidden">
-        {/* Top: Excel Grid */}
+        {/* Full Height: Excel Grid */}
         <div className="flex-1 p-2 overflow-hidden flex flex-col border-b border-slate-800">
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 px-1">Log Data Grid</h3>
           <div className="flex-1 overflow-auto rounded-md border border-slate-800 bg-slate-950">
             <StrataGrid layers={layers} onChange={setLayers} />
-          </div>
-        </div>
-        
-        {/* Bottom: Live Profile Output */}
-        <div className="h-1/3 p-2 bg-slate-900/30 overflow-hidden flex flex-col">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 px-1">Live Profile Preview</h3>
-          <div className="flex-1 overflow-auto rounded-md border border-slate-800 bg-white p-2">
-            <div className="w-full h-full flex justify-center">
-               <StrataProfile layers={layers} />
-            </div>
           </div>
         </div>
       </div>

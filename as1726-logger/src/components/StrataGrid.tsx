@@ -66,6 +66,7 @@ export function StrataGrid({ layers, onChange }: StrataGridProps) {
             <th className="px-2 py-2 w-40">Weathering</th>
             <th className="px-2 py-2 w-40">Strength</th>
             <th className="px-2 py-2 min-w-[200px]">Description</th>
+            <th className="px-2 py-2 min-w-[150px]">Defects</th>
             <th className="px-2 py-2 w-12 text-center">Act</th>
           </tr>
         </thead>
@@ -193,6 +194,13 @@ export function StrataGrid({ layers, onChange }: StrataGridProps) {
                   <Input 
                     value={layer.description} 
                     onChange={e => handleUpdate(idx, 'description', e.target.value)} 
+                    className="h-8"
+                  />
+                </td>
+                <td className="px-1 py-1">
+                  <Input 
+                    value={layer.defects || ''} 
+                    onChange={e => handleUpdate(idx, 'defects', e.target.value)} 
                     className="h-8"
                   />
                 </td>

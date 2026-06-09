@@ -47,6 +47,7 @@ export interface LayerInput {
   weathering?: typeof WEATHERING[number];
   strength?: typeof STRENGTH[number];
   description: string;
+  defects?: string;
 }
 
 export interface FieldIssue {

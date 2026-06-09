@@ -1,6 +1,6 @@
+import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -8,121 +8,153 @@ import { toast } from 'sonner'
 import { type LayerInput, blocksSave } from '@/lib/as1726'
 import { StrataGrid } from '@/components/StrataGrid'
 import { StrataProfile } from '@/components/StrataProfile'
+import { CoreViewer } from '@/components/CoreViewer'
+import { Upload, FileDown, FolderOpen, Map } from 'lucide-react'
 
 export const Route = createFileRoute('/log')({
-  component: LogComponent,
+  component: LogEditor,
 })
 
-function LogComponent() {
-  const [isClient, setIsClient] = useState(false);
-  const [projectName, setProjectName] = useState('');
-  const [holeId, setHoleId] = useState('');
-  const [layers, setLayers] = useState<LayerInput[]>([]);
+function LogEditor() {
+  const [projectName, setProjectName] = React.useState('')
+  const [holeId, setHoleId] = React.useState('')
+  const [layers, setLayers] = React.useState<LayerInput[]>([])
+  
+  const [photoUrl, setPhotoUrl] = React.useState<string | null>(null)
 
-  useEffect(() => {
-    setIsClient(true);
-    const saved = localStorage.getItem('borehole-log-v1');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setProjectName(parsed.projectName || '');
-        setHoleId(parsed.holeId || '');
-        setLayers(parsed.layers || []);
-      } catch (e) {
-        console.error("Failed to load saved state", e);
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('borehole-log-v1')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.projectName) setProjectName(parsed.projectName)
+        if (parsed.holeId) setHoleId(parsed.holeId)
+        if (parsed.layers) setLayers(parsed.layers)
       }
-    } else {
-      setLayers([
-         { id: 'initial', depthFrom: 0, depthTo: 1, type: 'soil', major: 'CLAY', uscs: 'CH', description: 'Firm, highly plastic clay.' }
-      ]);
+    } catch (e) {
+      console.error('Failed to parse saved log', e)
     }
-  }, []);
-
-  if (!isClient) return null;
-
-  const validation = blocksSave(layers);
-  const canSave = validation.ok;
+  }, [])
 
   const handleSave = () => {
-    localStorage.setItem('borehole-log-v1', JSON.stringify({ projectName, holeId, layers }));
-    toast.success('Borehole log saved successfully!');
-  };
+    localStorage.setItem(
+      'borehole-log-v1',
+      JSON.stringify({ projectName, holeId, layers })
+    )
+    toast.success('Borehole log saved to localStorage')
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const objectUrl = URL.createObjectURL(file)
+      setPhotoUrl(objectUrl)
+    }
+  }
+
+  const handleDepthSelected = (depth: number) => {
+    // Inject a defect note into the correct layer based on depth
+    let layerFound = false;
+    const newLayers = layers.map((l) => {
+      if (depth >= l.depthFrom && depth <= l.depthTo) {
+        layerFound = true;
+        const note = `${depth.toFixed(2)}m: Defect`;
+        return { ...l, defects: l.defects ? `${l.defects}\n${note}` : note };
+      }
+      return l;
+    });
+
+    if (layerFound) {
+      setLayers(newLayers);
+    } else {
+      toast.error(`Depth ${depth}m does not fall within any existing layer boundaries.`);
+    }
+  }
+
+  const validation = blocksSave(layers)
+  const validationIssues = validation.ok ? 0 : validation.issues.length
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-screen-2xl mx-auto">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Log Editor</h1>
-          <p className="text-muted-foreground text-sm">AS1726 compliant borehole logging</p>
-        </div>
-        <Button 
-          onClick={handleSave} 
-          disabled={!canSave}
-          className="w-40"
-        >
-          {canSave ? 'Save Log' : `Fix ${validation.issues.length} issues`}
-        </Button>
-      </div>
-
-      {!canSave && (
-        <div className="bg-destructive/10 text-destructive text-sm p-4 rounded-md border border-destructive/20">
-          <p className="font-semibold mb-2">Please fix the following issues to save:</p>
-          <ul className="list-disc pl-5">
-            {validation.issues.map((i, idx) => <li key={idx}>{i}</li>)}
-          </ul>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3 flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Details</CardTitle>
-            </CardHeader>
-            <CardContent className="flex gap-4">
-              <div className="space-y-2 flex-1">
-                <Label htmlFor="projectName">Project Name</Label>
-                <Input 
-                  id="projectName" 
-                  value={projectName} 
-                  onChange={e => setProjectName(e.target.value)} 
-                  placeholder="e.g. Sydney Metro" 
-                />
-              </div>
-              <div className="space-y-2 flex-1">
-                <Label htmlFor="holeId">Hole ID</Label>
-                <Input 
-                  id="holeId" 
-                  value={holeId} 
-                  onChange={e => setHoleId(e.target.value)} 
-                  placeholder="e.g. BH01" 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Strata Data</CardTitle>
-              <CardDescription>Enter layers from top to bottom.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StrataGrid layers={layers} onChange={setLayers} />
-            </CardContent>
-          </Card>
+    <div className="h-screen flex w-full bg-slate-950 text-slate-300 overflow-hidden font-sans">
+      
+      {/* LEFT PANEL */}
+      <div className="w-64 flex flex-col border-r border-slate-800 bg-slate-950 z-30 flex-shrink-0">
+        <div className="p-4 border-b border-slate-800/50">
+          <h2 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-4 flex items-center">
+            <FolderOpen size={12} className="mr-2"/> Project
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-[10px] uppercase text-slate-400">Project Name</Label>
+              <Input 
+                value={projectName} 
+                onChange={(e) => setProjectName(e.target.value)} 
+                className="h-8 text-xs bg-slate-900 border-slate-700" 
+              />
+            </div>
+            <div>
+              <Label className="text-[10px] uppercase text-slate-400">Hole ID</Label>
+              <Input 
+                value={holeId} 
+                onChange={(e) => setHoleId(e.target.value)} 
+                className="h-8 text-xs bg-slate-900 border-slate-700" 
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <Card className="h-full border-2 border-primary/20">
-            <CardHeader className="pb-4">
-              <CardTitle>Profile</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StrataProfile layers={layers} />
-            </CardContent>
-          </Card>
+        <div className="p-4 flex-1">
+          <h2 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-4 flex items-center">
+            <Map size={12} className="mr-2"/> Corebox Imagery
+          </h2>
+          <input type="file" id="corebox-upload" className="hidden" accept="image/*" onChange={handleFileUpload} />
+          <Button 
+            variant="outline" 
+            className="w-full text-xs justify-start bg-slate-900 border-slate-700 hover:bg-slate-800"
+            onClick={() => document.getElementById('corebox-upload')?.click()}
+          >
+            <Upload size={14} className="mr-2" /> Upload Photo
+          </Button>
+          
+          <div className="mt-8 border-t border-slate-800/50 pt-4">
+            <Button 
+              className="w-full text-xs justify-start"
+              onClick={handleSave}
+              disabled={validationIssues > 0}
+            >
+              <FileDown size={14} className="mr-2" /> 
+              {validationIssues > 0 ? `Fix ${validationIssues} errors` : 'Save Local Log'}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* CENTER PANEL */}
+      <div className="flex-1 flex flex-col p-2 border-r border-slate-800 bg-slate-900/50 min-w-[300px]">
+        <CoreViewer photoUrl={photoUrl} onDepthSelected={handleDepthSelected} />
+      </div>
+
+      {/* RIGHT PANEL */}
+      <div className="w-[800px] flex flex-col flex-shrink-0 bg-slate-950 overflow-hidden">
+        {/* Top: Excel Grid */}
+        <div className="flex-1 p-2 overflow-hidden flex flex-col border-b border-slate-800">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 px-1">Log Data Grid</h3>
+          <div className="flex-1 overflow-auto rounded-md border border-slate-800 bg-slate-950">
+            <StrataGrid layers={layers} onChange={setLayers} />
+          </div>
+        </div>
+        
+        {/* Bottom: Live Profile Output */}
+        <div className="h-1/3 p-2 bg-slate-900/30 overflow-hidden flex flex-col">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 px-1">Live Profile Preview</h3>
+          <div className="flex-1 overflow-auto rounded-md border border-slate-800 bg-white p-2">
+            <div className="w-full h-full flex justify-center">
+               <StrataProfile layers={layers} />
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }

@@ -95,6 +95,113 @@ def _require_graph():
     return graph
 
 
+def _resolve_deepseek_target():
+    """
+    Resolve how to reach DeepSeek, in priority order:
+    1. A direct API key on this host (any of the accepted env names).
+    2. The Vercel serverless proxy (/api/deepseek/chat) via DEEPSEEK_PROXY_URL,
+       for setups where the key only lives in Vercel env vars.
+    Returns (mode, url, headers) or (None, None, None) when unconfigured.
+    """
+    from app.llm_provider import resolve_llm_config
+    direct_key = None
+    if os.getenv("MODEL_PROVIDER", "").strip().lower() == "deepseek":
+        direct_key = resolve_llm_config().api_key
+    direct_key = direct_key or os.getenv("DEEPSEEK_API_KEY") or os.getenv("DeepSeek") or os.getenv("DEEPSEEK")
+    if direct_key:
+        return (
+            "direct",
+            "https://api.deepseek.com/chat/completions",
+            {"Authorization": f"Bearer {direct_key}", "Content-Type": "application/json"},
+        )
+
+    proxy_url = os.getenv("DEEPSEEK_PROXY_URL")
+    if proxy_url:
+        headers = {"Content-Type": "application/json"}
+        autosoil_key = os.getenv("AUTOSOIL_API_KEY")
+        if autosoil_key:
+            headers["X-Autosoil-Api-Key"] = autosoil_key
+        return ("proxy", proxy_url, headers)
+
+    return (None, None, None)
+
+
+def _deepseek_lithology_draft(rows: list, core_segments: list, defects: list, core_recovery: list) -> tuple[list, list]:
+    """
+    Ask DeepSeek for AS1726 lithology units. Returns (lithology_units, warnings).
+    Falls back to a single review-required unit when the model is unreachable,
+    so the human-in-the-loop review screen always has something to correct.
+    """
+    import httpx
+    import json as _json
+
+    mode, url, headers = _resolve_deepseek_target()
+    warnings: list[str] = []
+
+    prompt = f"""
+    You are a senior geotechnical engineer logging rock core to AS1726 standards.
+    Based on the following core segments and recovery metrics, draft the lithology units.
+    Metrics: {core_recovery}
+    Segments: {core_segments}
+    Defects: {defects}
+
+    Respond with ONLY valid JSON matching this schema:
+    {{
+        "lithology_units": [
+            {{
+                "from": float,
+                "to": float,
+                "material": "string (e.g. SANDSTONE)",
+                "description": "string",
+                "weathering": "string (e.g. FR, SW, HW)",
+                "strength": "string (e.g. L, M, H, VH)",
+                "review_required": true
+            }}
+        ]
+    }}
+    """
+
+    lithology: list = []
+    if mode is None:
+        warnings.append("DeepSeek not configured (set DEEPSEEK_API_KEY here, or DEEPSEEK_PROXY_URL to your Vercel /api/deepseek/chat). Draft requires manual logging.")
+    else:
+        try:
+            with httpx.Client() as client:
+                response = client.post(
+                    url,
+                    headers=headers,
+                    json={
+                        "model": os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+                        "messages": [{"role": "user", "content": prompt}],
+                        "response_format": {"type": "json_object"},
+                    },
+                    timeout=60.0,
+                )
+                response.raise_for_status()
+                result = response.json()
+                content = result["choices"][0]["message"]["content"]
+                parsed = _json.loads(content)
+                lithology = parsed.get("lithology_units", [])
+        except Exception as e:
+            warnings.append(f"DeepSeek draft failed ({mode}): {e}")
+
+    if not lithology and rows:
+        lithology = [{
+            "from": rows[0].get("from", 0.0),
+            "to": rows[-1].get("to", 10.0),
+            "material": "UNKNOWN ROCK",
+            "description": "AI draft unavailable. Please log manually.",
+            "weathering": "FR",
+            "strength": "M",
+            "review_required": True,
+        }]
+
+    for unit in lithology:
+        unit.setdefault("review_required", True)
+        unit.setdefault("status", "draft")
+    return lithology, warnings
+
+
 class LogIntervalRequest(BaseModel):
     project_id: str
     project_name: str
@@ -730,73 +837,7 @@ class CoreDraftRequest(BaseModel):
 
 @router.post("/core/deepseek-log")
 async def generate_deepseek_log(req: CoreDraftRequest):
-    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-    if not deepseek_key:
-        raise HTTPException(status_code=500, detail="DEEPSEEK_API_KEY missing")
-
-    import httpx
-    import json
-
-    # Call DeepSeek API
-    try:
-        prompt = f"""
-        You are a senior geotechnical engineer logging rock core to AS1726 standards.
-        Based on the following core segments and recovery metrics, draft the lithology units.
-        Metrics: {req.core_recovery}
-        Segments: {req.core_segments}
-        Defects: {req.defects}
-        
-        Respond with ONLY valid JSON matching this schema:
-        {{
-            "lithology_units": [
-                {{
-                    "from": float,
-                    "to": float,
-                    "material": "string (e.g. SANDSTONE)",
-                    "description": "string",
-                    "weathering": "string (e.g. FR, SW, HW)",
-                    "strength": "string (e.g. L, M, H, VH)",
-                    "review_required": true
-                }}
-            ]
-        }}
-        """
-
-        with httpx.Client() as client:
-            response = client.post(
-                "https://api.deepseek.com/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {deepseek_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "deepseek-chat",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "response_format": {"type": "json_object"}
-                },
-                timeout=30.0
-            )
-            response.raise_for_status()
-            result = response.json()
-            content = result["choices"][0]["message"]["content"]
-            parsed = json.loads(content)
-            lithology = parsed.get("lithology_units", [])
-
-    except Exception as e:
-        print(f"DeepSeek API Error: {e}")
-        # Fallback
-        lithology = []
-        if req.rows:
-            lithology.append({
-                "from": req.rows[0].get("from", 0.0),
-                "to": req.rows[-1].get("to", 10.0),
-                "material": "UNKNOWN ROCK",
-                "description": f"AI drafting failed: {str(e)}. Please log manually.",
-                "weathering": "FR",
-                "strength": "M",
-                "review_required": True
-            })
-
+    lithology, warnings = _deepseek_lithology_draft(req.rows, req.core_segments, req.defects, req.core_recovery)
     return {
         "project": req.project,
         "borehole": req.borehole,
@@ -805,8 +846,63 @@ async def generate_deepseek_log(req: CoreDraftRequest):
         "defects": req.defects,
         "core_recovery": req.core_recovery,
         "lithology_units": lithology,
-        "warnings": []
+        "warnings": warnings
     }
+
+
+@router.post("/core/auto-log")
+async def auto_log_core_box(
+    photo: UploadFile = File(...),
+    client: str = Form(""),
+    borehole_id: str = Form("BH-01"),
+    depth_from: float = Form(0.0),
+    depth_to: float = Form(10.0),
+):
+    """
+    One-shot pipeline: photo in -> OpenGround-ready draft out.
+    Runs upload -> vision (rows/fractures) -> depth calibration -> piece
+    segmentation -> defect markup -> TCR/RQD -> DeepSeek AS1726 draft.
+    Everything returned is status='draft' / review_required=True: the human
+    reviewer must approve before /pdf/export will accept it.
+    """
+    if depth_to <= depth_from:
+        raise HTTPException(status_code=400, detail="depth_to must be greater than depth_from")
+
+    saved_path = await _save_upload(photo, folder="core-boxes", allowed_extensions={".jpg", ".jpeg", ".png", ".webp"})
+
+    from app.vision.pipeline import process_core_image
+    from app.vision.depth_scale_calibration import assign_depth_scale
+    from app.vision.core_piece_segmentation import segment_core_pieces
+    from app.vision.defect_markup import markup_defects as _markup
+    from app.vision.geotech_metrics import calculate_metrics as _metrics
+
+    try:
+        vision = process_core_image(saved_path)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Vision pipeline failed: {e}")
+
+    calibrated_rows = assign_depth_scale(vision["rows"], start_depth=depth_from, end_depth=depth_to)
+    core_segments = segment_core_pieces(calibrated_rows)
+    defects = _markup(core_segments)
+    core_recovery = _metrics(calibrated_rows, core_segments, defects)
+    lithology, warnings = _deepseek_lithology_draft(calibrated_rows, core_segments, defects, core_recovery)
+
+    annotated = saved_path.parent / vision["annotated_image"]
+    return {
+        "status": "draft",
+        "review_required": True,
+        "project": {"client": client, "boreholeId": borehole_id},
+        "borehole": {"id": borehole_id, "depth_from": depth_from, "depth_to": depth_to},
+        "photo_url": _public_upload_url(saved_path),
+        "annotated_photo_url": _public_upload_url(annotated) if annotated.exists() else None,
+        "rows": calibrated_rows,
+        "core_segments": core_segments,
+        "defects": defects,
+        "core_recovery": core_recovery,
+        "lithology_units": lithology,
+        "warnings": warnings,
+    }
+
 
 class CoreSaveRequest(BaseModel):
     project: dict
@@ -852,6 +948,16 @@ async def approve_core_log(req: CoreApproveRequest):
 
 @router.post("/pdf/export")
 async def export_borehole_pdf(req: CoreSaveRequest):
+    # Human-in-the-loop gate: every lithology unit must be reviewer-approved.
+    unapproved = [
+        u for u in req.lithology_units
+        if u.get("status") != "approved" and u.get("approved") is not True
+    ]
+    if not req.lithology_units or unapproved:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Export blocked: {len(unapproved) if req.lithology_units else 'all'} lithology unit(s) not approved. Review and approve the draft first.",
+        )
     try:
         from app.utils.rock_pdf import generate_openground_style_pdf
         data = {

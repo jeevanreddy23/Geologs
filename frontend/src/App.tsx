@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import VerticalLoggingCanvas from './components/VerticalLoggingCanvas';
-import { Upload, FileDown, Wand2, X, Settings2, FolderOpen, Loader2 } from 'lucide-react';
+import { Upload, FileDown, X, Settings2, FolderOpen, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { apiUrl, apiFetch } from './lib/api';
 import './App.css';
 
 function App() {
   const [projectData, setProjectData] = useState({ client: '', boreholeId: '' });
+  const [depths, setDepths] = useState({ from: '0.0', to: '10.0' });
   const [photoData, setPhotoData] = useState<string | null>(null);
   const [visionData, setVisionData] = useState<any | null>(null);
   const [logData, setLogData] = useState<any[]>([]);
@@ -16,114 +18,77 @@ function App() {
   const handleFileUpload = async (event: any) => {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     setIsProcessing(true);
-    setPhotoData(null); // Clear previous
+    setPhotoData(null);
+    setLogData([]);
 
     const formData = new FormData();
     formData.append('photo', file);
-    
-    try {
-      // 1. Upload
-      const uploadRes = await fetch('http://localhost:8000/api/v1/core/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const uploadData = await uploadRes.json();
-      
-      if (uploadData.status === 'success') {
-         // 2. Stitch visually
-         const stitchRes = await fetch('http://localhost:8000/api/v1/core/stitch', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             photo_path: uploadData.photo_path,
-             num_rows: 4
-           })
-         });
-         const stitchData = await stitchRes.json();
-         setPhotoData(stitchData.stitched_photo_url);
+    formData.append('client', projectData.client || '');
+    formData.append('borehole_id', projectData.boreholeId || 'BH-01');
+    formData.append('depth_from', depths.from || '0');
+    formData.append('depth_to', depths.to || '10');
 
-         // 3. Process vision data (legacy pipeline for boxes if needed, or we just mock for now)
-         const processRes = await fetch('http://localhost:8000/api/v1/core/process', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             photo_path: uploadData.photo_path,
-             depth_from: 0,
-             depth_to: 10,
-             rows: []
-           })
-         }).catch(() => null);
-         
-         if (processRes && processRes.ok) {
-             const processData = await processRes.json();
-             setVisionData(processData.vision_data || { rows: [] });
-         } else {
-             setVisionData({ rows: [] });
-         }
+    try {
+      const res = await apiFetch(apiUrl('/core/auto-log'), { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Auto-log failed (${res.status})`);
       }
-    } catch (err) {
+      const draft = await res.json();
+
+      setPhotoData(draft.annotated_photo_url ? apiUrl(draft.annotated_photo_url) : apiUrl(draft.photo_url));
+      setVisionData({ rows: draft.rows, core_segments: draft.core_segments, defects: draft.defects, core_recovery: draft.core_recovery });
+      setLogData((draft.lithology_units || []).map((unit: any, i: number) => ({
+        ...unit,
+        status: unit.status || 'draft',
+        tcr: draft.core_recovery?.[i]?.tcr_percent ?? '',
+        rqd: draft.core_recovery?.[i]?.rqd_percent ?? '',
+        defects: ''
+      })));
+      if (draft.warnings?.length) console.warn('Pipeline warnings:', draft.warnings);
+    } catch (err: any) {
       console.error('Failed to process image:', err);
-      alert('Failed to upload and stitch image.');
+      alert(err.message || 'Failed to run the auto-log pipeline.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const generateDraft = async () => {
-    if (!visionData) return alert("Upload and process an image first");
-    try {
-        const res = await fetch('http://localhost:8000/api/v1/core/generate-draft', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            borehole_id: projectData.boreholeId || 'BH-01',
-            project_no: projectData.client || 'P-123',
-            depth_from: 0,
-            depth_to: 10,
-            runs: visionData.rows,
-            rock_type: { value: 'SEDIMENTARY ROCK' }
-        })
-        });
-        const draft = await res.json();
-        if (draft.lithology_units) {
-        setLogData(draft.lithology_units.map((unit: any, i: number) => ({
-            ...unit,
-            status: unit.status || 'draft',
-            tcr: draft.core_recovery?.[i]?.tcr || '',
-            rqd: draft.core_recovery?.[i]?.rqd || '',
-            defects: draft.discontinuities?.[i]?.notes || ''
-        })));
-        }
-    } catch (err) {
-        console.error("Failed to generate draft", err);
-    }
+  const approveAll = () => {
+    if (logData.length === 0) return;
+    setLogData(logData.map((u) => ({ ...u, status: 'approved', review_required: false })));
   };
 
   const generatePDF = async () => {
+    if (logData.some((u) => u.status !== 'approved')) {
+      alert('Human review required: approve all lithology units before exporting.');
+      return;
+    }
     try {
-        const payload = {
-            project: projectData,
-            borehole: { id: projectData.boreholeId || 'BH-01' },
-            lithology_units: logData,
-            discontinuities: [],
-            core_runs: []
-        };
-        const res = await fetch('http://localhost:8000/api/v1/pdf/export', {
+      const payload = {
+        project: projectData,
+        borehole: { id: projectData.boreholeId || 'BH-01' },
+        lithology_units: logData,
+        discontinuities: visionData?.defects || [],
+        core_runs: visionData?.core_recovery || []
+      };
+      const res = await apiFetch(apiUrl('/pdf/export'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setPdfUrl(`http://localhost:8000${data.pdf_url}`);
-            setIsPdfModalOpen(true);
-        } else {
-            alert("Failed to generate PDF");
-        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPdfUrl(apiUrl(data.pdf_url));
+        setIsPdfModalOpen(true);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.detail || 'Failed to generate PDF');
+      }
     } catch (e) {
-        console.error("PDF generation error", e);
+      console.error('PDF generation error', e);
     }
   };
 
@@ -165,6 +130,28 @@ function App() {
                         placeholder="e.g. BH-01"
                     />
                 </div>
+                <div className="flex space-x-2">
+                    <div className="flex-1">
+                        <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Depth From (m)</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={depths.from}
+                            onChange={(e) => setDepths({...depths, from: e.target.value})}
+                            className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors"
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Depth To (m)</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={depths.to}
+                            onChange={(e) => setDepths({...depths, to: e.target.value})}
+                            className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -186,12 +173,16 @@ function App() {
                 </button>
 
                 <button 
-                    onClick={generateDraft}
-                    disabled={!visionData || isProcessing}
-                    className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white py-3 rounded-lg transition-all shadow-lg shadow-cyan-900/20"
+                    onClick={approveAll}
+                    disabled={logData.length === 0 || isProcessing}
+                    className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white py-3 rounded-lg transition-all shadow-lg shadow-emerald-900/20"
                 >
-                    <Wand2 size={16} />
-                    <span className="text-sm font-semibold tracking-wide">Generate AI Draft</span>
+                    <CheckCircle2 size={16} />
+                    <span className="text-sm font-semibold tracking-wide">
+                        {logData.length > 0 && logData.every((u) => u.status === 'approved')
+                            ? 'All Units Approved'
+                            : `Approve All Units (${logData.filter((u) => u.status === 'approved').length}/${logData.length})`}
+                    </span>
                 </button>
 
                 <div className="pt-6 mt-6 border-t border-slate-800/50">

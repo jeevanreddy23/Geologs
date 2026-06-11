@@ -1,17 +1,21 @@
-def assign_depth_scale(rows, start_depth=0.0):
+def assign_depth_scale(rows, start_depth=0.0, end_depth=None):
     """
-    Simulate depth scale calibration.
-    Detects visible depth labels and assigns 1m scale per row.
+    Depth scale calibration.
+    Distributes the borehole interval [start_depth, end_depth] evenly across
+    detected tray rows. Falls back to 1m per row when end_depth is unknown.
     """
     calibrated_rows = []
     current_depth = float(start_depth)
+    metres_per_row = 1.0
+    if end_depth is not None and rows and float(end_depth) > float(start_depth):
+        metres_per_row = (float(end_depth) - float(start_depth)) / len(rows)
     for r in rows:
         height_px = r["bottom"] - r["top"]
         calibrated_rows.append({
             "row_id": r.get("id", r.get("row_id")),
-            "from": current_depth,
-            "to": current_depth + 1.0,
-            "px_per_m": height_px,
+            "from": round(current_depth, 2),
+            "to": round(current_depth + metres_per_row, 2),
+            "px_per_m": height_px / metres_per_row if metres_per_row else height_px,
             "scale_confidence": 0.85,
             "approved": False,
             "top": r["top"],
@@ -19,5 +23,5 @@ def assign_depth_scale(rows, start_depth=0.0):
             "left": r["left"],
             "right": r["right"]
         })
-        current_depth += 1.0
+        current_depth += metres_per_row
     return calibrated_rows

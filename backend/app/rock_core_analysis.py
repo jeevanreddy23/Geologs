@@ -6,6 +6,7 @@ import re
 import statistics
 import time
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -142,15 +143,30 @@ def generate_rock_core_pdf(analysis: dict[str, Any], image_path: Path, output_di
     _draw_footer(document, width, 1, 2)
     document.showPage()
 
-    # Second page: Appendix (Core photo & JSON payload)
+    # Second page: Appendix (Core photo, anti-slop QA & JSON payload)
     document.setFillColor(colors.HexColor("#0f172a"))
     document.setFont("Helvetica-Bold", 15)
-    document.drawString(36, height - 30, "APPENDIX: ROCK CORE PHOTO & STRUCTURED DATA")
+    document.drawString(36, height - 30, "APPENDIX: ROCK CORE PHOTO ANALYSIS & STRUCTURED DATA")
     _draw_photo_panel(document, image_path, 36, height - 350, width - 72, 300)
-    _draw_json_panel(document, 36, 72, width - 72, height - 440, analysis)
+    _draw_anti_slop_panel(document, 36, height - 412, width - 72, analysis)
+    _draw_json_panel(document, 36, 72, width - 72, height - 502, analysis)
     _draw_footer(document, width, 2, 2)
     document.save()
     return pdf_path
+
+
+def _draw_anti_slop_panel(document: canvas.Canvas, x: float, y: float, w: float, analysis: dict[str, Any]) -> None:
+    anti = analysis.get("antiSlop", {})
+    document.setFillColor(colors.black)
+    document.setFont("Helvetica-Bold", 9)
+    document.drawString(x, y + 36, "ANTI-SLOP QA")
+    document.setFont("Helvetica", 7)
+    certified = "Yes" if anti.get("exactDimensionsCertified") else "No"
+    review = "Yes" if anti.get("requiresHumanReview", True) else "No"
+    mode = anti.get("measurementMode", "image-derived estimate")
+    document.drawString(x, y + 24, f"Exact dimensions certified: {certified}")
+    document.drawString(x, y + 14, f"Measurement mode: {mode}")
+    document.drawString(x, y + 4, f"Human review required before export: {review}")
 
 def _detect_core_rows(gray: Image.Image) -> list[dict[str, int]]:
     width, height = gray.size
@@ -553,7 +569,7 @@ def _draw_header(document: canvas.Canvas, width: float, height: float, analysis:
     document.setFont("Helvetica-Bold", 7)
     document.drawString(col3, meta_y_top - 8, "Date")
     document.setFont("Helvetica", 7)
-    document.drawString(col4, meta_y_top - 8, analysis.get("project", {}).get("inspectionDate") or "22 May 2026")
+    document.drawString(col4, meta_y_top - 8, analysis.get("project", {}).get("inspectionDate") or datetime.now().strftime("%d %b %Y"))
 
     document.setFont("Helvetica-Bold", 7)
     document.drawString(col1, meta_y_top - 18, "Job No.")
@@ -719,27 +735,32 @@ def _draw_log_body(document: canvas.Canvas, width: float, height: float, analysi
     for run in runs:
         if current_y < y_bottom + 30:
             break
-        
-        d_from = run.get("depthFromM", "-")
-        pieces = run.get("visibleCorePieces", "-")
-        spacing = run.get("dominantJointSpacingMm", "-")
-        j_type = run.get("jointType", "")
-        
+
+        d_from = run.get("depthFromM")
+        spacing = run.get("dominantJointSpacingMm")
+        tcr = run.get("tcrPercent")
+        run_rqd = run.get("rqdPercent", rqd)
+        j_type = run.get("jointType") or "requires review"
+
+        depth_label = f"{d_from:.2f}" if isinstance(d_from, (int, float)) else "-"
         depth_x = margin + 20 + 15 + 15 + 15 + 15
-        document.drawCentredString(depth_x, current_y, f"{d_from}")
-        
+        document.drawCentredString(depth_x, current_y, depth_label)
+
         meth_x = margin + 10
         document.drawCentredString(meth_x, current_y, "CORE")
         tcr_x = margin + 20 + 15 + 7.5
-        document.drawCentredString(tcr_x, current_y, "100")
+        document.drawCentredString(tcr_x, current_y, str(tcr) if tcr is not None else "-")
         rqd_x = tcr_x + 15
-        document.drawCentredString(rqd_x, current_y, str(rqd))
-        
+        document.drawCentredString(rqd_x, current_y, f"{run_rqd:.0f}" if isinstance(run_rqd, (int, float)) else "-")
+
         disc_x = margin + sum(cols[:10]) + 5
-        document.drawString(disc_x, current_y, f"{d_from}m: {j_type}")
-        if spacing != "-":
-            document.drawString(disc_x, current_y - 10, f"Spacing: {spacing} mm")
-        
+        if isinstance(d_from, (int, float)):
+            document.drawString(disc_x, current_y, f"{d_from:.2f}m: {j_type}")
+        else:
+            document.drawString(disc_x, current_y, f"Joints: {j_type}")
+        if spacing is not None:
+            document.drawString(disc_x, current_y - 10, f"Spacing: {spacing:.0f} mm")
+
         current_y -= 30
 
 

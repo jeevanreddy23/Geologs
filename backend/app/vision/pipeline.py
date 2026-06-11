@@ -1,14 +1,15 @@
-import cv2
-import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List
 
 try:
+    import cv2
+    import numpy as np
     from .image_preprocess import preprocess_core_image
     from .tray_detection import detect_tray_rows
     from .fracture_detection import detect_fractures
     HAS_CV2 = True
 except ImportError:
+    cv2 = None
     HAS_CV2 = False
 
 def process_core_image(image_path: Path) -> Dict[str, Any]:
@@ -22,10 +23,15 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
     if not image_path.exists():
         raise FileNotFoundError(f"Image not found at {image_path}")
 
-    # Load image
-    img = cv2.imread(str(image_path))
-    if img is None:
-        raise ValueError("Could not read image using cv2")
+    # Load image (PIL fallback keeps the route alive if OpenCV is missing)
+    if HAS_CV2:
+        img = cv2.imread(str(image_path))
+        if img is None:
+            raise ValueError("Could not read image using cv2")
+    else:
+        from PIL import Image
+        import numpy as np
+        img = np.array(Image.open(image_path).convert("RGB"))[:, :, ::-1]
 
     if HAS_CV2:
         try:
@@ -87,10 +93,17 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
     # Generate Visual Export
     annotated_path = image_path.parent / f"annotated_{image_path.name}"
     annotated = img.copy()
-    for row in rows:
-        cv2.rectangle(annotated, (row["left"], row["top"]), (row["right"], row["bottom"]), (0, 255, 0), 2)
-    
-    cv2.imwrite(str(annotated_path), annotated)
+    if HAS_CV2:
+        for row in rows:
+            cv2.rectangle(annotated, (row["left"], row["top"]), (row["right"], row["bottom"]), (0, 255, 0), 2)
+        cv2.imwrite(str(annotated_path), annotated)
+    else:
+        from PIL import Image, ImageDraw
+        pil_img = Image.fromarray(annotated[:, :, ::-1])
+        draw = ImageDraw.Draw(pil_img)
+        for row in rows:
+            draw.rectangle([row["left"], row["top"], row["right"], row["bottom"]], outline=(0, 255, 0), width=2)
+        pil_img.save(str(annotated_path))
     
     return {
         "status": "success",

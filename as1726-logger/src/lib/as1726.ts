@@ -165,3 +165,54 @@ export function blocksSave(layers: LayerInput[]): { ok: boolean, issues: string[
     issues: allIssues
   };
 }
+
+/* ------------------------------------------------------------------ *
+ * Discontinuities / defects (AS1726). Defects are recorded as their
+ * own data type keyed by absolute depth (matching the backend
+ * OpenGround "DISCONTINUITIES & ADDITIONAL DATA" column). They are
+ * also mirrored as a text note on the layer they fall within, without
+ * altering layer (lithology) boundaries.
+ * ------------------------------------------------------------------ */
+
+export const DEFECT_TYPES = [
+  "fracture", "joint", "boundary", "seam", "shear", "vein"
+] as const;
+export type DefectType = typeof DEFECT_TYPES[number];
+
+export interface Defect {
+  id: string;
+  depth: number;          // absolute depth (m)
+  type: DefectType;
+  angle?: number | null;  // apparent dip angle from horizontal, degrees
+  note?: string;
+}
+
+/** "9.80m: joint 35" style label used in the log + PDF discontinuity column. */
+export function defectLabel(d: Defect): string {
+  const parts: string[] = [d.type];
+  if (d.angle !== null && d.angle !== undefined && !isNaN(d.angle)) {
+    parts.push(`${d.angle}°`);
+  }
+  if (d.note) parts.push(d.note);
+  return `${d.depth.toFixed(2)}m: ${parts.join(" ")}`;
+}
+
+/** Find the index of the continuous layer a given depth falls within, or -1. */
+export function findLayerIndexAtDepth(layers: LayerInput[], depth: number): number {
+  return layers.findIndex(
+    (l) =>
+      l.depthFrom !== null &&
+      l.depthTo !== null &&
+      depth >= l.depthFrom &&
+      depth <= l.depthTo
+  );
+}
+
+export function makeDefect(depth: number, type: DefectType, angle?: number | null): Defect {
+  return {
+    id: Math.random().toString(36).slice(2, 9),
+    depth: Number(depth.toFixed(2)),
+    type,
+    angle: angle ?? null,
+  };
+}

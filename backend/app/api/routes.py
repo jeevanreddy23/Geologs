@@ -128,15 +128,19 @@ def _resolve_deepseek_target():
 
 def _deepseek_lithology_draft(rows: list, core_segments: list, defects: list, core_recovery: list) -> tuple[list, list]:
     """
-    Ask DeepSeek for AS1726 lithology units. Returns (lithology_units, warnings).
-    Falls back to a single review-required unit when the model is unreachable,
-    so the human-in-the-loop review screen always has something to correct.
-    """
-    import httpx
-    import json as _json
+    Draft AS1726 lithology units from the vision metrics via an LLM.
 
-    mode, url, headers = _resolve_deepseek_target()
+    Routes through app.inference (multi-provider fallback chain + transient-error
+    retries + tolerant JSON extraction, adapted from the Odysseus project) so a
+    single provider outage, rate-limit, or markdown-wrapped reply no longer
+    collapses the whole borehole draft. Falls back to one review-required unit
+    only when every configured provider fails, so the human-review screen always
+    has something to correct.
+    """
+    from app.inference import build_candidates_from_env, chat_json
+
     warnings: list[str] = []
+    candidates = build_candidates_from_env()
 
     prompt = f"""
     You are a senior geotechnical engineer logging rock core to AS1726 standards.
@@ -161,29 +165,26 @@ def _deepseek_lithology_draft(rows: list, core_segments: list, defects: list, co
     }}
     """
 
+    messages = [
+        {"role": "system", "content": "You are a senior geotechnical engineer logging rock core to AS1726. Reply with valid JSON only."},
+        {"role": "user", "content": prompt},
+    ]
+
     lithology: list = []
-    if mode is None:
-        warnings.append("DeepSeek not configured (set DEEPSEEK_API_KEY here, or DEEPSEEK_PROXY_URL to your Vercel /api/deepseek/chat). Draft requires manual logging.")
+    if not candidates:
+        warnings.append(
+            "No LLM provider configured. Set DEEPSEEK_API_KEY (or OPENAI_API_KEY / "
+            "ANTHROPIC_API_KEY / OLLAMA_BASE_URL). Draft requires manual logging."
+        )
     else:
         try:
-            with httpx.Client() as client:
-                response = client.post(
-                    url,
-                    headers=headers,
-                    json={
-                        "model": os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
-                        "messages": [{"role": "user", "content": prompt}],
-                        "response_format": {"type": "json_object"},
-                    },
-                    timeout=60.0,
-                )
-                response.raise_for_status()
-                result = response.json()
-                content = result["choices"][0]["message"]["content"]
-                parsed = _json.loads(content)
-                lithology = parsed.get("lithology_units", [])
+            parsed, _used = chat_json(messages, candidates=candidates, temperature=0.2, max_tokens=1800)
+            if isinstance(parsed, dict):
+                lithology = parsed.get("lithology_units", []) or []
+            elif isinstance(parsed, list):
+                lithology = parsed
         except Exception as e:
-            warnings.append(f"DeepSeek draft failed ({mode}): {e}")
+            warnings.append(f"AI draft failed across {len(candidates)} provider(s): {e}")
 
     if not lithology and rows:
         lithology = [{

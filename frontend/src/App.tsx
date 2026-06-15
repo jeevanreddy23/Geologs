@@ -1,6 +1,23 @@
 import { useState, useRef } from 'react';
 import VerticalLoggingCanvas from './components/VerticalLoggingCanvas';
-import { Upload, FileDown, X, Settings2, FolderOpen, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import {
+  Upload,
+  FileDown,
+  X,
+  Settings2,
+  FolderOpen,
+  Loader2,
+  FileText,
+  CheckCircle2,
+  Search,
+  Cloud,
+  ShieldCheck,
+  Database,
+  Camera,
+  Activity,
+  Bell,
+  ClipboardCheck
+} from 'lucide-react';
 import { apiUrl, apiFetch } from './lib/api';
 import './App.css';
 
@@ -15,6 +32,11 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const approvedCount = logData.filter((u) => u.status === 'approved').length;
+  const reviewCount = Math.max(logData.length - approvedCount, 0);
+  const hasDraft = logData.length > 0;
+  const activeBorehole = projectData.boreholeId || 'BH-01';
+
   const handleFileUpload = async (event: any) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -26,7 +48,7 @@ function App() {
     const formData = new FormData();
     formData.append('photo', file);
     formData.append('client', projectData.client || '');
-    formData.append('borehole_id', projectData.boreholeId || 'BH-01');
+    formData.append('borehole_id', activeBorehole);
     formData.append('depth_from', depths.from || '0');
     formData.append('depth_to', depths.to || '10');
 
@@ -39,7 +61,12 @@ function App() {
       const draft = await res.json();
 
       setPhotoData(draft.annotated_photo_url ? apiUrl(draft.annotated_photo_url) : apiUrl(draft.photo_url));
-      setVisionData({ rows: draft.rows, core_segments: draft.core_segments, defects: draft.defects, core_recovery: draft.core_recovery });
+      setVisionData({
+        rows: draft.rows,
+        core_segments: draft.core_segments,
+        defects: draft.defects,
+        core_recovery: draft.core_recovery
+      });
       setLogData((draft.lithology_units || []).map((unit: any, i: number) => ({
         ...unit,
         status: unit.status || 'draft',
@@ -69,7 +96,7 @@ function App() {
     try {
       const payload = {
         project: projectData,
-        borehole: { id: projectData.boreholeId || 'BH-01' },
+        borehole: { id: activeBorehole },
         lithology_units: logData,
         discontinuities: visionData?.defects || [],
         core_runs: visionData?.core_recovery || []
@@ -93,151 +120,238 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-950 text-slate-200 overflow-hidden font-sans">
-      
-      {/* LEFT SIDEBAR: Tools & Metadata */}
-      <div className="w-72 flex flex-col border-r border-slate-800 bg-slate-950 z-30 shadow-2xl">
-        
-        {/* Brand Header */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-900/50">
-            <div className="w-6 h-6 rounded bg-cyan-500 mr-3 flex items-center justify-center">
-                <div className="w-3 h-3 bg-slate-950 rounded-sm"></div>
-            </div>
-            <h1 className="text-lg font-bold tracking-widest text-slate-100">AUTOSOIL</h1>
+    <div className="autoshell">
+      <header className="product-bar">
+        <div className="brand-lockup">
+          <div className="brand-mark">
+            <span />
+          </div>
+          <div>
+            <p className="brand-title">AutoSoil Logger</p>
+            <p className="brand-subtitle">Image-first geotechnical logging</p>
+          </div>
         </div>
 
-        {/* Global Controls */}
-        <div className="p-6 border-b border-slate-800/50">
-            <h2 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-4 flex items-center"><FolderOpen size={12} className="mr-2"/> Project Info</h2>
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Client / Project</label>
-                    <input 
-                        type="text" 
-                        value={projectData.client}
-                        onChange={(e) => setProjectData({...projectData, client: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors" 
-                        placeholder="e.g. Kore Mining"
-                    />
-                </div>
-                <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Borehole ID</label>
-                    <input 
-                        type="text" 
-                        value={projectData.boreholeId}
-                        onChange={(e) => setProjectData({...projectData, boreholeId: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors" 
-                        placeholder="e.g. BH-01"
-                    />
-                </div>
-                <div className="flex space-x-2">
-                    <div className="flex-1">
-                        <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Depth From (m)</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            value={depths.from}
-                            onChange={(e) => setDepths({...depths, from: e.target.value})}
-                            className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors"
-                        />
-                    </div>
-                    <div className="flex-1">
-                        <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Depth To (m)</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            value={depths.to}
-                            onChange={(e) => setDepths({...depths, to: e.target.value})}
-                            className="w-full bg-slate-900/50 border border-slate-700/50 focus:border-cyan-500/50 rounded p-2 text-sm outline-none transition-colors"
-                        />
-                    </div>
-                </div>
-            </div>
+        <div className="project-search">
+          <Search size={15} />
+          <input aria-label="Search project data" placeholder="Search locations, intervals, reports..." />
         </div>
 
-        {/* Action Toolbox */}
-        <div className="flex-1 p-6">
-            <h2 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-4 flex items-center"><Settings2 size={12} className="mr-2"/> Workflows</h2>
-            <div className="space-y-3">
-                <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept="image/*" />
-                
-                <button 
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isProcessing}
-                    className="w-full flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg border border-slate-700/50 transition-all group shadow-sm disabled:opacity-50"
-                >
-                    {isProcessing ? <Loader2 size={16} className="animate-spin text-cyan-400" /> : <Upload size={16} className="text-slate-400 group-hover:text-slate-200 transition-colors" />}
-                    <span className="text-sm font-semibold tracking-wide">
-                        {isProcessing ? "Processing Box..." : "Upload Core Box"}
-                    </span>
-                </button>
+        <nav className="workflow-tabs" aria-label="Workflow navigation">
+          {['Explorer', 'Core Photos', 'Borehole Grid', 'Reports', 'QA'].map((tab) => (
+            <button key={tab} className={tab === 'Core Photos' ? 'active' : ''}>{tab}</button>
+          ))}
+        </nav>
 
-                <button 
-                    onClick={approveAll}
-                    disabled={logData.length === 0 || isProcessing}
-                    className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white py-3 rounded-lg transition-all shadow-lg shadow-emerald-900/20"
-                >
-                    <CheckCircle2 size={16} />
-                    <span className="text-sm font-semibold tracking-wide">
-                        {logData.length > 0 && logData.every((u) => u.status === 'approved')
-                            ? 'All Units Approved'
-                            : `Approve All Units (${logData.filter((u) => u.status === 'approved').length}/${logData.length})`}
-                    </span>
-                </button>
-
-                <div className="pt-6 mt-6 border-t border-slate-800/50">
-                    <button 
-                        onClick={generatePDF}
-                        disabled={logData.length === 0}
-                        className="w-full flex items-center justify-center space-x-2 bg-slate-100 hover:bg-white text-slate-900 disabled:bg-slate-800 disabled:text-slate-600 py-3 rounded-lg transition-all shadow-md"
-                    >
-                        <FileDown size={16} />
-                        <span className="text-sm font-bold tracking-wide">Export OpenGround PDF</span>
-                    </button>
-                </div>
-            </div>
+        <div className="top-status">
+          <span className="standard-pill"><ShieldCheck size={14} /> AS 1726:2017</span>
+          <span className="sync-pill"><Cloud size={14} /> Vercel ready</span>
+          <button className="icon-button" aria-label="Notifications"><Bell size={16} /></button>
         </div>
+      </header>
+
+      <div className="workspace-grid">
+        <aside className="project-explorer">
+          <section className="explorer-card">
+            <div className="section-heading">
+              <FolderOpen size={15} />
+              <span>Project Explorer</span>
+            </div>
+            <div className="project-node selected">
+              <span className="node-kicker">Active location</span>
+              <strong>{activeBorehole}</strong>
+              <small>{depths.from}m to {depths.to}m core run</small>
+            </div>
+            <div className="tree-list">
+              <button><span>Locations</span><b>4</b></button>
+              <button><span>Core Photos</span><b>{photoData ? 1 : 0}</b></button>
+              <button><span>Lithology Units</span><b>{logData.length}</b></button>
+              <button><span>Defects</span><b>{visionData?.defects?.length || 0}</b></button>
+              <button><span>Reports</span><b>{pdfUrl ? 1 : 0}</b></button>
+            </div>
+          </section>
+
+          <section className="explorer-card">
+            <div className="section-heading">
+              <Settings2 size={15} />
+              <span>Core Run Setup</span>
+            </div>
+            <label className="field-label">Client / Project</label>
+            <input
+              type="text"
+              value={projectData.client}
+              onChange={(e) => setProjectData({ ...projectData, client: e.target.value })}
+              className="control-input"
+              placeholder="e.g. MPA Infrastructure"
+            />
+            <label className="field-label">Borehole ID</label>
+            <input
+              type="text"
+              value={projectData.boreholeId}
+              onChange={(e) => setProjectData({ ...projectData, boreholeId: e.target.value })}
+              className="control-input"
+              placeholder="e.g. BH-04"
+            />
+            <div className="depth-grid">
+              <div>
+                <label className="field-label">From (m)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={depths.from}
+                  onChange={(e) => setDepths({ ...depths, from: e.target.value })}
+                  className="control-input mono"
+                />
+              </div>
+              <div>
+                <label className="field-label">To (m)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={depths.to}
+                  onChange={(e) => setDepths({ ...depths, to: e.target.value })}
+                  className="control-input mono"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="explorer-card command-stack">
+            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept="image/*" />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="command-button primary"
+            >
+              {isProcessing ? <Loader2 size={17} className="spin" /> : <Upload size={17} />}
+              <span>{isProcessing ? 'Processing Core Box' : 'Upload Core Box'}</span>
+            </button>
+            <button
+              onClick={approveAll}
+              disabled={logData.length === 0 || isProcessing}
+              className="command-button success"
+            >
+              <CheckCircle2 size={17} />
+              <span>{hasDraft && reviewCount === 0 ? 'All Units Approved' : `Approve Units (${approvedCount}/${logData.length})`}</span>
+            </button>
+            <button
+              onClick={generatePDF}
+              disabled={logData.length === 0}
+              className="command-button dark"
+            >
+              <FileDown size={17} />
+              <span>Export PDF</span>
+            </button>
+          </section>
+        </aside>
+
+        <main className="production-canvas">
+          <div className="canvas-toolbar">
+            <div>
+              <p className="eyebrow">AutoSoil CoreLog</p>
+              <h1>Vision-assisted rock core logging workspace</h1>
+            </div>
+            <div className="toolbar-metrics">
+              <span><Camera size={14} /> {photoData ? 'Photo loaded' : 'Awaiting photo'}</span>
+              <span><Activity size={14} /> {isProcessing ? 'Vision running' : 'Vision idle'}</span>
+              <span><ClipboardCheck size={14} /> {reviewCount} review</span>
+            </div>
+          </div>
+          <div className="canvas-frame">
+            <VerticalLoggingCanvas
+              photoUrl={photoData}
+              visionData={visionData}
+              logData={logData}
+              setLogData={setLogData}
+              maxDepth={10}
+              isProcessing={isProcessing}
+            />
+          </div>
+        </main>
+
+        <aside className="review-panel">
+          <section className="review-hero">
+            <p className="eyebrow">Review Gate</p>
+            <h2>{hasDraft ? `${reviewCount} fields need review` : 'Upload a core tray to begin'}</h2>
+            <p>
+              AI output stays draft until a reviewer approves critical geology, scale, defects,
+              recovery, and report fields.
+            </p>
+          </section>
+
+          <section className="qa-card">
+            <div className="section-heading">
+              <Database size={15} />
+              <span>Detected Data</span>
+            </div>
+            <div className="metric-row">
+              <span>Rows</span>
+              <strong>{visionData?.rows?.length || 0}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Core pieces</span>
+              <strong>{visionData?.core_segments?.length || 0}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Defects</span>
+              <strong>{visionData?.defects?.length || 0}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Recovery runs</span>
+              <strong>{visionData?.core_recovery?.length || 0}</strong>
+            </div>
+          </section>
+
+          <section className="qa-card">
+            <div className="section-heading">
+              <ShieldCheck size={15} />
+              <span>QA Signals</span>
+            </div>
+            <div className="qa-item good">
+              <span>Renderer boundary</span>
+              <strong>Protected</strong>
+            </div>
+            <div className={`qa-item ${reviewCount > 0 ? 'warn' : 'good'}`}>
+              <span>Human review</span>
+              <strong>{hasDraft ? (reviewCount > 0 ? 'Required' : 'Clear') : 'Waiting'}</strong>
+            </div>
+            <div className="qa-item warn">
+              <span>Scale calibration</span>
+              <strong>Reviewer check</strong>
+            </div>
+          </section>
+        </aside>
       </div>
 
-      {/* MAIN CANVAS */}
-      <div className="flex-1 relative bg-slate-950 overflow-hidden">
-        <VerticalLoggingCanvas 
-            photoUrl={photoData} 
-            visionData={visionData} 
-            logData={logData} 
-            setLogData={setLogData} 
-            maxDepth={10} 
-            isProcessing={isProcessing}
-        />
-      </div>
+      <footer className="validation-strip">
+        <span><ShieldCheck size={14} /> Compliance: AS 1726-2017</span>
+        <span><Database size={14} /> OCR engine: DeepSeek proxy via Vercel</span>
+        <span><Cloud size={14} /> Deployment: Vercel frontend</span>
+        <span><ClipboardCheck size={14} /> Export readiness: {hasDraft && reviewCount === 0 ? 'Approved draft' : 'Draft review'}</span>
+      </footer>
 
-      {/* PDF PREVIEW SLIDE-OVER MODAL */}
       {isPdfModalOpen && (
-        <div className="absolute inset-0 z-50 flex justify-end bg-slate-950/40 backdrop-blur-sm">
-            <div className="w-[800px] h-full bg-slate-900 border-l border-slate-700 shadow-2xl flex flex-col transform transition-transform duration-300">
-                <div className="flex items-center justify-between p-4 border-b border-slate-800">
-                    <h2 className="text-lg font-bold tracking-wider text-slate-200 flex items-center">
-                        <FileText className="mr-2 text-cyan-500" size={20} />
-                        Live PDF Preview
-                    </h2>
-                    <button 
-                        onClick={() => setIsPdfModalOpen(false)}
-                        className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-200 transition-colors"
-                    >
-                        <X size={24} />
-                    </button>
-                </div>
-                <div className="flex-1 bg-slate-950 p-6 overflow-hidden">
-                    {pdfUrl ? (
-                        <iframe src={pdfUrl} className="w-full h-full border border-slate-700 rounded-lg shadow-inner bg-white" title="PDF Preview" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-600">Loading...</div>
-                    )}
-                </div>
+        <div className="pdf-overlay">
+          <div className="pdf-panel">
+            <div className="pdf-header">
+              <h2>
+                <FileText size={20} />
+                Live OpenGround-style PDF Preview
+              </h2>
+              <button onClick={() => setIsPdfModalOpen(false)} aria-label="Close PDF preview">
+                <X size={22} />
+              </button>
             </div>
+            <div className="pdf-body">
+              {pdfUrl ? (
+                <iframe src={pdfUrl} title="PDF Preview" />
+              ) : (
+                <div className="pdf-loading">Loading preview...</div>
+              )}
+            </div>
+          </div>
         </div>
       )}
-
     </div>
   );
 }

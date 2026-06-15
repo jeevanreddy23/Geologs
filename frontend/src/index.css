@@ -3,69 +3,69 @@
 @config "../tailwind.config.js";
 
 :root {
-  --bg-dark: #070709;
-  --bg-card: #111116;
-  --accent-blue: #3b82f6;
+  --bg-dark: #eef5f8;
+  --bg-card: #ffffff;
+  --accent-blue: #0078a8;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
-  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(10, 36, 54, 0.12);
 }
 
 body {
   background-color: var(--bg-dark);
-  color: white;
+  color: #0a2436;
   font-family: 'Inter', sans-serif;
   margin: 0;
   -webkit-font-smoothing: antialiased;
 }
 
 .glass {
-  background: rgba(17, 17, 22, 0.8);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  box-shadow: 0 18px 45px rgba(10, 36, 54, 0.12);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #004d71 0%, #0078a8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .input-field {
-  @apply w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-sky-500/50 transition-all text-white;
+  @apply w-full bg-white border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-sky-600/50 transition-all text-slate-900;
 }
 
 .btn-primary {
-  @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-2 rounded font-bold shadow-lg shadow-blue-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2;
+  @apply bg-sky-700 hover:bg-sky-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-sky-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2;
 }
 
 .btn-success {
-  @apply bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+  @apply bg-emerald-700 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
 }
 
 .btn-danger {
-  @apply bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white shadow-lg shadow-red-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+  @apply bg-red-700 hover:bg-red-600 text-white shadow-lg shadow-red-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
 }
 
 .btn-accent {
-  @apply bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white shadow-lg shadow-purple-500/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+  @apply bg-cyan-700 hover:bg-cyan-600 text-white shadow-lg shadow-cyan-900/20 transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
 }
 
 .agent-node {
-  @apply bg-black/40 border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-500;
+  @apply bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center gap-3 transition-all duration-500;
 }
 
 .agent-node.active {
-  @apply border-sky-500/50 bg-sky-500/10 shadow-[0_0_20px_rgba(56,189,248,0.2)];
+  @apply border-sky-600/40 bg-sky-50 shadow-[0_12px_30px_rgba(0,120,168,0.14)];
 }
 
 .agent-node.done {
-  @apply border-emerald-500/50 bg-emerald-500/5;
+  @apply border-emerald-600/40 bg-emerald-50;
 }
 
 .agent-icon-container {
-  @apply w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 text-white/40 transition-colors;
+  @apply w-12 h-12 rounded-lg flex items-center justify-center bg-slate-100 text-slate-500 transition-colors;
 }
 
 .active .agent-icon-container {
@@ -87,6 +87,6 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #9bb4c2;
   border-radius: 10px;
 }

@@ -6,7 +6,8 @@ import uuid
 import os
 import re
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
+from app.security import require_api_key, rate_limit
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional, Dict
@@ -779,7 +780,7 @@ async def get_core_borehole(borehole_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/core/upload")
+@router.post("/core/upload", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def upload_core_photo(photo: UploadFile = File(...)):
     try:
         photo_path = await _save_upload(photo, "rock-core", IMAGE_EXTENSIONS)
@@ -860,7 +861,7 @@ class CoreDraftRequest(BaseModel):
     defects: list[dict]
     core_recovery: list[dict]
 
-@router.post("/core/deepseek-log")
+@router.post("/core/deepseek-log", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def generate_deepseek_log(req: CoreDraftRequest):
     lithology, warnings = _deepseek_lithology_draft(req.rows, req.core_segments, req.defects, req.core_recovery)
     return {
@@ -875,7 +876,7 @@ async def generate_deepseek_log(req: CoreDraftRequest):
     }
 
 
-@router.post("/core/auto-log")
+@router.post("/core/auto-log", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def auto_log_core_box(
     photo: UploadFile = File(...),
     client: str = Form(""),
@@ -936,7 +937,7 @@ class CoreSaveRequest(BaseModel):
     discontinuities: list[dict]
     core_runs: list[dict]
 
-@router.post("/core/save")
+@router.post("/core/save", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def save_core_log(req: CoreSaveRequest):
     from app.utils.db import save_rock_borehole_data
     try:
@@ -971,7 +972,7 @@ async def approve_core_log(req: CoreApproveRequest):
     finally:
         conn.close()
 
-@router.post("/pdf/export")
+@router.post("/pdf/export", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def export_borehole_pdf(req: CoreSaveRequest):
     # Human-in-the-loop gate: every lithology unit must be reviewer-approved.
     unapproved = [
@@ -1017,7 +1018,7 @@ async def get_uploaded_file(relative_path: str):
     return FileResponse(path=path, filename=path.name)
 
 
-@router.post("/reports/history/extract")
+@router.post("/reports/history/extract", dependencies=[Depends(require_api_key), Depends(rate_limit)])
 async def extract_report_variables(request: ExtractRequest):
     """Triggers smart extraction agent to pull all client and site address parameters from a completed report."""
     from app.utils.template_manager import extract_variables_from_docx
@@ -1206,45 +1207,6 @@ async def classify_interval(request: ClassifyIntervalRequest):
 async def health():
     graph_nodes = list(graph.nodes.keys()) if graph is not None else []
     return {"status": "ok", "graph_nodes": graph_nodes, "graph_error": GRAPH_IMPORT_ERROR or None}
-
-
-@router.get("/debug-rag")
-async def debug_rag():
-    import traceback
-    if os.getenv("AUTOSOIL_ENABLE_DEBUG_ENDPOINTS", "").lower() not in {"1", "true", "yes"}:
-        raise HTTPException(status_code=404, detail="Not found")
-
-    try:
-        from app.utils import rag_manager
-        # List directories for debugging deployment topology
-        parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-        try:
-            parent_list = os.listdir(parent_dir)
-        except Exception as e:
-            parent_list = str(e)
-            
-        try:
-            curr_dir_list = os.listdir(".")
-        except Exception as e:
-            curr_dir_list = str(e)
-            
-        return {
-            "status": "success",
-            "db_path": getattr(rag_manager, "DB_PATH", None),
-            "reports_dirs": getattr(rag_manager, "REPORTS_DIRS", None),
-            "ocr_reader_available": getattr(rag_manager, "OCR_READER", None) is not None,
-            "cwd": os.path.abspath("."),
-            "parent_dir": parent_dir,
-            "parent_list": parent_list,
-            "curr_dir_list": curr_dir_list
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "error_type": type(e).__name__,
-            "error_message": str(e),
-            "traceback": traceback.format_exc()
-        }
 
 
 # ----------------------------------------------------

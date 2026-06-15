@@ -18,17 +18,8 @@ export default async function handler(request, response) {
       process.env.DEEPSEEK_API_KEY ||
       process.env.DEEPSEEK_API ||
       process.env.DEEPSEEK_TOKEN ||
-      process.env.DEEPSEEK ||
-      process.env.DeepSeek ||
       process.env.DEEPSEEK_KEY ||
-      process.env.VITE_DEEPSEEK_API_KEY ||
-      process.env.VITE_DEEPSEEK_API ||
-      process.env.VITE_DEEPSEEK_TOKEN ||
-      process.env.VITE_DEEPSEEK ||
-      process.env.VITE_DEEPSEEK_KEY ||
-      process.env.DEEPSEEK_API_KEY_API ||
-      process.env.API ||
-      process.env.api;
+      process.env.DEEPSEEK_API_KEY_API ;
     const gatewayApiKey =
       process.env.AI_GATEWAY_API_KEY ||
       process.env.VERCEL_AI_GATEWAY_API_KEY ||

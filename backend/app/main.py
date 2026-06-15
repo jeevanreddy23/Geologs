@@ -22,12 +22,19 @@ init_db()
 
 app = FastAPI(title="AutoSoil Logger API v2", version="2.0.0")
 
+# Origins are an explicit allowlist from ALLOWED_ORIGINS (comma-separated).
+# Credentials are disabled: the API authenticates via the X-Autosoil-Api-Key
+# header, not cookies, so wildcard-with-credentials (a CSRF hole) is unnecessary.
+_origins = [o.strip() for o in os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,http://localhost:8080",
+).split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Relaxed for local dev
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Autosoil-Api-Key"],
 )
 
 app.include_router(router)

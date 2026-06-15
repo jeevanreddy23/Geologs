@@ -13,7 +13,7 @@ export const API_BASE = resolveApiBase({
 export const API_KEY =
   import.meta.env.VITE_AUTOSOIL_API_KEY ||
   import.meta.env.VITE_API_KEY ||
-  '';
+  '';  // no hardcoded fallback — set VITE_AUTOSOIL_API_KEY at build time
 
 export function apiUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;

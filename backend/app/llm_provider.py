@@ -41,21 +41,12 @@ def resolve_llm_config() -> LlmConfig:
         return LlmConfig(
             provider="deepseek",
             model=model_override or "deepseek-chat",
+            # Specific names only. Reading generic vars like "API"/"api"
+            # risked sending an unrelated secret as a bearer token.
             api_key=(
                 os.getenv("DEEPSEEK_API_KEY")
                 or os.getenv("DEEPSEEK_API")
                 or os.getenv("DEEPSEEK_TOKEN")
-                or os.getenv("DEEPSEEK")
-                or os.getenv("DeepSeek")
-                or os.getenv("DEEPSEEK_KEY")
-                or os.getenv("VITE_DEEPSEEK_API_KEY")
-                or os.getenv("VITE_DEEPSEEK_API")
-                or os.getenv("VITE_DEEPSEEK_TOKEN")
-                or os.getenv("VITE_DEEPSEEK")
-                or os.getenv("VITE_DEEPSEEK_KEY")
-                or os.getenv("DEEPSEEK_API_KEY_API")
-                or os.getenv("API")
-                or os.getenv("api")
             ),
             base_url=os.getenv("DEEPSEEK_BASE_URL", DEEPSEEK_BASE_URL),
         )

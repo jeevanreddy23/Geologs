@@ -23,6 +23,21 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
     if not image_path.exists():
         raise FileNotFoundError(f"Image not found at {image_path}")
 
+    # Decompression-bomb guard: read only the header to get dimensions (cheap)
+    # and refuse pathologically large images before any full decode allocates
+    # gigabytes of memory.
+    try:
+        from PIL import Image as _PILImage
+        _PILImage.MAX_IMAGE_PIXELS = 64_000_000
+        with _PILImage.open(image_path) as _probe:
+            _w, _h = _probe.size
+        if _w * _h > 50_000_000:
+            raise ValueError(f"Image too large to process safely: {_w}x{_h}px")
+    except (FileNotFoundError, ValueError):
+        raise
+    except Exception:
+        pass  # unreadable header -> let the normal decode path report it
+
     # Load image (PIL fallback keeps the route alive if OpenCV is missing)
     if HAS_CV2:
         img = cv2.imread(str(image_path))
@@ -131,10 +146,10 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
         "rows_detected": len(rows),
         "rows": rows,
         "fractures": mapped_fractures,
-        "extracted_depths": {
-            "from": 0.0,
-            "to": 10.0
-        },
+        # Depths are NOT auto-extracted from the photo; they come from the
+        # operator's run interval and are applied by assign_depth_scale().
+        "extracted_depths": None,
+        "depth_source": "manual",
         "fracture_count": fracture_count,
         "color_profile": "gray-brown"
     }

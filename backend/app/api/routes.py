@@ -1,6 +1,7 @@
 # app/api/routes.py
 
 import base64
+import json
 import uuid
 import os
 import re
@@ -126,6 +127,50 @@ def _resolve_deepseek_target():
     return (None, None, None)
 
 
+def _build_core_lithology_prompt(rows: list, core_segments: list, defects: list, core_recovery: list) -> str:
+    evidence = {
+        "scale_calibration": rows,
+        "measured_core_segments": core_segments,
+        "defects": defects,
+        "core_recovery": core_recovery,
+    }
+    return f"""
+You are an Australian senior engineering geologist drafting AS1726 rock core logging text from computer-vision evidence.
+
+Use the evidence exactly as measurement input. The scale calibration, measured core lengths, length_mm values, defect depths, defect types, spacing_m values, TCR and RQD come from computer vision and must not be re-measured or invented by the language model.
+
+Rules:
+- Never invent depths, coordinates, groundwater, lab values, strength test values, RQD, TCR, defect spacing, or core lengths.
+- Use length_mm and length_m from measured_core_segments when describing block size and recovery.
+- Use defects.depth, defects.type, defects.code and defects.spacing_m when describing discontinuities.
+- If weathering, strength, lithology, defect angle, roughness, aperture, infill or geological origin is not directly supported, keep it conservative and set review_required=true.
+- Major rock/soil names must be uppercase and AS1726 style.
+- Prefer concise OpenGround/gINT-style phrases that a geotechnical engineer can edit.
+- Every generated lithology unit must include source_summary, confidence and review_required.
+
+Evidence JSON:
+{json.dumps(evidence, ensure_ascii=True, indent=2)}
+
+Respond with ONLY valid JSON matching this schema:
+{{
+  "lithology_units": [
+    {{
+      "from": 9.0,
+      "to": 10.0,
+      "material": "SANDSTONE",
+      "description": "MW to SW, grey, fine grained SANDSTONE; measured core blocks 100-420 mm; joints/broken zones as detected. Review lithology, weathering and strength from photo.",
+      "weathering": "REVIEW",
+      "strength": "REVIEW",
+      "defect_summary": "Depth-referenced defects from evidence, include spacing_m where provided.",
+      "source_summary": "Uses scale calibration, length_mm, TCR/RQD and defect evidence only.",
+      "confidence": 0.0,
+      "review_required": true
+    }}
+  ]
+}}
+""".strip()
+
+
 def _deepseek_lithology_draft(rows: list, core_segments: list, defects: list, core_recovery: list) -> tuple[list, list]:
     """
     Draft AS1726 lithology units from the vision metrics via an LLM.
@@ -142,31 +187,10 @@ def _deepseek_lithology_draft(rows: list, core_segments: list, defects: list, co
     warnings: list[str] = []
     candidates = build_candidates_from_env()
 
-    prompt = f"""
-    You are a senior geotechnical engineer logging rock core to AS1726 standards.
-    Based on the following core segments and recovery metrics, draft the lithology units.
-    Metrics: {core_recovery}
-    Segments: {core_segments}
-    Defects: {defects}
-
-    Respond with ONLY valid JSON matching this schema:
-    {{
-        "lithology_units": [
-            {{
-                "from": float,
-                "to": float,
-                "material": "string (e.g. SANDSTONE)",
-                "description": "string",
-                "weathering": "string (e.g. FR, SW, HW)",
-                "strength": "string (e.g. L, M, H, VH)",
-                "review_required": true
-            }}
-        ]
-    }}
-    """
+    prompt = _build_core_lithology_prompt(rows, core_segments, defects, core_recovery)
 
     messages = [
-        {"role": "system", "content": "You are a senior geotechnical engineer logging rock core to AS1726. Reply with valid JSON only."},
+        {"role": "system", "content": "You are a senior geotechnical engineer logging rock core to AS1726. Measurements are supplied by computer vision. Reply with valid JSON only."},
         {"role": "user", "content": prompt},
     ]
 
@@ -883,8 +907,8 @@ async def auto_log_core_box(
         raise HTTPException(status_code=422, detail=f"Vision pipeline failed: {e}")
 
     calibrated_rows = assign_depth_scale(vision["rows"], start_depth=depth_from, end_depth=depth_to)
-    core_segments = segment_core_pieces(calibrated_rows)
-    defects = _markup(core_segments)
+    core_segments = segment_core_pieces(calibrated_rows, vision.get("fractures", []))
+    defects = _markup(core_segments, vision.get("fractures", []), calibrated_rows)
     core_recovery = _metrics(calibrated_rows, core_segments, defects)
     lithology, warnings = _deepseek_lithology_draft(calibrated_rows, core_segments, defects, core_recovery)
 

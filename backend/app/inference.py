@@ -115,10 +115,13 @@ def call_one(
     json_mode: bool = False,
     timeout: float = DEFAULT_TIMEOUT,
     max_retries: int = MAX_RETRIES,
+    extra_headers: Optional[dict[str, str]] = None,
 ) -> str:
     provider = detect_provider(url)
     msgs = _consolidate_system(messages)
     headers = _headers(provider, api_key)
+    if extra_headers:
+        headers.update({k: v for k, v in extra_headers.items() if v})
     payload = _payload(provider, model, msgs, temperature, max_tokens, json_mode)
     target = _anthropic_endpoint(url) if provider == "anthropic" else url
 
@@ -148,9 +151,11 @@ def chat(messages: list[dict], *, candidates: list[tuple], **kw) -> tuple[str, s
     if not candidates:
         raise RuntimeError("no LLM provider configured")
     errs = []
-    for url, model, key in candidates:
+    for candidate in candidates:
+        url, model, key = candidate[:3]
+        extra_headers = candidate[3] if len(candidate) > 3 else None
         try:
-            return call_one(url, model, key, messages, **kw), url
+            return call_one(url, model, key, messages, extra_headers=extra_headers, **kw), url
         except Exception as e:  # connection / 5xx / schema → next candidate
             errs.append(f"{model}: {type(e).__name__}")
             continue
@@ -200,15 +205,60 @@ def chat_json(messages: list[dict], *, candidates: list[tuple], **kw) -> tuple[A
 # --------------------------------------------------------------------------- #
 # provider chain from env — first configured is primary, rest are fallbacks
 # --------------------------------------------------------------------------- #
-def build_candidates_from_env() -> list[tuple[str, str, Optional[str]]]:
-    out: list[tuple[str, str, Optional[str]]] = []
+def build_candidates_from_env() -> list[tuple]:
+    out: list[tuple] = []
+
+    proxy = os.getenv("DEEPSEEK_PROXY_URL")
+    if proxy:
+        proxy_headers = {}
+        autosoil_key = os.getenv("AUTOSOIL_API_KEY")
+        if autosoil_key:
+            proxy_headers["X-Autosoil-Api-Key"] = autosoil_key
+        out.append((
+            proxy.rstrip("/"),
+            os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+            None,
+            proxy_headers,
+        ))
 
     base = os.getenv("LLM_BASE_URL") or os.getenv("MODEL_BASE_URL")
     base_key = os.getenv("LLM_API_KEY") or os.getenv("MODEL_API_KEY")
     if base:
         out.append((base, os.getenv("MODEL_NAME", "gpt-4o-mini"), base_key))
 
-    ds = os.getenv("DEEPSEEK_API_KEY") or os.getenv("DEEPSEEK") or os.getenv("DeepSeek")
+    gateway = (
+        os.getenv("AI_GATEWAY_API_KEY")
+        or os.getenv("VERCEL_AI_GATEWAY_API_KEY")
+        or os.getenv("VITE_AI_GATEWAY_API_KEY")
+        or os.getenv("VITE_VERCEL_AI_GATEWAY_API_KEY")
+        or os.getenv("VERCEL_OIDC_TOKEN")
+    )
+    if gateway:
+        gateway_base = os.getenv("AI_GATEWAY_BASE_URL", "https://ai-gateway.vercel.sh/v1").rstrip("/")
+        if not gateway_base.endswith("/chat/completions"):
+            gateway_base += "/chat/completions"
+        out.append((
+            gateway_base,
+            os.getenv("DEEPSEEK_MODEL", "deepseek/deepseek-v4-flash"),
+            gateway,
+        ))
+
+    ds = (
+        os.getenv("DEEPSEEK_API_KEY")
+        or os.getenv("DEEPSEEK_API")
+        or os.getenv("DEEPSEEK_TOKEN")
+        or os.getenv("DEEPSEEK")
+        or os.getenv("DeepSeek")
+        or os.getenv("DEEPSEEK_KEY")
+        or os.getenv("VITE_DEEPSEEK_API_KEY")
+        or os.getenv("VITE_DEEPSEEK_API")
+        or os.getenv("VITE_DEEPSEEK_TOKEN")
+        or os.getenv("VITE_DEEPSEEK")
+        or os.getenv("VITE_DEEPSEEK_KEY")
+        or os.getenv("DEEPSEEK_API_KEY_API")
+        or os.getenv("API")
+        or os.getenv("api")
+    )
     if ds:
         ds_base = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
         if not ds_base.endswith("/chat/completions"):

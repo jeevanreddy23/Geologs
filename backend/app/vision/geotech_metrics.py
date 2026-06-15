@@ -21,9 +21,15 @@ def calculate_metrics(calibrated_rows, core_segments, defects):
         recovery.append({
             "from": r["from"],
             "to": r["to"],
+            "run_length_m": round(r["to"] - r["from"], 3),
+            "recovered_length_m": round(total_length, 3),
+            "rqd_length_m": round(solid_length, 3),
             "tcr_percent": tcr,
             "rqd_percent": rqd,
             "fracture_count": len(row_defects),
+            "fracture_spacing_m": round((r["to"] - r["from"]) / max(1, len(row_defects)), 2) if row_defects else None,
+            "measurement_source": "scale_calibrated_core_segments",
+            "review_required": True,
             "approved": False
         })
         

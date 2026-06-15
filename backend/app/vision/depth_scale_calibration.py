@@ -10,12 +10,13 @@ def assign_depth_scale(rows, start_depth=0.0, end_depth=None):
     if end_depth is not None and rows and float(end_depth) > float(start_depth):
         metres_per_row = (float(end_depth) - float(start_depth)) / len(rows)
     for r in rows:
-        height_px = r["bottom"] - r["top"]
+        width_px = max(1, r["right"] - r["left"])
         calibrated_rows.append({
             "row_id": r.get("id", r.get("row_id")),
             "from": round(current_depth, 2),
             "to": round(current_depth + metres_per_row, 2),
-            "px_per_m": height_px / metres_per_row if metres_per_row else height_px,
+            "px_per_m": width_px / metres_per_row if metres_per_row else width_px,
+            "scale_axis": "row_width",
             "scale_confidence": 0.85,
             "approved": False,
             "top": r["top"],

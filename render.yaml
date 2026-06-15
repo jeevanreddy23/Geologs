@@ -16,7 +16,9 @@ services:
         value: deepseek
       - key: DeepSeek
         sync: false
+      - key: DEEPSEEK_PROXY_URL
+        value: https://auto-soil-logger.vercel.app/api/deepseek/chat
       - key: DEEPSEEK_MODEL
         value: deepseek-chat
-      - key: UPLOAD_ROOT
+      - key: AUTOSOIL_UPLOAD_ROOT
         value: /tmp/autosoil-uploads

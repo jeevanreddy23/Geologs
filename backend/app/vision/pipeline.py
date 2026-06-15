@@ -56,7 +56,25 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
                     "confidence": r.get("confidence", 0.85)
                 })
                 
-            fracture_count = len(fractures)
+            mapped_fractures = []
+            for fracture in fractures:
+                fx = int(fracture["x"] / scale)
+                ftop = int(fracture["top"] / scale)
+                fbottom = int(fracture["bottom"] / scale)
+                row_id = None
+                for row in rows:
+                    if row["top"] <= ftop <= row["bottom"]:
+                        row_id = row["id"]
+                        break
+                mapped_fractures.append({
+                    "row_id": row_id,
+                    "x": fx,
+                    "top": ftop,
+                    "bottom": fbottom,
+                    "source": "opencv_blackhat_vertical_projection",
+                })
+
+            fracture_count = len(mapped_fractures)
             
         except Exception as e:
             print(f"Vision Pipeline Error: {e}")
@@ -73,6 +91,7 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
                     "left": int(w * 0.1),
                     "right": int(w * 0.9)
                 })
+            mapped_fractures = []
             fracture_count = 12
     else:
         # Fallback to mock logic if CV2 modules aren't available
@@ -88,6 +107,7 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
                 "left": int(w * 0.1),
                 "right": int(w * 0.9)
             })
+        mapped_fractures = []
         fracture_count = 12
 
     # Generate Visual Export
@@ -110,6 +130,7 @@ def process_core_image(image_path: Path) -> Dict[str, Any]:
         "annotated_image": annotated_path.name,
         "rows_detected": len(rows),
         "rows": rows,
+        "fractures": mapped_fractures,
         "extracted_depths": {
             "from": 0.0,
             "to": 10.0

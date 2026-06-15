@@ -1187,6 +1187,9 @@ async def health():
 @router.get("/debug-rag")
 async def debug_rag():
     import traceback
+    if os.getenv("AUTOSOIL_ENABLE_DEBUG_ENDPOINTS", "").lower() not in {"1", "true", "yes"}:
+        raise HTTPException(status_code=404, detail="Not found")
+
     try:
         from app.utils import rag_manager
         # List directories for debugging deployment topology
@@ -1201,25 +1204,15 @@ async def debug_rag():
         except Exception as e:
             curr_dir_list = str(e)
             
-        # Read main.py content
-        main_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "main.py"))
-        try:
-            with open(main_path, "r") as mf:
-                main_content = mf.read()
-        except Exception as e:
-            main_content = str(e)
-            
         return {
             "status": "success",
             "db_path": getattr(rag_manager, "DB_PATH", None),
             "reports_dirs": getattr(rag_manager, "REPORTS_DIRS", None),
             "ocr_reader_available": getattr(rag_manager, "OCR_READER", None) is not None,
-            "__file__": __file__,
             "cwd": os.path.abspath("."),
             "parent_dir": parent_dir,
             "parent_list": parent_list,
-            "curr_dir_list": curr_dir_list,
-            "main_content": main_content
+            "curr_dir_list": curr_dir_list
         }
     except Exception as e:
         return {

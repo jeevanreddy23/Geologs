@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "installCommand": "npm install",
-  "buildCommand": "npm run build && rm -rf .vercel/output && mv as1726-logger/.vercel/output .vercel/output"
+  "installCommand": "npm install && npm install --prefix as1726-logger",
+  "buildCommand": "node scripts/build-as1726-vercel.mjs && node scripts/prepare-vercel-output.mjs"
 }

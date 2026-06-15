@@ -11,11 +11,22 @@ from typing import List, Dict, Set
 # Regex to match placeholders like [CLIENT], [CLIENT_NAME], [Site Address], {{client}}, etc.
 PLACEHOLDER_RE = re.compile(r'(?:\[|\{\{)([A-Z0-9_\s\-\/]{2,40})(?:\]|\}\})', re.IGNORECASE)
 
-TEMPLATES_DIR = r"C:\Users\pored\Downloads\Project Geologs\Templates"
-REPORTS_DIRS = [
-    r"C:\Users\pored\Downloads\Project Geologs\03 - Reports",
-    r"C:\Users\pored\Downloads\Project Geologs\Reports 2",
-    r"C:\Users\pored\Downloads\Project Geologs\Reports 3"
+def _split_paths(value: str) -> List[str]:
+    return [path.strip() for path in re.split(r"[;|]", value) if path.strip()]
+
+
+DEFAULT_GEOLOGS_DIR = os.getenv(
+    "AUTOSOIL_GEOLOGS_DIR",
+    os.path.join(os.getcwd(), "Project Geologs"),
+)
+TEMPLATES_DIR = os.getenv(
+    "AUTOSOIL_TEMPLATES_DIR",
+    os.path.join(DEFAULT_GEOLOGS_DIR, "Main STS Templates"),
+)
+REPORTS_DIRS = _split_paths(os.getenv("AUTOSOIL_REPORTS_DIRS", "")) or [
+    os.path.join(DEFAULT_GEOLOGS_DIR, "03 - Reports"),
+    os.path.join(DEFAULT_GEOLOGS_DIR, "Reports 2"),
+    os.path.join(DEFAULT_GEOLOGS_DIR, "Reports 3"),
 ]
 
 def clean_placeholder(p: str) -> str:

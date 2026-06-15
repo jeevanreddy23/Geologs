@@ -28,9 +28,13 @@ import numpy as np
 DB_PATH = os.getenv("AUTOSOIL_SQLITE_PATH", "data.db")
 if os.name != 'nt' and (':' in DB_PATH or '\\' in DB_PATH):
     DB_PATH = "data.db"
-GEOLOGS_DIR = r"C:\Users\pored\Downloads\Project Geologs"
 
-REPORTS_DIRS = [
+def _split_paths(value: str) -> List[str]:
+    return [path.strip() for path in re.split(r"[;|]", value) if path.strip()]
+
+
+GEOLOGS_DIR = os.getenv("AUTOSOIL_GEOLOGS_DIR", os.path.join(os.getcwd(), "Project Geologs"))
+REPORTS_DIRS = _split_paths(os.getenv("AUTOSOIL_REPORTS_DIRS", "")) or [
     os.path.join(GEOLOGS_DIR, "03 - Reports"),
     os.path.join(GEOLOGS_DIR, "Reports 2"),
     os.path.join(GEOLOGS_DIR, "Reports 3")

@@ -404,4 +404,4 @@ def generate_openground_pdf(output_path: str):
     return {"success": True, "path": output_path}
 
 if __name__ == '__main__':
-    generate_openground_pdf(r"C:\Users\pored\Downloads\log-MPA-BH04_generated.pdf")
+    generate_openground_pdf(os.path.abspath("log-MPA-BH04_generated.pdf"))
